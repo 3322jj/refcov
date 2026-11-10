@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "试验：MCP 与写文件的 PostToolUse 记录",
+      "trigger": "PostToolUse",
+      "description": "第 4 步实测：记下 RefCov 试验 MCP 工具和 fs_write 的 PostToolUse 输入，一律放行。",
+      "matcher": "refcov|fs_write",
+      "action": {
+        "type": "command",
+        "command": "python experiments/mcp-posttooluse/hook_log.py post",
+        "timeout": 10
+      }
+    }
+  ]
+}

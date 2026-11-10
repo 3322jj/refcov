@@ -4,6 +4,8 @@ inclusion: always
 
 # DEVLOG 记录规则
 
+EN summary: `docs/DEVLOG.md` is the development log that the submission write-up and blog draw from; add at least one entry per day, right after each piece of work. Record which Kiro features were used and how, problems found (including doc-vs-behavior mismatches), spec-flow vs. ad-hoc differences, property-test findings, and every time RefCov blocked its own development. Each bullet gets an indented `EN:` line. Record only what happened, never delete unflattering entries, and put new ideas in the "以后再做" (later) section instead of building them.
+
 开发日记在 `docs/DEVLOG.md`，交作品时的"怎么用 Kiro"说明和博客都从这里取材料。每天至少一条，做完一件事就补记，不要攒到最后。
 
 ## 每天记什么

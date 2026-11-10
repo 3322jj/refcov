@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "试验：MCP 与写文件的 PreToolUse 记录",
+      "trigger": "PreToolUse",
+      "description": "第 4 步实测：记下 PreToolUse 输入，和 PostToolUse 对照，一律放行。",
+      "matcher": "refcov|fs_write",
+      "action": {
+        "type": "command",
+        "command": "python experiments/mcp-posttooluse/hook_log.py pre",
+        "timeout": 10
+      }
+    }
+  ]
+}

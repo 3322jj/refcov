@@ -1,0 +1,16 @@
+{"time": "20:37:52", "pid": 8812, "event": "start", "argv": ["d:\\agent\\kiro\\refcov\\experiments\\mcp-posttooluse\\probe_server.py"]}
+{"time": "20:37:52", "pid": 8812, "recv": "server/discover", "id": "server-discover-probe-1", "params": {"_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientInfo": {"name": "kiro", "version": "0.0.0"}, "io.modelcontextprotocol/clientCapabilities": {"elicitation": {"form": {}, "url": {}}}}}}
+{"time": "20:37:52", "pid": 4400, "event": "start", "argv": ["d:\\agent\\kiro\\refcov\\experiments\\mcp-posttooluse\\probe_server.py"]}
+{"time": "20:37:52", "pid": 4400, "recv": "initialize", "id": 0, "params": {"protocolVersion": "2025-11-25", "capabilities": {"elicitation": {"form": {}, "url": {}}}, "clientInfo": {"name": "kiro", "version": "0.0.0"}}}
+{"time": "20:37:52", "pid": 4400, "recv": "notifications/initialized", "id": null, "params": null}
+{"time": "20:37:52", "pid": 4400, "recv": "tools/list", "id": 1, "params": {}}
+{"time": "20:38:22", "pid": 4400, "recv": "tools/call", "id": 2, "params": {"name": "read_unit", "arguments": {"source": "kiro-hooks", "unit": "exit-codes", "note": "\u4f1a\u8bddA-1"}}}
+{"time": "20:38:22", "pid": 4400, "recv": "tools/call", "id": 3, "params": {"name": "read_unit", "arguments": {"source": "kiro-hooks", "unit": "\u9000\u51fa\u7801 [\u4e2d\u6587]", "note": "\u4f1a\u8bddA-2 \u4e2d\u6587\u548c\u65b9\u62ec\u53f7"}}}
+{"time": "20:38:27", "pid": 4400, "recv": "tools/call", "id": 4, "params": {"name": "read_unit", "arguments": {"note": "\u4f1a\u8bddA-3", "unit": "repository", "source": "rules"}}}
+{"time": "20:41:10", "pid": 4400, "recv": "tools/call", "id": 5, "params": {"name": "read_unit", "arguments": {"source": "s", "unit": "u", "note": "\u4f1a\u8bddB"}}}
+{"time": "20:41:33", "pid": 15920, "event": "start", "argv": ["d:\\agent\\kiro\\refcov\\experiments\\mcp-posttooluse\\probe_server.py"]}
+{"time": "20:41:33", "pid": 15920, "recv": "server/discover", "id": "server-discover-probe-1", "params": {"_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientInfo": {"name": "kiro", "version": "0.0.0"}, "io.modelcontextprotocol/clientCapabilities": {"elicitation": {"form": {}, "url": {}}}}}}
+{"time": "20:41:33", "pid": 20660, "event": "start", "argv": ["d:\\agent\\kiro\\refcov\\experiments\\mcp-posttooluse\\probe_server.py"]}
+{"time": "20:41:33", "pid": 20660, "recv": "initialize", "id": 0, "params": {"protocolVersion": "2025-11-25", "capabilities": {"elicitation": {"form": {}, "url": {}}}, "clientInfo": {"name": "kiro", "version": "0.0.0"}}}
+{"time": "20:41:33", "pid": 20660, "recv": "notifications/initialized", "id": null, "params": null}
+{"time": "20:41:33", "pid": 20660, "recv": "tools/list", "id": 1, "params": {}}

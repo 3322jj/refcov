@@ -4,7 +4,12 @@
 
 格式：一行写点子，一行写为什么现在不做（见 `.kiro/steering/product.md` 范围冻结）。这一节固定在最前面，日记照常按时间加在文件末尾。
 
-（暂无）
+- 给核心层设代码行数上限，写进需求 13，并用自动检查守住（外部审阅 C 节末尾的建议）。
+  现在不做：用户这次没点名这一条；范围冻结前先把已定的条文改完。
+- 把"豁免路径"并进范围规则（豁免 = 指向空参考源集合的规则），少一个概念。
+  现在不做：行为不变，只是写法；用户选了保留现在的写法。
+- 需求文档的标题改成 Kiro 规格工具认的英文结构（`### Requirement N`），出处检查的切分规则同步改。
+  现在不做：只有 Analyze Requirements 碰到了这个限制，已用临时副本绕过；设计、任务阶段的 Kiro 功能如果也要求英文结构再改。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -94,7 +99,7 @@
 
 - 从这一条起，DEVLOG 在 `d:\agent\kiro\refcov\docs\DEVLOG.md` 继续记。前面的内容是从试验目录 kirohe 复制过来的，`验证结果.md` 也复制到了 `docs/`。
 - 前两次 `gh auth status` 显示令牌失效，之后再查显示正常。同一时段 `gh api` 经常报 `EOF`、重试才成功，推测前面的"失效"是连不上 GitHub 时的误报，没有验证。
-- 第一次提交 `a64d773` 用了 rockey <denghongsh@gmail.com>，并已建公开仓库 `3322jj/refcov` 推上去。这一步做早了：用户随后要求提交者改成 GitHub noreply 邮箱，并且提交前、建仓库前都要先给他确认。已把本仓库的 git 身份改成 3322jj 的 noreply 邮箱（只改本仓库，没改全局）。经用户明确同意，第一次提交改写为 `51281a2`（内容不变，只改作者），用 `--force-with-lease` 覆盖远端。旧提交 `a64d773` 可能还能在 GitHub 上按哈希访问一段时间。用户要求：以后不经他明确同意不得强制推送。
+- 第一次提交 `a64d773` 用了个人邮箱，并已建公开仓库 `3322jj/refcov` 推上去。这一步做早了：用户随后要求提交者改成 GitHub noreply 邮箱，并且提交前、建仓库前都要先给他确认。已把本仓库的 git 身份改成 3322jj 的 noreply 邮箱（只改本仓库，没改全局）。经用户明确同意，第一次提交改写为 `51281a2`（内容不变，只改作者），用 `--force-with-lease` 覆盖远端。旧提交 `a64d773` 可能还能在 GitHub 上按哈希访问一段时间。用户要求：以后不经他明确同意不得强制推送。
 - 需求文档从 kirohe 搬到 `.kiro/specs/refcov-skeleton/requirements.md`，按用户对 7 个问题的回复改成第二稿。PreTaskExec 的实测结果也写进去了（需求 10.6、10.7）。
 - 用到的 Kiro 功能：规格流程（需求阶段第二轮）。
 
@@ -206,3 +211,216 @@
   EN: The auditor could not verify citation content because the handover note is outside the workspace and review replies are not stored as files; this is the same open question already listed in citation.md.
 - 用到的 Kiro 功能：自定义 agent（只读工具 + `resources` 预加载引导文档）。
   EN: Kiro feature used: a custom agent with read-only tools and a preloaded steering file.
+
+## 2026-11-10（深夜续：按外部审阅处理 D5、D2）
+
+- 收到一份对第五稿的外部审阅，存为 `docs/需求第五稿审阅.md`（还没提交）。用户对其中几项做了决定，处理顺序是 D5 → D2 → 跑 Analyze Requirements → 改条文 → 实测 MCP 的 PostToolUse。
+  EN: Received an external review of requirements draft 5 (docs/需求第五稿审阅.md, not yet committed); the user set the order: D5, D2, Analyze Requirements, clause edits, then an MCP PostToolUse test.
+- D5：把 11-10 晚上那条记录里第一次提交用的姓名和邮箱改成"用了个人邮箱"，其余文字不变。邮箱仍在提交 `88f2b7b` 及之后各提交的 `docs/DEVLOG.md` 内容里，旧提交 `a64d773` 的作者字段里也有。是否改写历史、强制推送，等用户决定，还没动。
+  EN: D5: replaced the name and personal email in the 11-10 evening entry with "a personal email". The address is still in DEVLOG.md as committed in 88f2b7b and later, and in the author field of the old commit a64d773; history has not been rewritten, pending the user's decision.
+- 用户回复：改写历史的事由他自己处理，agent 不管。所以本仓库不改写历史、不强制推送。
+  EN: The user will handle the history rewrite himself; the agent will not rewrite history or force-push.
+- D2：新建英文 `README.md`；新建引导文档 `.kiro/steering/language.md`（总是加载），规定英文加在哪几处：README、每条需求的标题和用户故事下一行 `EN:`、每份引导文档开头一段 `EN summary:`、DEVLOG 每条要点下的 `EN:`。已给现有 5 份引导文档补了英文摘要。需求文档的 `EN:` 行还没加，等条文改完一起加，免得先译后改。
+  EN: D2: added an English README.md and a new always-loaded steering file language.md defining where English goes; added English summaries to the five existing steering files. EN lines in requirements.md are deferred until the clause edits are done.
+- 核对用户给的依据：Kiro [权限文档](https://kiro.dev/docs/permissions/)写明，写工作区和 `~/.kiro` 下的 agents、hooks、workflows、powers 目录"Always asks"，任何范围的允许规则都去不掉确认。唯一例外是托管云沙箱里、用户级不带限制的 `fs_write` 允许规则。文档讲的是写文件工具，用 shell 命令写这些目录会不会也要确认，文档没写，没测。
+  EN: Checked Kiro's permissions doc: writes to .kiro/agents, hooks, workflows and powers always prompt and no allow rule removes the prompt, except inside the managed cloud sandbox with an unrestricted user-level fs_write allow. The doc does not say whether shell-command writes to those paths also prompt; not tested.
+- 用到的 Kiro 功能：引导文档（新增 always 加载的 `language.md`）。
+  EN: Kiro feature used: steering (new always-loaded language.md).
+
+### 文档和实测不一致的地方（续）
+
+10. **Analyze Requirements 要英文标题结构。** 用户在 IDE 里对第五稿点了分析，执行分析的会话回报：服务要求 `## Introduction`、`## Requirements`、`### Requirement N`、`**User Story:**` 这些英文标题，中文标题的文档在校验阶段就被拒了。[分析需求文档](https://kiro.dev/docs/specs/analyze-requirements/)（2026-09-02 更新）没提这项要求。这是那个会话的转述，具体报错原文我没看到。
+  EN: Analyze Requirements rejected draft 5 at validation because its headings are Chinese; per the session that ran it, the service expects English headings (Introduction, Requirements, Requirement N, User Story). The Analyze Requirements doc does not mention this. Relayed by that session; the raw error was not seen.
+
+- 处理：没改原文。另建了一份临时副本 `.kiro/specs/refcov-skeleton-analyze/requirements.md`，只把标题换成英文结构（17 个 `### Requirement N`、17 个 `**User Story:**`、17 个 `#### Acceptance Criteria`），正文仍是中文。分析在副本上跑，Kiro 按回答改的也是副本。副本不提交，用完删除。
+  EN: Kept the original unchanged; made a temporary copy with only the headings converted to the English structure (17 requirements, body still Chinese). The analysis runs on the copy, so any edits Kiro makes land there. The copy will not be committed and will be deleted afterwards.
+
+## 2026-11-10（深夜续：Analyze Requirements 在副本上运行，逐条记录）
+
+- 副本上的分析跑起来了，问题逐条出现在聊天里。用户把每条问题贴给 agent，agent 给建议，用户在分析界面里选。下面按出现顺序记。分析还没结束，对照审阅 A 节的总结等全部问题出完再写。
+  EN: Analysis now runs on the copy; questions arrive one by one, the user relays each to the agent, then picks an answer in the analysis UI. Listed in order below; the comparison with review section A comes after the analysis ends.
+
+| # | 条文 | 分析问的 | 用户选的 | 和审阅 A 节 | 要改的条文 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 4.5 | 两个钩子都必须写当前会话，还是任一个写就行 | 任一个写即可 | A 节没有（A9、B6 说的是交替记错） | 视第 4 步实测，4.5 可能整条删 |
+| 2 | 14.6 | 用户手改不受影响是无条件保证，还是有条件 | 无条件 | A 节没有 | 14.6 改为"用户自己的修改，不论在不在 Kiro 编辑器里"；需求 10 要分清 PostFileSave 是用户保存还是 AI 写入，待实测 |
+| 3 | 3.1 | 既非 Markdown 也非 HTML 时怎么办 | 拒绝并报错 | 部分重合 A9（只管 Markdown） | 3.1 补：不支持的格式登记失败；没有标题的 Markdown 整篇一个单元，标题取文件名 |
+| 4 | 8.4 | 严格模式下没豁免、没凭证的需求文档写入怎么办 | 拦截 | 重合 A1、A4 | 8.4 "没有有效凭证"改为"按路径判断不达标"；8.3 默认豁免加 `docs/decisions/**`（用户同意，保留 `DEVLOG.md` 豁免） |
+| 5 | 6.5 | 申请凭证和 PreTaskExec 是各自独立拦，还是任一处拦住即可 | 各自独立 | 重合 A3、A10 | 6.5 写成一条规则，申请凭证、任务开工、写文件三个入口都按它判断 |
+| 6 | 9.6 | 找不到任务时放行还是拦截 | 放行 | A 节没有 | 9.6 补：放行时记日志、报告里单独列"任务未找到，未检查"；匹配时忽略状态标记和首尾空白（细节留设计） |
+| 7 | 10.1 | 写入后判断不了当时是否达标，记还是跳过 | 记录并标红 | A 节没有 | 10.1 条件按 A4 改为"写入时按路径判断不达标"；判断不了时也记，单独标"无法判断"，不写成"不达标" |
+| 8 | 13.4 | 核心层生产代码能不能 import hypothesis | 不能，只有测试目录可以 | A 节没有 | 13.4 补一句"只有测试代码可以 import Hypothesis" |
+| 9 | 12.2 | 报告里的记录是全部历史，还是只限本会话或本模式周期 | 全部历史 | 部分重合 B6（用户决定 3：同时显示本会话和历史两个数）、C6 | 12.2 补：记录覆盖全部历史，每条带时间和会话 ID；覆盖率同时给本会话和历史两个数 |
+| 10 | 15.2 | 轻量模式下放宽项是缩小还是扩大必看集合 | 缩小 | 重合 A3 | 按 A3 写一条规则：放宽项只能缩小，且移不掉被需求引用的单元；关键类型单元可以放宽，报告里列出 |
+| 11 | 17.1 | `enforce: false` 时是所有拦截都失效，还是只豁免关卡类规则 | 除需求 14 外全部放行 | A 节没有（和用户决定 1 相关） | 17.1 写明放行的是写文件关卡和任务开工关卡；需求 14 的保护（含 B1 的 shell 文本匹配）照常生效 |
+
+  EN: Nine questions so far (4.5, 14.6, 3.1, 8.4, 6.5, 9.6, 10.1, 13.4, 12.2). Five are not in review section A (4.5 both-hooks, 14.6 user edits inside the Kiro editor, 9.6 task not found, 10.1 undeterminable status, 13.4 hypothesis imports); the rest overlap A1, A3, A4, A9, A10, B6, C6. The user also agreed to add docs/decisions/** to the default exemptions next to DEVLOG.md.
+- 第 2 条牵出一个没测过的点：PostFileSave 在用户手动保存时也触发，AI 写文件时触发不触发没测过。并入第 4 步实测。
+  EN: Untested: whether PostFileSave fires for agent writes as well as user saves; added to the step-4 test.
+- 第 4 条讨论时用户问过 DEVLOG 有没有必要豁免。agent 的理由：被拦的那一刻正是要记日志的时候；DEVLOG 不是从参考材料推出来的；风险小。用户决定保留。
+  EN: The user asked whether DEVLOG.md needs exempting; kept, because blocks happen exactly when the log must be written and the log is not derived from reference material.
+
+### 分析结果和审阅 A 节对照
+
+- 用户转来 11 条问题（上表）。另外 agent 建议用户把落在要删或要重写的条文（2.3、4.2、4.5、7.4、7.5、9.2–9.4、11.2、13.5、17 的三组实验）上的问题直接忽略、不转来。这类问题有没有、有几条，agent 不知道，所以下面说"分析没提到"的，只对转来的 11 条成立。
+  EN: The user relayed 11 questions. Questions on clauses already slated for deletion or rewrite were to be dismissed without relaying, so "not raised" below only covers the 11 relayed questions.
+- 分析结束后，把副本和原文比了一遍（只换标题后逐行对比）。Kiro 按回答改了 9 处：新增 3.4，改了 4.5、6.5、9.6、10.1、12.2、13.4、14.6、17.1。8.4 没改。改法都是在原句后面追加一句，把选中的答案原样写进去。
+  EN: Diffing the copy against the original shows Kiro made 9 edits (new 3.4; appended sentences to 4.5, 6.5, 9.6, 10.1, 12.2, 13.4, 14.6, 17.1); 8.4 was unchanged. Each edit appends the chosen answer to the existing sentence.
+- 对不上的一处：执行分析的会话事后报告说也改了 15.2（"放宽项只能缩小必看集合"），但 agent 比对时副本里 15.2 没变。可能是比对之后才写进去的，也可能是那个会话报告有误。agent 比对完就按计划删了副本（副本没进 git，删了找不回），所以查不清。15.2 的答案已记在上表，不影响后面改条文。
+  EN: Mismatch: the analysis session later reported a 15.2 edit, but 15.2 was unchanged when the agent diffed the copy. The agent deleted the untracked copy right after diffing, so this cannot be checked; the 15.2 answer is in the table anyway.
+- Kiro 改的条文不直接搬回原文，原因：有两处和 agent 建议的写法不同。10.1 写成"按没有有效凭证记录"，agent 建议单独标"无法判断"；9.6 只写了放行，没写记日志和报告里单列。其余几处还要按 A4（写入时按路径现算）、决定 1（删自动放行）改写。原文按上表"要改的条文"一列手工改。
+  EN: Kiro's edits are not copied back: 10.1 records "no valid token" where the agent proposed a separate "undeterminable" label, 9.6 lacks logging, and most clauses must be rewritten anyway for decisions A4 and 1. The original is edited by hand from the table.
+- 两边找到的问题类型不同：
+  - 分析提的都是单条条文内部的边界情况和措辞歧义：找不到任务时怎么办（9.6）、判断不了时记不记（10.1）、生产代码能不能 import 开发依赖（13.4）、用户手改是不是无条件不受影响（14.6）。其中 6 条 A 节没有：4.5、9.6、10.1、13.4、14.6、17.1。
+  - A 节提的大多是跨条文或整个系统的问题，转来的 11 条里一条都没碰到：A1（凭证其实拦不住写入，主关卡的说法过头）、A2（重试三次就能硬闯）、A4（申请凭证时没有路径参数）、A6（幻影需求不影响达标）、B1（用 shell 伪造读取记录）。A3 只碰到一半：15.2 问了放宽项是缩小还是扩大，没指出它和 6.5"被引用必看"冲突。A7 是两份引导文档之间的矛盾，A8 是 ID 生成方式的后果，都不在需求文档里，分析本来就看不到。
+  EN: The two found different kinds of issues. The analysis raised edge cases and wording ambiguities inside single clauses; 6 of them (4.5, 9.6, 10.1, 13.4, 14.6, 17.1) are not in review section A. Section A's cross-clause and threat-model findings (A1 overstated gate, A2 retry bypass, A4 missing path on token request, A6 phantom requirements not affecting pass, B1 forged read records) did not appear in the 11 relayed questions; A3 was only half-raised. A7 and A8 involve steering files and ID generation, outside the requirements document.
+- 结论：Analyze Requirements 适合查"这句话有几种读法"，查不出"AI 怎么绕过这条规则"和"这条规则说得比实际做到的强"。两种检查互补，不能互相替代。
+  EN: Analyze Requirements is good at "this sentence can be read two ways", not at "how an AI would bypass this rule" or "this rule claims more than the system does"; the two reviews complement each other.
+- 用户在中文版 IDE 里操作，agent 只知道英文菜单名（Continue、Analyze Requirements、Proceed to Design），中文名是猜的，靠位置描述让用户找到。
+  EN: The user runs the Chinese-localized IDE; the agent only knew the English menu labels and guided by position.
+- 用到的 Kiro 功能：Analyze Requirements（规格需求阶段的跨需求分析）。
+  EN: Kiro feature used: Analyze Requirements.
+
+## 2026-11-10（深夜续：按外部审阅和分析结果改条文）
+
+- 只改点名的条文，没出完整第六稿。删掉的条文保留编号，写"（已删除：……）"，免得审阅、分析和 DEVLOG 里引用的编号对不上。标题改成"第五稿，按外部审阅修订"。第五稿原文见提交 `9dafb06`，下表"旧"一列是摘要。
+  EN: Only the named clauses were edited; deleted clauses keep their numbers as "(deleted: ...)" so references in the review, the analysis and this log still line up. Full draft-5 text is in commit 9dafb06.
+- 简介的出处列表加了四个来源名："外部审阅"（`docs/需求第五稿审阅.md`）、"外部审阅回复"（用户的处理意见，按原消息节号"二·1"到"二·5""三"，以及对 agent 6 个疑问的回复"疑问 1"到"疑问 6"）、"分析"（上面的表，#1 到 #11）、"权限文档"。
+  EN: Added four source names to the introduction: the external review, the user's replies to it, the analysis table, and Kiro's permissions doc.
+
+| 条文 | 旧 | 新 | 出自 |
+| --- | --- | --- | --- |
+| 简介 | 没看够就不发开工凭证、不准写文件 | 核心层给出与工具无关的达标判断，接入层据此拦截；视频、地理适配器的声明挪到各自规格；演示页和视频只展示严格模式 | 外部审阅 A1、A10；外部审阅回复·二·4 |
+| 术语 | 有"同一件事"；凭证"写文件前必须持有"；配置含受控命令 | 删"同一件事"；凭证只用于记录和演示；配置去掉受控命令、加 `enforce`；新增"无效引用" | 外部审阅回复·二·1、二·5；外部审阅 C2 |
+| 2.3 | 视频、地理、文档三种适配器的默认声明 | 只留文档适配器的；另两种挪到各自规格 | 外部审阅 A10 |
+| 2.5 | 拆两次给出相同 ID | 加 ID 规则：由标题生成，保留中日韩文字，空白和方括号换成短横线，重名加 `-2`、`-3`；ID 不含空白和方括号 | 外部审阅 A7、A8；外部审阅回复·疑问 2 |
+| 3.1 | Markdown 或 HTML | 只管 Markdown；超长章节按 3.5 拆 | 外部审阅 A9 |
+| 3.4（新） | 无 | 非 Markdown 登记时拒绝；网页先转 Markdown；Kiro 文档登记 `.md` 地址 | 外部审阅 A9；分析 #3 |
+| 3.5（新） | 无 | 超长章节拆成"原标题 (2)"，ID 加 `-2`；上限留设计 | 外部审阅 C3；外部审阅回复·疑问 4 |
+| 3.6（新） | 无 | 没有标题的 Markdown 整篇一个单元，标题取文件名 | 分析 #3 |
+| 4.2 | 分页时全部页返回才记为看过 | 删除 | 外部审阅 C3 |
+| 4.3 | 只追加、JSON Lines | 加哈希链，报告显示是否完整；只能让随手改动留痕 | 外部审阅 B1；外部审阅回复·疑问 3 |
+| 4.5 | 当前会话文件 | 没改，等第 4 步实测 | 分析 #1 |
+| 5.1 | 严格必看类型 + 被引用单元，"再按放宽项调整" | 一条规则：基础集合 − 放宽项 + 被引用单元，两种模式共用；被引用单元永远必看 | 外部审阅 A3、A10；分析 #10 |
+| 5.2 | 轻量模式按需求 15 | 其他条文说必看集合一律指 5.1 | 外部审阅 A10 |
+| 5.3 | 两种模式都移出必看集合 | 移出基础集合；只能缩小；被引用的仍必看，报告注明 | 外部审阅 A3；分析 #10 |
+| 5.7 | 不按会话区分 | 保留；加"报告和 UserPromptSubmit 那一行同时显示本会话、历史两个数" | 外部审阅 B6；外部审阅回复·二·3 |
+| 6.1 | 定义出处写法 | 加：聊天里的要求存成 `docs/decisions/` 下的文件，一条意见一个小标题，按普通单元引用；存前给用户过目 | 外部审阅 A6；外部审阅回复·二·2 |
+| 6.5 | 引用没看过的单元不达标，凭证和 PreTaskExec 拦 | 三个入口（申请凭证、写文件、任务开工）各自独立按这条判断 | 外部审阅 A10；分析 #5 |
+| 6.6（新） | 幻影需求、无效引用只列出 | 严格模式下不达标；轻量模式只列出；文字出处算"未转换" | 外部审阅 A6；外部审阅回复·二·2 |
+| 6.7（新） | 无 | 写规格文件不因 6.6 被拦 | agent 发现，见下 |
+| 需求 7 标题、用户故事 | 主关卡；"钩子失效、换了工具关卡也还在" | 记录用；"核心层给判断和凭证，接入层据此拦截" | 外部审阅 A1 |
+| 7.3 | 做 6.5 的检查 | 做 6.5、6.6 的检查 | 外部审阅回复·二·2 |
+| 7.5 | 写文件关卡以持有有效凭证为准 | 写文件和任务开工按路径或任务现算，不看凭证；凭证只用于记录和演示 | 外部审阅 A4；外部审阅回复·二·5 |
+| 7.6 | 凭证机制不依赖钩子 | 发放和判断不依赖钩子；拦截依赖接入层 | 外部审阅 A1 |
+| 8.1 | 凭证的达标判断按对应关系做 | 写文件关卡按对应关系现算 | 外部审阅 A4 |
+| 8.3 | 默认只豁免 `DEVLOG.md`；豁免 = 不需要凭证 | 默认豁免 `DEVLOG.md` 和 `docs/decisions/**`；豁免 = 不检查是否达标 | 分析 #4（用户同意） |
+| 8.4 | 没有有效凭证时写需求文档也被拦 | 按路径判断不达标时被拦 | 外部审阅 A4；分析 #4 |
+| 需求 9 用户故事 | 写文件、指定的 shell 命令和任务开工 | 写文件和任务开工 | 外部审阅 C2 |
+| 9.1 | 没有覆盖该路径的有效凭证 | 按路径判断不达标（含 6.6），stderr 也列幻影需求和无效引用 | 外部审阅 A4；外部审阅回复·二·2 |
+| 9.2–9.4 | shell 受控命令、只读命令豁免、MCP 和钩子不受影响 | 删除 | 外部审阅 C2 |
+| 9.6 | 找任务、收集单元、拦截 | 加 6.6 检查；找不到任务时放行、记日志、报告单列；匹配忽略状态标记和首尾空白 | 分析 #6 |
+| 9.8 | 模式、覆盖率、凭证状态、还差的必看单元 | 模式、本会话和历史两个数、是否达标、还差几个和前 5 个 | 外部审阅 A10、B6；外部审阅回复·二·3 |
+| 9.9 | 第 1、2、6 条 | 第 1、6 条 | 外部审阅 C2 |
+| 10.1 | 写入时没有有效凭证就记、标红 | 写文件工具的 PostToolUse；按路径判断不达标就记、标红；判断不了也记，标"无法判断" | 外部审阅 A4；分析 #7 |
+| 10.3（新） | 无 | 分不清用户保存还是 AI 写入的文件保存事件，只记录、标"来源不明"、不标红 | 分析 #2 |
+| 需求 11 用户故事 | 不反复拦同一件事 | 被反复拦时让 AI 停下来问用户，不自动放行 | 外部审阅 A2；外部审阅回复·二·1 |
+| 11.2 | 同一件事拦两次后第 3 次放行，记"超过拦截上限后放行" | 同一会话对同一目标第 2 次起，原因加"停下来，向用户说明情况"；不因次数放行；放行由用户改 `enforce` | 外部审阅 A2；外部审阅回复·二·1 |
+| 11.4 | 4 条局限 | 加 3 条：威胁模型（防偷懒和虚报，不防蓄意伪造）；钩子配置依赖 Kiro 的"Always asks"，shell 写入未测，接入层脚本按普通代码走关卡；解释器启动失败管不到 | 外部审阅 A9、B1、B2；外部审阅回复·三、疑问 1；权限文档 |
+| 12.2 | 报告字段，含"超过拦截上限后放行的写入" | 删这一项；覆盖率给本会话、历史两个数；加哈希链状态、钩子配置和接入层脚本校验值（有变化标红）、"任务未找到"、"无法判断"、"来源不明"；记录覆盖全部历史，带时间和会话 ID | 外部审阅 B1、C1、C6；外部审阅回复·二·1、二·3、疑问 1；分析 #9 |
+| 12.3 | 文字版和 JSON 版内容一致 | JSON 是唯一数据源，文字版由它生成 | 外部审阅 C6 |
+| 13.4 | Hypothesis 只是开发依赖 | 加"只有测试代码可以 import 它" | 分析 #8 |
+| 13.5 | Windows 和 Linux 都能运行 | Windows 上运行；持续集成里另在 Linux 上跑测试 | 外部审阅 C5 |
+| 需求 14 开头 | 不受拦截次数上限影响 | 改为不受 `enforce` 影响 | 外部审阅回复·二·1 |
+| 14.4 | 命令里出现钩子脚本或会写记录的入口就拦 | 加状态目录路径、配置文件名；写明是文本匹配，会有漏网 | 外部审阅 B1 |
+| 14.5 | 检查本身出错时拦截 | 脚本内部异常一律按拦截处理；解释器启动失败写进局限 | 外部审阅 A9 |
+| 14.6 | 用户在 Kiro 之外手动改配置不受影响 | 用户自己改文件（不论在不在 Kiro 编辑器里）无条件不受影响 | 分析 #2 |
+| 需求 15 | 15.2 轻量必看集合定义；15.3 轻量模式写规格文件不要凭证 | 加说明"只影响必看集合计算"；15.2 只定基础集合；15.3 删除 | 外部审阅回复·二·4 |
+| 16.3 | 引用没看过的单元一定不达标 | 加"不论放宽项怎么设" | 外部审阅 A3 |
+| 需求 17 用户故事、17.4 | 三组 | 两组：严格模式下 `enforce` 开、关 | 外部审阅 C4；外部审阅回复·二·4 |
+| 17.1 | 除需求 14 外一律放行 | 写明放行的是写文件关卡和任务开工关卡，需求 14 照常 | 分析 #11 |
+
+  EN: Clause-by-clause changes (old summary, new summary, source) are in the table above. Main effects: tokens no longer gate writes (hooks compute pass/fail per path at write time); no automatic pass after repeated blocks; one required-set rule for both modes, and cited units can never be relaxed away; in strict mode phantom requirements and invalid references fail the check; shell command gating, paging and the HTML adapter were removed; light mode only affects the required-set calculation.
+- 每条需求的标题和用户故事下加了 `EN:` 行（17 条）。验收标准、术语、出处行没加，按 `language.md`。
+  EN: Added EN lines under all 17 requirement titles and user stories, per language.md.
+- 同步改了引导文档：`citation.md`（ID 规则、聊天要求的存法、严格模式下幻影需求不达标、待定问题 1 和 3 已定）、`testing.md`（ID 里不含空白、含空白的 ID 被拒绝的测试，对应 A7）、`product.md`（"AI 只能经 MCP 工具取材料""不准写文件"改成做得到的说法；三层关卡第 1 层改为核心层达标判断）、`tech.md`（Linux 只在持续集成里跑；保护检查的内部异常一律拦截）。英文摘要一起改了。
+  EN: Updated steering to match: citation.md (ID rule, decisions files, strict-mode phantom failure), testing.md (IDs never contain whitespace; such IDs are rejected), product.md (claims limited to what the system does), tech.md (Linux in CI only; protection checks block on internal errors).
+- 核对了审阅 A9 的说法：`https://kiro.dev/docs/hooks.md` 和 `https://kiro.dev/docs/specs.md` 返回 200，`Content-Type: text/markdown`，所以 3.4 用了这个例子。
+  EN: Verified that kiro.dev serves Markdown at .md URLs (hooks.md and specs.md return text/markdown).
+
+### 和审阅不一致、或审阅没提到的地方
+
+- **6.7 是 agent 改的时候发现的。** 严格模式下幻影需求要判不达标（二·2），而 8.4 又规定严格模式下写需求文档也要过关卡。两条合起来，只要需求文档里有一条幻影需求，补出处这次写入本身就会被拦住，AI 读多少材料都过不去。所以加了 6.7：写规格文件不因 6.6 被拦，仍按 6.5 和 8.4 判断。审阅和分析都没提到这一点。
+  EN: Found while editing: strict-mode phantom failure (6.6) plus gating spec writes (8.4) would block the very write that adds the missing citation. Added 6.7: spec-file writes are not blocked by 6.6. Neither the review nor the analysis raised this.
+- **A10 说"登记新参考源只应让范围包含它的凭证失效"，没采用。** 按 A4 的选择，申请凭证时不带路径，凭证依据的就是全部参考源（8.2），所以任何新参考源都在它的范围内。7.4 原样保留。
+  EN: Did not adopt A10's narrower token invalidation: after A4, tokens carry no path and cover all sources, so any new source is in scope; 7.4 unchanged.
+- **A5 没另改**（用户决定）。写文件和任务开工都现算，不看凭证，旧凭证有效也放不过去。
+  EN: A5 needed no separate change: gates recompute instead of trusting tokens.
+- **A6 审阅建议设一种"用户指示"出处类型，附原话或日期。** 用户选的是存成 `docs/decisions/` 下的文件、按普通单元引用。这样少一种出处类型，也让检查程序只认一种写法。
+  EN: A6 suggested a separate "user instruction" citation type; the user chose decisions files cited as ordinary units instead.
+- **B2 没加进需求 14**（用户决定）。原因是 Kiro 本身规定写 `.kiro/hooks` 每次都要确认，改成在 11.4 写明依赖这一条，报告里列校验值、有变化就标红。
+  EN: B2 not added to requirement 14 (user's decision); relies on Kiro's always-ask rule, documented in 11.4, with checksums in the report.
+- **C4 没砍**（用户决定，二·4）。轻量模式保留，但只影响必看集合计算。
+  EN: C4 not cut; light mode stays but only changes the required-set calculation.
+- **4.5 没改。** 等第 4 步实测：MCP 工具的 PostToolUse 稳定带会话 ID 的话，删掉"当前会话"文件。
+  EN: 4.5 unchanged pending the step-4 test.
+
+## 2026-11-10（深夜续：准备第 4 步实测）
+
+- 试验文件放在 `experiments/mcp-posttooluse/`：`probe_server.py`（只用标准库的 stdio MCP 服务，工具 `read_unit`，每条消息记进 `logs/server.jsonl`）和 `hook_log.py`（把钩子输入原样记进 `logs/hooks.jsonl`，一律退出码 0）。本地用管道自测过：`server/discover` 回"方法不存在"，`initialize`、`tools/list`、`tools/call` 正常；钩子脚本能写日志，退出码 0。
+  EN: Probe files are in experiments/mcp-posttooluse/: a stdlib stdio MCP server with one tool, read_unit, and a hook script that logs its stdin and always exits 0. Both passed a local pipe test.
+- 用 `createHook` 建 4 个试验钩子时，Kiro 每个都弹了确认（和权限文档的"Always asks"一致）。用户批准了 3 个（PreToolUse、PostFileSave、PostFileCreate），拒绝了 PostToolUse 那个。PostToolUse 正是要测的，所以实测还没开始，等用户确认。用户说是点错了，agent 用同样参数重建，这次批准了，4 个试验钩子都已建好。
+  EN: The user said the rejection was a misclick; the hook was recreated with the same parameters and approved, so all 4 probe hooks now exist.
+  EN: Creating 4 probe hooks triggered a confirmation each time, matching the always-ask rule. The user approved 3 and rejected the PostToolUse one, which is the hook under test; the test has not started.
+
+### 第 4 步实测：已经看到的（MCP 部分还没测）
+
+- 4 个试验钩子建好后几秒内就在本会话生效，没等"下次会话"。和第 5 条不一致的记录相同。
+  EN: The probe hooks took effect in this session within seconds, not at the next session start, same as mismatch #5.
+- agent 用 `fs_append`、`str_replace` 改 DEVLOG 时都触发了 PostFileSave（20:33:34、20:34:25），输入里有 `session_id`、`file_path`、`cwd`、`hook_event_name`，没有工具名。
+  EN: Agent edits via fs_append and str_replace fired PostFileSave with session_id, file_path, cwd and hook_event_name, but no tool name.
+- agent 用 `fs_write` 新建 `sandbox/agent-write-1.txt`：PreToolUse（20:34:46）→ PostFileCreate、PostFileSave、PostToolUse（都在 20:34:54）。四条的 `session_id` 都是本会话，PostToolUse 带 `tool_response`。
+  EN: One fs_write fired PreToolUse, then PostFileCreate, PostFileSave and PostToolUse (with tool_response), all carrying this session's ID.
+- 还没测：用户手动保存时 PostFileSave 的输入和 AI 写入有没有区别（决定需求 10.3 能不能分清来源）；MCP 工具的 PostToolUse。
+  EN: Not yet tested: whether a manual user save looks different in PostFileSave, and the MCP tool PostToolUse.
+- MCP 部分，本会话（会话 A）：用户手动建了 `.kiro/settings/mcp.json`（服务名 `refcov`）。Kiro 先起进程 8812 发 `server/discover`，被回"方法不存在"后另起进程 4400 走 `initialize`，和 `docs/验证结果.md` 第 6 项相同。agent 调用 `read_unit` 3 次（其中 2 次同一批并行发出，参数里有一次含中文和方括号）：PreToolUse 3 条、PostToolUse 3 条，一次不少。钩子看到的工具名是 `mcp_refcov_read_unit`；6 条的 `session_id` 都是本会话；`tool_input` 和服务端收到的参数逐字一致；PostToolUse 的 `tool_response` 里有服务返回的文字。服务端的 `tools/call` 里仍然没有会话标识。
+  EN: Session A: 3 read_unit calls (2 sent in parallel, one with CJK and brackets in arguments) produced 3 PreToolUse and 3 PostToolUse events. The hook tool name is mcp_refcov_read_unit; every event carried this session's ID; tool_input matched the server-side arguments exactly; PostToolUse included the server's text response. The server itself still received no session identifier.
+- 还差：用户手动保存一次（对比 PostFileSave）；第二个会话调用一次。
+  EN: Still to do: one manual save by the user, and one call from a second session.
+- 会话 B（`sess_cc2f272f-…`，用户新开）调用 `read_unit` 一次（20:41:10）。PreToolUse、PostToolUse 各 1 条，`session_id` 是会话 B 的，不是会话 A 的；参数一致。服务端仍是进程 4400，返回"第 4 次调用"，再次证明多个会话共用一个 MCP 进程。会话 B 把加载工具和调用工具放在同一批发出，也成功了，和第 6 项试验时一样。
+  EN: Session B called read_unit once; its Pre/PostToolUse events carried session B's ID, not A's, with matching arguments. The server was still pid 4400 ("call 4"), confirming one MCP process is shared across sessions.
+- 20:41:33 Kiro 又起了一对新进程（15920 发 `server/discover`，20660 走 `initialize`），之后没有调用落到新进程上。原因不清楚，推测和新会话或配置刷新有关，没有验证。
+  EN: At 20:41:33 Kiro started a new server pair (15920, 20660) that received no calls; cause unknown.
+- 用户手动在编辑器里给 `sandbox/agent-write-1.txt` 加了"测试"并保存，文件内容确实变了，但 `hooks.jsonl` 里没有对应的 PostFileSave 记录。这次样本里，PostFileSave 只在 agent 写入时触发，用户手动保存没触发。只测了一次，原因没查。
+  EN: A manual user save changed agent-write-1.txt but produced no PostFileSave event; in this sample PostFileSave fired only for agent writes. One trial, cause not investigated.
+
+### 第 4 步结论
+
+- **稳定**：4 次调用（会话 A 3 次，其中 2 次并行；会话 B 1 次），PostToolUse 4 次全触发，会话 ID 全部准确、两个会话区分开了，参数逐字一致。按用户的要求，改用它记会话归属，删掉"当前会话"文件。
+  EN: Stable: 4 of 4 MCP calls across 2 sessions fired PostToolUse with the correct session ID and exact arguments. Per the user's rule, session attribution now uses this hook and the "current session" file is dropped.
+- 条文改动：
+
+| 条文 | 旧 | 新 | 出自 |
+| --- | --- | --- | --- |
+| 4.1 | 读取记录含会话 ID（MCP 服务填） | 读取记录含调用编号，会话 ID 由 4.5 补记 | 实测；外部审阅回复·四 |
+| 4.5 | UserPromptSubmit、PreTaskExec 钩子写"当前会话"文件，MCP 服务从中取 | MCP 工具（`mcp_refcov_<工具名>`）的 PostToolUse 钩子追加一条补记记录写会话 ID，不改原记录；没对上的记为"未知"、报告单独计数；不再用"当前会话"文件 | 实测；外部审阅 B6；外部审阅回复·四 |
+| 7.1 | 凭证记会话 ID | 会话 ID 按 4.5 补记 | 同上 |
+
+  EN: Edited 4.1, 4.5 and 7.1: the MCP server records calls without a session; a PostToolUse hook on mcp_refcov_* tools appends a record with the session ID (append-only, keeping the hash chain); unmatched calls are counted as "unknown session".
+- 10.3 没改：这次手动保存没触发 PostFileSave，"分不清来源时只记录、不标红"仍然是安全的写法。等样本多了再定要不要删。
+  EN: 10.3 unchanged; the single manual-save trial did not fire PostFileSave, and the clause stays safe either way.
+- 试验钩子 4 个（`.kiro/hooks/probe-*.json`）还在生效，每次写文件都会往 `experiments/mcp-posttooluse/logs/` 记一条，一律放行。
+  EN: The 4 probe hooks are still active and log every write (always exit 0).
+- 用到的 Kiro 功能：MCP（自写试验服务、工作区 `mcp.json`）、钩子（PreToolUse、PostToolUse、PostFileSave、PostFileCreate）、多会话。
+  EN: Kiro features used: MCP (custom probe server, workspace mcp.json), hooks (Pre/PostToolUse, PostFileSave, PostFileCreate), multiple sessions.
+
+## 2026-11-10（夜：收尾提交，需求冻结）
+
+- 旧提交里仍有个人邮箱，用户决定不改写历史、不强制推送。
+  EN: Old commits still contain a personal email; the user decided not to rewrite history or force-push.
+- 4 个试验钩子从 `.kiro/hooks/` 挪到 `experiments/mcp-posttooluse/hooks-disabled/`，没删。用 shell 的 `Move-Item` 挪走时没有弹确认，说明权限文档的"Always asks"至少不管从这个目录往外移文件。往里写会不会确认没测。
+  EN: Moved the 4 probe hooks to experiments/mcp-posttooluse/hooks-disabled/ (not deleted). The shell Move-Item out of .kiro/hooks did not prompt; shell writes into that folder remain untested.
+- `.kiro/settings/mcp.json` 写进 `.git/info/exclude`，不写 `.gitignore`（比赛规则禁止忽略 `.kiro` 及其子目录）。`git check-ignore -v` 确认命中的是 `.git/info/exclude` 第 9 行。另加 `docs/mcp.example.json`，路径用占位符。README 的目录表补了外部审阅、`mcp.example.json`、`experiments/`。
+  EN: .kiro/settings/mcp.json is excluded via .git/info/exclude (verified with git check-ignore), not .gitignore; docs/mcp.example.json uses a placeholder path. README layout table updated.
+- 需求从这次提交起冻结。之后发现的需求问题只记进"以后再做"，不改需求。
+  EN: Requirements are frozen from this commit; later issues go to the "later" section only.

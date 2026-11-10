@@ -5,6 +5,8 @@ fileMatchPattern: "tests/**"
 
 # 测试约定
 
+EN summary: Tests use pytest; core calculations get Hypothesis property tests, at least one `@given` test per property listed in requirement 16. Each test's docstring names the property it checks. Counterexamples found by property tests become regression tests and are logged in DEVLOG. Properties are never weakened to make tests pass; ask the user first.
+
 - 测试框架 pytest，属性测试用 Hypothesis（开发依赖，核心层运行时不依赖它）。
 - 核心层计算部分（单元模型、读取记录、覆盖率、出处检查、凭证）的每条性质至少一个 `@given` 测试。
 - 测试函数的文档字符串写明它验证的是哪条性质，例如 `"""性质 16.2：重复读同一单元，覆盖率不变。"""`。
@@ -24,6 +26,7 @@ fileMatchPattern: "tests/**"
 
 ## 生成数据时注意
 
-- 单元 ID、标题要包含中文、空格、特殊字符，Windows 下的编码问题要能被测到。
+- 单元标题要包含中文、空格、方括号和其他特殊字符，Windows 下的编码问题要能被测到。
+- 单元 ID 由标题生成（需求 2.5），要包含中文；同时验证生成的 ID 里没有空白和方括号，含空白或方括号的 ID 会被拒绝。
 - 读取记录要覆盖"校验值已过期"的情况（需求 1.4），过期记录不算看过。
 - 放宽项、关键类型、可选类型（例如样本行）都要随机生成，性质 5、6 才有意义。

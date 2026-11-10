@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "试验：文件保存事件记录",
+      "trigger": "PostFileSave",
+      "description": "第 4 步实测：AI 写文件和用户手动保存是否都触发 PostFileSave，输入里能否区分。",
+      "action": {
+        "type": "command",
+        "command": "python experiments/mcp-posttooluse/hook_log.py filesave",
+        "timeout": 10
+      }
+    }
+  ]
+}

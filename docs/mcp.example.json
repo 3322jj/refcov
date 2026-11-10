@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "refcov": {
+      "command": "python",
+      "args": ["<仓库根目录的绝对路径>/experiments/mcp-posttooluse/probe_server.py"],
+      "disabled": false
+    }
+  }
+}

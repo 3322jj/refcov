@@ -4,9 +4,11 @@ inclusion: always
 
 # 技术约定
 
+EN summary: Python 3.11+ on Windows; CI also runs the tests on Linux. The core uses only the standard library; only the MCP server module depends on the official `mcp` SDK, and ffmpeg/geopandas stay inside their apps. Hook scripts block only with exit code 2 and a reason on stderr, match exact tool names, and judge only by `tool_input.path` or the command text. On internal errors they allow, except the state/config protection checks, which block. Hook scripts read stdin as bytes, decode UTF-8, force UTF-8 output, and escape text before logging.
+
 ## 语言和依赖
 
-- Python 3.11 及以上，Windows 和 Linux 都要能跑。
+- Python 3.11 及以上，在 Windows 上运行；持续集成里另在 Linux 上跑测试（需求 13.5）。
 - **核心层只用标准库**：单元模型、读取记录、覆盖率、出处检查、凭证、文档适配器都不引第三方包。
 - MCP 服务放单独模块，用官方 SDK（`mcp` 包）。运行时只有这个模块依赖第三方包。
 - ffmpeg 只在 `apps/shot-coverage` 里用，geopandas 只在 `apps/layer-coverage` 里用。核心层和接入层不得 import 它们，也不得假设它们已安装。
@@ -19,7 +21,7 @@ inclusion: always
 - PreToolUse 退出码 0 时的 stdout 到不了 agent。只有 UserPromptSubmit（和 SessionStart）的 stdout 会进上下文。
 - 匹配条件写精确工具名：`fs_write`、`str_replace`、`fs_append`、shell 工具名。不用 `write` 这类类别名。
 - 关卡只按 `tool_input.path`（或命令文本）判断，不在整段输入里搜关键词。
-- 脚本自身出错时放行（退出码 0），错误写进状态目录的日志，不写到 stdout。例外：保护状态目录和配置的检查出错时拦截。
+- 脚本自身出错时放行（退出码 0），错误写进状态目录的日志，不写到 stdout。例外：保护状态目录和配置的检查里，脚本内部异常一律按拦截处理（退出码 2）。解释器启动失败（Python 没装、语法错误）时退出码不是 2，拦不住，这一条写在局限里（需求 11.4、14.5）。
 
 ## Windows 编码
 

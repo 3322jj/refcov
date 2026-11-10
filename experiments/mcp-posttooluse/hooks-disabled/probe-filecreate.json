@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "试验：文件新建事件记录",
+      "trigger": "PostFileCreate",
+      "description": "第 4 步实测：AI 新建文件时是否触发 PostFileCreate。",
+      "action": {
+        "type": "command",
+        "command": "python experiments/mcp-posttooluse/hook_log.py filecreate",
+        "timeout": 10
+      }
+    }
+  ]
+}
