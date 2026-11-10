@@ -473,3 +473,25 @@
   EN: citation.md updated: phantom = no valid reference anywhere in the requirement block; question 2 settled (requirement level); ID rules and refcov confirm added.
 - 这次的回复也存成了 decisions 文件 `docs/decisions/2026-11-10-design-review.md`，还没给用户看，所以这次不提交它。
   EN: This reply was drafted as docs/decisions/2026-11-10-design-review.md; it has not been reviewed and is left out of this commit.
+
+## 2026-11-10（夜：提交设计第二版，写 tasks.md）
+
+- 提交 `c23e09f`（设计第二版、`citation.md`、DEVLOG、decisions 前 4 个文件），普通推送，一次成功。`2026-11-10-design-review.md` 没提交，等用户过目。
+  EN: Committed c23e09f (design v2, citation.md, DEVLOG, the four reviewed decisions files) and pushed normally on the first try; the new decisions draft was left out pending review.
+- 提交时发现 `experiments/mcp-posttooluse/logs/server.jsonl` 又变了：`.kiro/settings/mcp.json` 还指着试验服务，Kiro 一直连着它，日志在继续写。没提交这处变化。
+  EN: server.jsonl kept changing because the workspace mcp.json still points at the probe server; that change was not committed.
+- 写了 `tasks.md`，20 个任务。1–7 是最细通路（store 和哈希链、`.gitignore` 检查、ID 和文档适配器、`refcov add`、MCP 两个读工具、会话补记钩子、报告和一行简短报告），8 是检查点，9 开始用它管自己，10–12 出处检查、达标和属性测试，13–18 关卡，19 凭证，20 文档。逐条对过需求，每条未删除的验收标准至少出现在一个任务的 `_需求：…_` 里；对的时候发现 13.1（核心层不出现 Kiro 的名字）漏了，补进任务 12。
+  EN: Wrote tasks.md with 20 tasks: 1–7 the thinnest path, 8 a checkpoint, 9 self-hosting, 10–12 citations, pass/fail and property tests, 13–18 gates, 19 tokens, 20 docs. Every non-deleted criterion appears in at least one task; 13.1 was missing at first and was added to task 12.
+- README 目录表补了 `docs/decisions/`、`design.md`、`tasks.md`，还没提交。
+  EN: README layout table now lists docs/decisions/, design.md and tasks.md (not committed yet).
+
+## 2026-11-10（夜：tasks.md 按用户意见改，今天收工）
+
+- 按用户意见改了 `tasks.md` 三处：最细通路（任务 1–7）的目标从 2026-11-12 改成 11-14，因为用户 11-12 要先写两个应用和演示页的需求；任务 18（任务开工关卡）、19（凭证）标成可选（`- [ ]*`）；写文件关卡挪到 `init`/`confirm`/校验值前面，两者编号对调，现在 15 是写文件关卡、16 是 `init`/`confirm`。上一条 DEVLOG 里的任务编号按旧顺序，不改。
+  EN: tasks.md: the thin-path target moved from 2026-11-12 to 11-14 (the user writes the app and demo requirements on 11-12); tasks 18 and 19 are optional; the write gate moved ahead of init/confirm, so task 15 is now the write gate and 16 is init/confirm. Earlier DEVLOG entries keep the old numbering.
+- `design.md` 第 10 节仍写"第 1–4 步在 2026-11-12 前跑通"，这次没改（用户只点名了 tasks.md），和 tasks.md 不一致，下次改设计时一起改。
+  EN: design.md section 10 still says 2026-11-12; left unchanged this time and noted as an inconsistency.
+- `docs/decisions/2026-11-10-design-review.md` 用户看过，定稿提交。
+  EN: The user approved docs/decisions/2026-11-10-design-review.md; committed as final.
+- 用户在 `.kiro/settings/mcp.json` 里关掉了试验服务。`experiments/mcp-posttooluse/logs/server.jsonl` 之后多出来的行没提交，用 `git checkout` 恢复成上次提交时的内容。
+  EN: The user disabled the probe server in mcp.json; the extra lines in server.jsonl were discarded with git checkout, not committed.
