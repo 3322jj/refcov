@@ -80,16 +80,14 @@
 
 ### 其他
 
-- 被拦时 IDE 有没有把 stderr 原因显示出来，日志看不到，还没确认。
+- 被拦时 IDE 有没有把 stderr 原因显示出来：用户确认会原样显示。原因文字是试验脚本写死的，正式关卡要按记录算。
 - 已把剩下的探测钩子全部移到 `hook-test/hooks-disabled/`，没有删除。
 - `gh auth status` 仍显示 3322jj 的令牌失效。
 
 ## 2026-11-10（晚上：建新仓库，改需求第二稿）
 
 - 从这一条起，DEVLOG 在 `d:\agent\kiro\refcov\docs\DEVLOG.md` 继续记。前面的内容是从试验目录 kirohe 复制过来的，`验证结果.md` 也复制到了 `docs/`。
-- 新仓库目前只做了 `git init -b main`，还没有任何提交。原因有三个：
-  - `gh auth status` 仍显示令牌失效；
-  - 全局 git 没设 `user.name` 和 `user.email`；
-  - MIT 许可证要写版权人，还不知道写谁。
+- 前两次 `gh auth status` 显示令牌失效，之后再查显示正常。同一时段 `gh api` 经常报 `EOF`、重试才成功，推测前面的"失效"是连不上 GitHub 时的误报，没有验证。
+- 第一次提交 `a64d773` 用了 rockey <denghongsh@gmail.com>，并已建公开仓库 `3322jj/refcov` 推上去。这一步做早了：用户随后要求提交者改成 GitHub noreply 邮箱，并且提交前、建仓库前都要先给他确认。已把本仓库的 git 身份改成 3322jj 的 noreply 邮箱（只改本仓库，没改全局）。经用户明确同意，第一次提交改写为 `51281a2`（内容不变，只改作者），用 `--force-with-lease` 覆盖远端。旧提交 `a64d773` 可能还能在 GitHub 上按哈希访问一段时间。用户要求：以后不经他明确同意不得强制推送。
 - 需求文档从 kirohe 搬到 `.kiro/specs/refcov-skeleton/requirements.md`，按用户对 7 个问题的回复改成第二稿。PreTaskExec 的实测结果也写进去了（需求 10.6、10.7）。
 - 用到的 Kiro 功能：规格流程（需求阶段第二轮）。
