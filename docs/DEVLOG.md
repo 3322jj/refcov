@@ -10,6 +10,18 @@
   现在不做：行为不变，只是写法；用户选了保留现在的写法。
 - 需求文档的标题改成 Kiro 规格工具认的英文结构（`### Requirement N`），出处检查的切分规则同步改。
   现在不做：只有 Analyze Requirements 碰到了这个限制，已用临时副本绕过；设计、任务阶段的 Kiro 功能如果也要求英文结构再改。
+- 需求 12.1、12.2 要求经 MCP 的报告也给"本会话"数，但 MCP 服务拿不到会话 ID（实测），做不到。改成"经 MCP 的报告只给历史数"或"本会话一栏标不可用"。
+  现在不做：需求已冻结；设计里先标"不可用"。
+- 需求 8.3 只写了文件名 `DEVLOG.md`，没写路径，豁免哪个位置的文件有歧义。
+  现在不做：需求已冻结；设计里先按 `**/DEVLOG.md` 处理。
+- 需求 17.4 的对照实验另立规格（两组：严格模式下 `enforce` 开、关），写任务、数据和脚本。
+  现在不做：对照实验是"应该有"，骨架规格只留数据（17.1–17.3）。
+- 需求 3.5 原文写拆分 ID 加 `-2`；用户 2026-11-10 改成 `@2`（和重名后缀 `-2` 区分），需求原文要跟着改。
+  现在不做：需求已冻结；设计按 `@2` 做，标了"偏离需求原文"。
+- 需求 2.5 原文只把空白和方括号换成短横线；设计另把 `@` 也换掉，保证 `@` 只出现在拆分后缀里。
+  现在不做：需求已冻结；设计里标了"偏离需求原文"。
+- 需求 14.4 原文要拦"其他会写记录的 RefCov 入口"，但 `refcov add` 会写登记记录，用户决定放行。需求原文要改成"会清空、重建日志或写确认、配置的入口"。
+  现在不做：需求已冻结；设计里标了"偏离需求原文"。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -424,3 +436,40 @@
   EN: .kiro/settings/mcp.json is excluded via .git/info/exclude (verified with git check-ignore), not .gitignore; docs/mcp.example.json uses a placeholder path. README layout table updated.
 - 需求从这次提交起冻结。之后发现的需求问题只记进"以后再做"，不改需求。
   EN: Requirements are frozen from this commit; later issues go to the "later" section only.
+
+## 2026-11-10（夜：提交推送，写设计，spec-auditor 审设计）
+
+- 提交 `d04e8fa`（需求修订、README、language.md、外部审阅、`experiments/`、`docs/mcp.example.json`）。第一次 `git push` 报 TLS 连接错误，5 秒后重试成功，普通推送。需求从这次提交起冻结。
+  EN: Committed d04e8fa; the first push failed with a TLS connect error, a retry 5 s later succeeded (normal push). Requirements are frozen from this commit.
+- `docs/decisions/` 下整理了 4 个文件（对外部审阅的处理、对 6 个疑问的回复、Analyze Requirements 的回答、提交和进入设计），等用户过目，没提交。
+  EN: Drafted 4 files under docs/decisions/ from the user's chat replies; awaiting review, not committed.
+- 写了 `.kiro/specs/refcov-skeleton/design.md`：8 个模块、一个带哈希链的日志放所有记录、5 个 MCP 工具、7 个钩子文件（5 种事件）、单元 ID 和拆分规则（`#` 到 `###` 拆，超长 4000 字符）、属性测试的数据生成、先通"登记 → 拆 → MCP 读 → 记录 → 报告"再做关卡。
+  EN: Wrote design.md: 8 modules, one hash-chained log for all records, 5 MCP tools, 7 hook files on 5 events, unit-ID and split rules (split at #–###, 4000-character limit), Hypothesis data generation, thin path before gates.
+- 用 spec-auditor 审设计（作为子 agent 调用，提示词里让它改查"设计引用的需求编号是否存在、每条验收标准有没有对应、和需求冲突的地方、和 citation.md 是否一致"）。它查出：2 条验收标准没有对应（1.3、17.4）；6 处和需求冲突（AI 用 shell 跑 `refcov add`、`refcov init` 拦不住；经 MCP 的报告没有本会话数；按会话的数字不在默认报告；例子缺时间和会话；`DEVLOG.md` 的路径）；1 处设计内部不一致（英文摘要的钩子数写错）；3 处和 citation.md 不一致，其中拆分后 ID 撞车是真漏洞。报告原文和 agent 的处理建议附在 design.md 末尾，设计还没按它改。
+  EN: Ran spec-auditor as a sub-agent on the design with a custom checklist. It found 2 uncovered criteria (1.3, 17.4), 6 conflicts with requirements, 1 internal inconsistency, and 3 mismatches with citation.md including a real ID-collision gap. The report and the agent's proposed fixes are appended to design.md; the design is not yet revised.
+- spec-auditor 的提示词原本只会审需求文档的出处。这次在调用时另给了检查清单，它照做了，说明同一个只读 agent 可以按调用时的提示换审查对象。
+  EN: spec-auditor was built to audit requirement citations; given a different checklist at call time it audited the design instead.
+- 用到的 Kiro 功能：规格流程（设计阶段）、自定义 agent 当子 agent 调用。
+  EN: Kiro features used: spec design phase, a custom agent invoked as a sub-agent.
+
+## 2026-11-10（夜：设计第二版）
+
+- 用户看过设计和 decisions，要求按 spec-auditor 的处理建议改，另加 5 条：shell 里跑 `refcov init`（和任何清空、重建日志的子命令）一律拦，`refcov add` 放行；拆分后缀用 `@2`、重名后缀用 `-2`；加 `git check-ignore` 测试（需求 1.3）；`docs/decisions/` 的文件列校验值、没确认的标红"待用户确认"，用户用 `refcov confirm` 确认；17.4 和"MCP 报告给不出本会话数"记进"以后再做"。
+  EN: The user asked for the auditor's fixes plus five changes: block init (and any log-resetting subcommand) from the shell but allow add; `@2` for split parts and `-2` for duplicate headings; a git check-ignore test; checksum and user confirmation (`refcov confirm`) for docs/decisions files; two items to the later list.
+- 改动（详见 design.md 末尾"报告的处理结果"表）：
+  - 命令行 `init`、`confirm` 列进 `USER_ONLY`，`hook.py` 用正则拦 shell 里的这两个子命令；`hook.py` 不能 import 核心层，所以抄一份元组，用测试保持一致。
+  - 新增第 3.6 节：钩子配置、接入层脚本、`docs/decisions/` 用同一套校验值办法，只差基准（上一次报告 / 最后一次 `confirm` 记录）。
+  - 日志每行都带 `session`；报告例子补上时间和会话；`by_session` 进默认报告；经 MCP 的报告本会话一栏为"不可用"。
+  - 默认豁免改成 `DEVLOG.md`、`**/DEVLOG.md`、`docs/decisions/**`。
+  - 英文摘要的钩子数改对（7 个文件、5 种事件）。
+  EN: Design changes: init/confirm are user-only and blocked in shell commands; new section 3.6 tracks checksums for hook files, integration scripts and decisions files with different baselines; every log line carries a session field; by_session is in the default report; MCP reports mark the session column unavailable; default exemptions cover DEVLOG.md anywhere; the EN summary hook count was fixed.
+- 改的时候发现两点：
+  - 用户要的"citation.md 的正则要能认 @"，现有正则 `[^\]\s]+` 本来就能匹配 `@`，所以正则没改，只在 citation.md 里写明。
+  - 只换后缀还不够：标题里本身带 `@`（例如"退出码@2"）也会生成和拆分单元一样的 ID。所以生成 ID 时把标题里的 `@` 也换成 `-`。这比需求 2.5 原文多一个字符，记进了"以后再做"。
+  EN: The existing citation regex already accepts `@`, so it was not changed. A heading that itself contains `@` could still collide with a split ID, so ID generation also replaces `@` with `-`; this goes beyond requirement 2.5's wording and is in the later list.
+- `git check-ignore` 测试有个坑：本机的 `.kiro/settings/mcp.json` 是用户有意写进 `.git/info/exclude` 的，`git check-ignore` 也会报它被忽略。所以测试只把来自 `.gitignore` 的命中算失败（用 `-v` 看命中的规则来自哪个文件）。
+  EN: git check-ignore also reports the deliberately excluded local mcp.json, so the 1.3 test only fails on matches whose source is a .gitignore file.
+- `citation.md` 同步改：幻影需求改成"需求块里没有有效引用"，待定问题 2 定为需求级，补了 ID 生成规则和 `refcov confirm`。
+  EN: citation.md updated: phantom = no valid reference anywhere in the requirement block; question 2 settled (requirement level); ID rules and refcov confirm added.
+- 这次的回复也存成了 decisions 文件 `docs/decisions/2026-11-10-design-review.md`，还没给用户看，所以这次不提交它。
+  EN: This reply was drafted as docs/decisions/2026-11-10-design-review.md; it has not been reviewed and is left out of this commit.
