@@ -1,5 +1,11 @@
 # DEVLOG
 
+## 以后再做
+
+格式：一行写点子，一行写为什么现在不做（见 `.kiro/steering/product.md` 范围冻结）。这一节固定在最前面，日记照常按时间加在文件末尾。
+
+（暂无）
+
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
 - 环境：Kiro IDE 1.4.121，Windows。
@@ -162,3 +168,41 @@
 | 第三稿审阅·4 | 额度手动抄；自动记送出的单元数和图片数 | 需求 4.6、18.3、18.4 |
 | 第三稿审阅·5 | 保护检查出错时拦截；其余检查出错仍放行 | 需求 12.1、15.5、15.6 |
 | 第三稿审阅·6 | `enforce: false` 只有用户能改；报告第一行写"关卡已关闭"，JSON 标明 | 需求 18.1、18.2 |
+
+## 2026-11-10（深夜续：引导文档定稿，建 spec-auditor）
+
+- 新建了 5 个引导文档：`.kiro/steering/` 下的 `product.md`、`tech.md`、`devlog.md`、`testing.md`、`citation.md`。`product.md`、`tech.md`、`devlog.md` 总是加载。`testing.md` 在读到 `tests/**` 时加载，`citation.md` 在读到 `.kiro/specs/**` 时加载。用户审过，需求编号统一用第五稿。
+  EN: Added five steering files; three are always loaded, testing.md and citation.md load on fileMatch (tests/**, .kiro/specs/**). Requirement numbers follow draft 5.
+- 按用户意见改了 `product.md` 三处：
+  - 删掉"装了 Kiro 的可以用 `demo/` 一分钟内亲手试"，计划里没有这一项。
+  - 需求出处检查从"应该有"挪进"必须有"。
+  - "Kiro 已经能检查需求有没有矛盾"这句先查文档。Kiro 文档 [Analyze Requirements](https://kiro.dev/docs/specs/analyze-requirements/)（2026-09-02 更新）写明规格需求阶段可以做跨需求分析，查逻辑矛盾、歧义、冲突约束、未说明的假设、漏掉的边界情况。所以这句保留。同一句里"代码对不对"的部分没有核实。
+  EN: product.md: removed the demo/ hands-on line (not planned), moved citation checking to must-have, kept the "Kiro already checks requirements for contradictions" claim after confirming it in Kiro's Analyze Requirements doc.
+- 建了自定义 agent `.kiro/agents/spec-auditor.md`（Markdown 格式，front matter 是配置，正文是系统提示词）。只给 `read` 工具，在对话里输出报告，不写文件。`resources` 里加了 `file://.kiro/steering/citation.md`。原因是 `citation.md` 只在读到 `.kiro/specs/**` 时才加载，加进 `resources` 后 agent 一启动就有。依据：[配置说明](https://kiro.dev/docs/custom-agents/configuration-reference/)。还没在 IDE 里切换到这个 agent 试过。
+  EN: Created custom agent spec-auditor (read-only tools) that lists phantom requirements, malformed refs and unconverted text citations; citation.md is preloaded via resources. Not yet run in the IDE.
+- 配置说明里和 spec-auditor 有关、要实测的两点：
+  - `resources` 里的相对路径相对于哪个目录，文档没写清。`prompt` 的 `file://` 写明相对于 agent 配置文件所在目录，`resources` 的示例看起来相对于工作区根目录。现在按工作区根目录写，没有验证。
+  - 子 agent 自己声明了 `file://` 资源时，用这些资源**代替**父 agent 的 `file://` 资源，不是叠加。
+  EN: Unverified: whether relative file:// paths in resources resolve from the workspace root or the agent file's folder. Per docs, a sub-agent's own file:// resources replace the parent's.
+- 用到的 Kiro 功能：引导文档（always / fileMatch 两种加载方式）、自定义 agent（Markdown 配置，`tools`、`resources`、`welcomeMessage`）。
+  EN: Kiro features used: steering (always and fileMatch inclusion), custom agents (Markdown config with tools, resources, welcomeMessage).
+
+## 2026-11-10（深夜续：spec-auditor 第一次试跑）
+
+- 用户在 IDE 里信任 refcov 工作区并重新加载窗口后，Kiro 才加载了 `.kiro/agents/` 里的自定义 agent。
+  EN: Kiro only loaded the workspace custom agent after the refcov folder was trusted in VS Code and the window was reloaded.
+- 用户切到 spec-auditor，审了 `.kiro/specs/refcov-skeleton/requirements.md`（第五稿，17 条需求）。
+  EN: The user ran spec-auditor on the draft-5 requirements (17 requirements).
+- citation.md 能不能看到：报告没有直接说。报告按 citation.md 的规则做了分类（按 `### 需求 N：` 切分，文字出处算"未转换"、不算幻影需求，`[ref:…]` 按格式检查），推测 `resources` 里的 citation.md 加载成功了，所以按工作区根目录写的相对路径也是对的。没有单独问 agent 验证。
+  EN: The report applied citation.md's rules, so the resource most likely loaded (and the workspace-root relative path likely works); this was inferred, not asked directly.
+- 报告结果：幻影需求 0 条，格式错误 0 条（全文没有 `[ref:…]`），17 条需求全部是未转换的文字出处，用到的 8 个来源名都在文档开头的说明里。无效引用、读取记录、幽灵单元、被忽略单元都标了"无数据，未检查"，和提示词要求一致。
+  EN: Result: 0 phantom requirements, 0 malformed refs, all 17 requirements still use text citations, all 8 source names are declared; registry-dependent checks were reported as "no data, not checked".
+- 报告的人工判断部分指出 3 个问题，都还没处理：
+  - "第四稿审阅"在需求 4、5、7、9、11、15 里没写条目号；"实测"没指到 `docs/验证结果.md` 的项号。转换成 `[ref:…]` 时对不到单元。
+  - "11-10 回复二"第 1、3 条和"第五稿审阅"第 1、3 条没被任何需求引用。可能是没产生需求，也可能是漏标。
+  - "交接说明·加强项 2"同时是需求 3（文档适配器）和需求 8（关卡范围规则）的出处，没对照原文确认。
+  EN: Manual findings (not yet acted on): citations without item numbers, four reply items never cited, and one handover item cited by two unrelated requirements.
+- 报告也说明了它查不了的：交接说明在工作区外，各稿审阅回复没有存成文件，所以没法核对出处内容。这和 citation.md 里"用户的审阅回复怎么当参考源，待设计阶段定"是同一个问题。
+  EN: The auditor could not verify citation content because the handover note is outside the workspace and review replies are not stored as files; this is the same open question already listed in citation.md.
+- 用到的 Kiro 功能：自定义 agent（只读工具 + `resources` 预加载引导文档）。
+  EN: Kiro feature used: a custom agent with read-only tools and a preloaded steering file.
