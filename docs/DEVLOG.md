@@ -25,6 +25,8 @@
   2026-11-11 更新：用户改为 `add` 只能由用户跑（设计第二版审阅一.2），设计已不再偏离 14.4 原文，这一条不用再改需求。
 - 哈希链查不出最后一行被改或被删（没有后一行去对 `prev`）。可以在报告里记下链头的哈希，下次报告时对一下。
   现在不做：设计和需求 11.4 只要求"随手改动留下痕迹"，不在已定范围里；先在局限里写明。
+- `tests/test_gitignore.py` 只按规则来源的文件名是不是 `.gitignore` 判断。开发者的全局忽略文件叫 `~/.gitignore` 且命中 `.kiro` 时会误报失败。文件开头的说明写了"全局 excludesFile 不算失败"，代码其实没做到。可以改成只认仓库内的 `.gitignore`（`-v` 输出里仓库内的来源是相对路径）。
+  现在不做：误报方向是失败，不会漏掉问题；CI 上没有全局忽略文件。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -564,3 +566,20 @@
   EN: One deviation from the design example: [relax] units is empty in refcov.example.toml, with kiro-hooks/更新日志 kept only as a comment, so a copied config does not relax a unit that does not exist yet.
 - 用到的 Kiro 功能：规格任务执行（子 agent 按 tasks.md 任务 1 执行）。
   EN: Kiro feature used: spec task execution, with a sub-agent running task 1 from tasks.md.
+
+## 2026-11-11（晚：任务 2，.gitignore 检查和持续集成）
+
+- 用户点 Start task 后，tasks.md 里任务 2 标成进行中；`tests/test_gitignore.py` 和 `.github/` 都是这次新建的。`tasks.meta.json` 里这次执行有两条记录（同一个 `executionId`，相隔约 3 分钟），各代表什么没有核实。
+  EN: After the user clicked Start task, task 2 was marked in progress; tests/test_gitignore.py and .github/ were created in this run. tasks.meta.json holds two entries with the same executionId about 3 minutes apart; what each one means was not checked.
+- `tests/test_gitignore.py`：遍历磁盘上 `.kiro` 下的所有文件（已跟踪、未跟踪都算），加上 3 个构造路径，用 `git check-ignore -v -z --no-index --non-matching --stdin` 一次查完，按输出里的规则来源判断：来源文件名是 `.gitignore` 且规则不以 `!` 开头才算失败；`.git/info/exclude` 和否定规则不算。用 `-z` 和 stdin 传路径，含中文、空格、方括号的文件名不会被 git 转义。找不到 git、git 出错或输出解析不了时 `pytest.fail`，不跳过。
+  EN: tests/test_gitignore.py walks every file under .kiro on disk plus 3 constructed paths and checks them in one call to git check-ignore -v -z --no-index --non-matching --stdin. It fails only when the matching rule comes from a file named .gitignore and is not a negation; hits from .git/info/exclude and negation rules pass. Paths go through -z and stdin so names with CJK, spaces or brackets are not quoted by git. Missing git, a git error or unparsable output fail the test instead of skipping it.
+- 另加 2 个用临时 git 仓库的测试，确认检查本身有效：根目录 `.gitignore` 写 `.kiro/hooks/`、`.kiro/specs/.gitignore` 写 `*.md` 时都被报出来；只在 exclude 里忽略、或 `.gitignore` 里先忽略 `*.json` 再 `!.kiro/**` 时不报。
+  EN: Two extra tests on a temporary git repo show the check works: `.kiro/hooks/` in the root .gitignore and `*.md` in .kiro/specs/.gitignore are both reported; an exclude-only rule, or `*.json` followed by `!.kiro/**` in .gitignore, is not.
+- 持续集成：`.github/workflows/ci.yml`，GitHub Actions 在 `ubuntu-latest` 上用 Python 3.11 和 3.12 跑 `pip install -e ".[dev]"` 和 `python -m pytest`，权限只给 `contents: read`。还没推送，CI 在 GitHub 上没跑过。
+  EN: CI: .github/workflows/ci.yml runs pip install -e ".[dev]" and python -m pytest on ubuntu-latest with Python 3.11 and 3.12, with contents: read permission only. Not pushed yet, so CI has not run on GitHub.
+- 本机（Windows，`D:\pyth\python.exe`）：`pytest tests/test_gitignore.py` 3 个通过，全量 `pytest` 17 个通过。实际仓库里 `.kiro/settings/mcp.json` 命中的是 `.git/info/exclude:9`，按设计不算失败。没有属性测试，任务 2 不涉及需求 16 的性质。
+  EN: Locally (Windows, D:\pyth\python.exe): 3 tests in tests/test_gitignore.py and 17 in the full suite pass. In the real repo .kiro/settings/mcp.json matches .git/info/exclude line 9, which by design is not a failure. No property tests; task 2 touches none of the requirement 16 properties.
+- 用到的 Kiro 功能：规格任务执行（子 agent 按 tasks.md 任务 2 执行）。
+  EN: Kiro feature used: spec task execution, with a sub-agent running task 2 from tasks.md.
+- README 的状态行和目录表补上了 `test_gitignore.py` 和 `.github/workflows/ci.yml`。
+  EN: The README status line and layout table now mention test_gitignore.py and .github/workflows/ci.yml.

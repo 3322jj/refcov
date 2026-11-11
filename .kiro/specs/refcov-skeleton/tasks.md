@@ -19,7 +19,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 测试：两个进程同时各追加 100 行，链仍完整、`seq` 不重复；手工改一行后校验报出断开的行号
   - _需求：1.1、1.2、4.3、4.4、13.3_
 
-- [ ] 2. `.gitignore` 检查和持续集成
+- [x] 2. `.gitignore` 检查和持续集成
   - `tests/test_gitignore.py`：对 `.kiro` 下所有文件和构造路径跑 `git check-ignore -v --no-index`，命中规则来自 `.gitignore` 就失败，来自 `.git/info/exclude` 的不算（设计 2）
   - 持续集成：GitHub Actions 在 Linux 上跑 `pytest`（从任务 12 提前到这里，换行和大小写的问题早发现）
   - _需求：1.3、13.5_

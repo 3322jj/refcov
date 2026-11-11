@@ -2,7 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1). Everything else below describes what the skeleton is specified to do, not what it does today.
+> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2). Everything else below describes what the skeleton is specified to do, not what it does today.
 
 ## What it does
 
@@ -37,7 +37,8 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 | `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock) and a stub CLI |
 | `refcov_mcp/` | MCP server module (empty package for now) |
 | `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml`, the example config with Kiro paths |
-| `tests/` | pytest tests |
+| `tests/` | pytest tests, including `test_gitignore.py`, which fails if any `.gitignore` rule ignores a file under `.kiro` |
+| `.github/workflows/ci.yml` | GitHub Actions: runs `pytest` on Linux (Python 3.11 and 3.12) |
 | `experiments/mcp-posttooluse/` | Probe MCP server, hook logger, raw logs and the disabled probe hooks from the test showing that PostToolUse on MCP tools carries the correct session ID |
 
 Planned, not yet present: the rest of the core library (adapters, coverage, citations, MCP tools), the Kiro hooks, `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
