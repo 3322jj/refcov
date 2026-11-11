@@ -786,3 +786,9 @@
   EN: No property tests yet; coverage.py is what properties 16.1 and 16.2 cover, but per design §9 they come with the required set in task 10.
 - 用到的 Kiro 功能：钩子（UserPromptSubmit，钩子文件已写好，放进 `.kiro/hooks/` 待用户确认）、MCP（`report` 工具）。
   EN: Kiro features used: hooks (UserPromptSubmit; the file is ready and awaits the user's confirmation in .kiro/hooks/), MCP (the report tool).
+- 提交 `f4f3c24`，普通推送一次成功（`ddb8d31..f4f3c24`）。CI（run 43045962228，push 触发）success。
+  EN: Commit f4f3c24, pushed on the first try (ddb8d31..f4f3c24). CI (run 43045962228, on push) succeeded.
+- 放钩子：按用户要求不用 `createHook`，用 `Copy-Item` 把 `integrations/kiro/hooks/refcov-prompt.json` 直接复制进 `.kiro/hooks/`，两边文件哈希相同。确认框由用户处理；用户回来时没有提到弹没弹，这里不记结论。
+  EN: Per the user, the hook was copied with Copy-Item instead of createHook; both files have the same hash. The user handled any confirmation dialog and did not say whether one appeared, so no conclusion is recorded.
+- 旁证（不算完成标志）：用户发了一条消息（"做到不错"），agent 在上下文里看到 Kiro 附在消息后面的 HOOK_INSTRUCTION，原文：`RefCov 严格模式：单元 本会话 1/13，历史 6/13；还差 7 个：kiro-hooks/hooks-2、kiro-hooks/What-you-can-do-with-hooks、kiro-hooks/Choose-a-trigger、kiro-hooks/Field-reference、kiro-hooks/File-naming-and-location、…。参考材料要用 RefCov 的 MCP 工具读，直接读文件不算看过。` 本会话 1/13 对得上（本会话只有 `c-5` 补记过会话），历史 6/13 和 `refcov report` 一致。只有这一行，没有别的输出。复制后钩子在本会话里立即生效。之后 `log.jsonl` 和提交时一样，没有 errors.log。
+  EN: Corroboration, not a completion criterion: on the user's next message the agent saw Kiro's HOOK_INSTRUCTION with exactly the status line (this session 1/13, history 6/13, 7 missing with the first 5 listed, plus the hint). 1/13 matches this session's single attached read (c-5) and 6/13 matches refcov report. Only that one line appeared, the copied hook took effect in this session immediately, log.jsonl stayed as committed, and no errors.log exists.
