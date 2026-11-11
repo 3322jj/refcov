@@ -2,7 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-10): requirements stage. There is no code yet. Everything below describes what the skeleton is specified to do, not what it does today.
+> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1). Everything else below describes what the skeleton is specified to do, not what it does today.
 
 ## What it does
 
@@ -33,9 +33,14 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 | `.kiro/specs/refcov-skeleton/design.md` | Skeleton design: modules, data formats, MCP tools, hooks, unit-ID rules, property tests, build order |
 | `.kiro/specs/refcov-skeleton/tasks.md` | Implementation tasks; the thinnest path (register, split, read via MCP, record, report) comes first |
 | `docs/mcp.example.json` | Example workspace MCP config for the probe server. Copy it to `.kiro/settings/mcp.json` and fill in the absolute repo path. The real file is kept out of git via `.git/info/exclude`, not `.gitignore` |
+| `pyproject.toml` | Package metadata; console script `refcov`; runtime dependency `mcp`, dev extras `pytest` and `hypothesis` |
+| `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock) and a stub CLI |
+| `refcov_mcp/` | MCP server module (empty package for now) |
+| `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml`, the example config with Kiro paths |
+| `tests/` | pytest tests |
 | `experiments/mcp-posttooluse/` | Probe MCP server, hook logger, raw logs and the disabled probe hooks from the test showing that PostToolUse on MCP tools carries the correct session ID |
 
-Planned, not yet present: the core library, the Kiro integration layer, `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
+Planned, not yet present: the rest of the core library (adapters, coverage, citations, MCP tools), the Kiro hooks, `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
 
 ## Language
 
@@ -49,6 +54,19 @@ Most project documents are written in Chinese. English is provided as follows (s
 ## Requirements
 
 Python 3.11+. The core library uses only the standard library. The MCP server module uses the official `mcp` SDK.
+
+## Setup
+
+1. Install into the `python` that is first on your PATH. Kiro's hook commands run plain `python`, so the package must be importable from that interpreter:
+
+   ```
+   python -m pip install -e ".[dev]"
+   ```
+
+   Check with `python -c "import refcov"`. If the hooks run a different Python than the one you installed into, they fail silently (errors go to `.refcov/errors.log`).
+2. Copy `integrations/kiro/refcov.example.toml` to `refcov.toml` in the repo root and edit it there. Only the user edits this file. There is no `refcov init`; the state directory `.refcov/` is created on the first write.
+
+`.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). `.refcov/cache/`, `errors.log`, `log.lock` and `report-last.json` are git-ignored. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
 
 ## License
 

@@ -8,7 +8,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
 
 ## 最细通路（设计 10 第 1–4 步，目标 2026-11-14 前跑通）
 
-- [ ] 1. 项目结构、环境和状态目录
+- [x] 1. 项目结构、环境和状态目录
   - 建 `pyproject.toml`（Python ≥ 3.11；运行依赖只有 `mcp`，开发依赖 `pytest`、`hypothesis`；命令行入口 `refcov`）、`refcov/`、`refcov_mcp/`、`integrations/kiro/`、`tests/`
   - 环境：用 PATH 上的 `python`（钩子命令用的就是它），在里面 `pip install -e .`；README 写明这一步，再写一行"把 `integrations/kiro/refcov.example.toml` 复制成仓库根目录的 `refcov.toml`"（设计 2）
   - `integrations/kiro/refcov.example.toml`：按设计 3.4 的例子写

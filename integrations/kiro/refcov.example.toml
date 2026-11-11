@@ -1,0 +1,29 @@
+# RefCov 配置示例（Kiro 用）。复制成仓库根目录的 refcov.toml 后按需修改。
+# 配置只能由用户手动修改；AI 经 Kiro 工具写这个文件会被拦（需求 14.2）。
+# 路径都相对仓库根目录、用 / 分隔，匹配时不分大小写；* 也能跨 /。
+
+mode = "strict"          # strict | light（需求 15.1）
+enforce = true           # 需求 17.1。false 时关卡一律放行，记录照常
+
+# 哪些文件是需求文档、规格文件（Kiro 的规格放在 .kiro/specs/ 下）
+requirements = [".kiro/specs/*/requirements.md"]
+spec_files   = [".kiro/specs/**"]
+
+# 要算校验值的文件（需求 12.2）。和上一次报告比，变了就标红
+watch = [".kiro/hooks/refcov-*.json", "integrations/kiro/**"]
+
+# 要算校验值、并且要用户确认的文件。和最后一次 refcov confirm 比，新文件或变了就标红"待用户确认"
+confirm = ["docs/decisions/**"]
+
+# 豁免：写这些文件不检查是否达标（需求 8.3）。写了就覆盖默认值
+# 根目录的 DEVLOG.md 要单独列：**/DEVLOG.md 前面要有一个 /
+exempt = ["DEVLOG.md", "**/DEVLOG.md", "docs/decisions/**"]
+
+[relax]                  # 放宽项（需求 5.3），只能缩小必看集合；被需求引用的单元放宽不掉
+sources = []
+kinds   = []
+units   = []             # 例如 ["kiro-hooks/更新日志"]
+
+[[scope]]                # 关卡范围（需求 8.1）：写这些路径前要看完这些参考源
+paths   = ["integrations/kiro/**"]
+sources = ["kiro-hooks"]

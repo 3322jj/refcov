@@ -23,6 +23,8 @@
 - 需求 14.4 原文要拦"其他会写记录的 RefCov 入口"，但 `refcov add` 会写登记记录，用户决定放行。需求原文要改成"会清空、重建日志或写确认、配置的入口"。
   现在不做：需求已冻结；设计里标了"偏离需求原文"。
   2026-11-11 更新：用户改为 `add` 只能由用户跑（设计第二版审阅一.2），设计已不再偏离 14.4 原文，这一条不用再改需求。
+- 哈希链查不出最后一行被改或被删（没有后一行去对 `prev`）。可以在报告里记下链头的哈希，下次报告时对一下。
+  现在不做：设计和需求 11.4 只要求"随手改动留下痕迹"，不在已定范围里；先在局限里写明。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -541,3 +543,24 @@
   EN: README layout table gained a row for the new review file, per language.md. The other README additions (install, config copy, escape hatch, committing the manifest) belong to tasks 1 and 14 and were not written yet.
 - 用到的 Kiro 功能：规格流程（设计、任务两份文件按审阅逐句修改，没有重新生成）。
   EN: Kiro feature used: the spec workflow, editing design.md and tasks.md sentence by sentence instead of regenerating them.
+
+## 2026-11-11（下午：任务 1，项目结构和状态目录）
+
+- 按 tasks.md 任务 1 建了 `pyproject.toml`（Python ≥ 3.11，运行依赖只有 `mcp`，开发依赖 `pytest`、`hypothesis` 放在 `[dev]`，命令行入口 `refcov`）、`refcov/`、`refcov_mcp/`（空包）、`integrations/kiro/refcov.example.toml`（按设计 3.4）、`tests/`。命令行 `refcov` 现在只有 `--version` 和帮助，子命令留给后面的任务。
+  EN: Task 1: added pyproject.toml (Python ≥ 3.11, runtime dependency mcp only, pytest and hypothesis as the dev extra, console script refcov), the refcov/ and refcov_mcp/ packages (the latter empty), integrations/kiro/refcov.example.toml per design §3.4, and tests/. The refcov CLI only has --version and help so far.
+- `refcov/store.py`：仓库根目录由调用方传入；状态目录 `.refcov/` 第一次写入时才建；`refcov.toml` 用 `tomllib` 读，不存在时用设计 3.4 的默认值；清单 `sources.json` 先写临时文件再替换；路径转成相对根目录的 `/` 形式、转小写后用 `fnmatchcase` 匹配；日志 `log.jsonl` 用 `log.lock`（`O_CREAT | O_EXCL`，50 毫秒重试，2 秒超时抛 `LockTimeout`，超过 10 秒的锁当残留删掉）加 `seq`、`time`、`session`、`prev` 哈希链，二进制追加，换行固定 `\n`。
+  EN: refcov/store.py: the caller passes the repo root; .refcov/ is created on first write; refcov.toml is read with tomllib, falling back to the design §3.4 defaults; sources.json is written via a temp file and os.replace; paths are made root-relative with /, lowercased and matched with fnmatchcase; log.jsonl appends under log.lock (O_CREAT|O_EXCL, 50 ms retry, LockTimeout after 2 s, locks older than 10 s removed) with seq, time, session and a prev hash chain, written in binary with LF only.
+- `.gitignore` 加了 `.refcov/errors.log`、`log.lock`、`report-last.json`（另加 `*.egg-info/`、`build/`，`pip install -e .` 会生成）；新建 `.gitattributes`，写 `*.jsonl -text`。`.kiro` 仍然没有被忽略。README 加了 Setup 一节（`pip install -e ".[dev]"`、复制配置），目录表和状态行按现状改了。
+  EN: .gitignore now ignores .refcov/errors.log, log.lock and report-last.json (plus *.egg-info/ and build/ from the editable install); new .gitattributes with *.jsonl -text; .kiro is still not ignored. README gained a Setup section (pip install -e ".[dev]", copy the example config) and an updated layout table and status line.
+- 测试 `tests/test_store.py` 14 个，全部通过（`D:\pyth\python.exe -m pytest`）：两个进程同时各追加 100 行，200 行 `seq` 为 1–200、链完整、锁文件已放掉（连跑 5 次都过）；改第 3 行后报"第 4 行起断开"；把换行改成 CRLF 后报断开；新鲜的锁拿不到时报错且日志不变；残留锁被删掉。这次没写属性测试，任务 1 不涉及需求 16 的性质。
+  EN: tests/test_store.py has 14 tests, all passing under D:\pyth\python.exe: two processes appending 100 lines each give seq 1–200, an intact chain and no leftover lock (passed 5 runs in a row); editing line 3 reports "broken from line 4"; CRLF line endings break the chain; a fresh foreign lock times out with the log unchanged; a stale lock is removed. No property tests this time; task 1 touches none of the requirement 16 properties.
+- 发现：改第 N 行时，断开报在第 N+1 行（第 N+1 行的 `prev` 对不上），不是第 N 行；最后一行被改或被删查不出来。代码注释里写明了，点子记进"以后再做"。
+  EN: Finding: editing line N is reported as a break at line N+1 (that line's prev no longer matches), and edits to or removal of the last line go undetected. Documented in the code; an idea is in the backlog section.
+- 问题 1（环境）：这个 shell 里 PATH 上的 `python` 是 `C:\msys64\mingw64\bin\python.exe`（3.12），没有 pip，也没有 `mcp`。装了 `mcp` 的是 `D:\pyth\python.exe`（也是 `py` 的默认）。这次把 `pip install -e ".[dev]"` 装进了 `D:\pyth\python.exe`，没有动 msys 的 Python。Kiro 钩子里的 `python` 实际是哪一个没测；如果是 msys 那个，任务 6 的钩子会 import 失败、无声放行。要用户决定：调整 PATH，还是钩子命令写明解释器。
+  EN: Issue 1 (environment): in this shell the first python on PATH is C:\msys64\mingw64\bin\python.exe (3.12) with no pip and no mcp; D:\pyth\python.exe (also the py default) has mcp. The editable install went into D:\pyth\python.exe; the msys Python was left untouched. Which python Kiro hooks actually run was not tested; if it is the msys one, task 6 hooks will fail to import and silently allow. The user needs to choose between fixing PATH and naming the interpreter in hook commands.
+  2026-11-11 更新：用户把 `D:\pyth` 放到系统 PATH 最前面并重启了 IDE。agent 的 shell 里 `python -c "import sys, mcp; print(sys.executable)"` 输出 `D:\pyth\python.exe`，`import mcp` 成功，`Get-Command python` 也指向它；`import refcov` 指向仓库里的 `refcov/__init__.py`（可编辑安装生效），14 个测试照常通过。钩子进程里的 `python` 是哪一个仍然没测，留到任务 6 用钩子实测。
+  EN: Update 2026-11-11: the user put D:\pyth first on the system PATH and restarted the IDE. In the agent shell, python now resolves to D:\pyth\python.exe, import mcp works, import refcov points at the repo (editable install active), and all 14 tests pass. Which python a hook process runs is still untested; task 6 will check it with a real hook.
+- 偏离示例的一处：`refcov.example.toml` 里 `[relax] units` 留空，设计 3.4 例子里的 `kiro-hooks/更新日志` 改成注释，免得复制后放宽一个还不存在的单元。
+  EN: One deviation from the design example: [relax] units is empty in refcov.example.toml, with kiro-hooks/更新日志 kept only as a comment, so a copied config does not relax a unit that does not exist yet.
+- 用到的 Kiro 功能：规格任务执行（子 agent 按 tasks.md 任务 1 执行）。
+  EN: Kiro feature used: spec task execution, with a sub-agent running task 1 from tasks.md.

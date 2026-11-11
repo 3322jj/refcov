@@ -1,12 +1,15 @@
-# 参考材料原文的本地缓存（可能有版权，不进公开仓库）。清单文件不忽略。
-# 目录名是暂定的，设计阶段确定状态目录结构后再调整。
+# 参考材料原文的本地缓存（可能有版权，不进公开仓库）。清单 sources.json 和日志 log.jsonl 照常提交。
 .refcov/cache/
-
+# 状态目录里只在本机有用的文件：报错堆栈（含本机路径）、日志锁、报告基准
+.refcov/errors.log
+.refcov/log.lock
+.refcov/report-last.json
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+build/
 .venv/
 .pytest_cache/
 .hypothesis/
-
 # 注意：不要在这里忽略 .kiro 目录（比赛规则要求它在仓库根目录且被提交）
