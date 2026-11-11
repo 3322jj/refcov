@@ -655,3 +655,7 @@
   EN: No property tests this time; task 4 touches none of the requirement 16 or unit-ID properties.
 - 用到的 Kiro 功能：引导文档的 fileMatch 加载（读 `.kiro/specs/**` 时 `citation.md` 进了上下文，源 ID 正则按它写）；规格流程（设计 3.1 按用户决定补一段，没有重新生成）。
   EN: Kiro features used: fileMatch steering (citation.md came into context when the agent read .kiro/specs/**; the source-ID regex follows it); the spec workflow, adding one paragraph to design §3.1 per the user's decisions without regenerating.
+- 提交 `2f1d70e`。第一次 `git push origin main` 报 `TLS connect error`，等 5 秒重试成功（`657ea6a..2f1d70e`）。
+  EN: Commit 2f1d70e. The first git push origin main hit a TLS connect error; after a 5-second wait the retry succeeded (657ea6a..2f1d70e).
+- CI（run 43025051424，push 触发）：`test (3.11)` 和 `test (3.12)` 都是 success，Install、Test 各步都成功，Test 一步约 13–14 秒（锁超时测试要等满 2 秒）。结论来自公开 API 的 runs 和 jobs 接口；日志要登录才能看，Linux 上哪些测试被跳过（例如 Windows 大小写那条）没看到。
+  EN: CI (run 43025051424, on push): test (3.11) and test (3.12) both succeeded, including Install and Test; the Test step took about 13–14 s (the lock-timeout test waits the full 2 s). Read from the public runs and jobs API; logs need authentication, so which tests were skipped on Linux (such as the Windows case-insensitivity test) was not seen.
