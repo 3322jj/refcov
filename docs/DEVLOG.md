@@ -27,6 +27,8 @@
   现在不做：设计和需求 11.4 只要求"随手改动留下痕迹"，不在已定范围里；先在局限里写明。
 - `tests/test_gitignore.py` 只按规则来源的文件名是不是 `.gitignore` 判断。开发者的全局忽略文件叫 `~/.gitignore` 且命中 `.kiro` 时会误报失败。文件开头的说明写了"全局 excludesFile 不算失败"，代码其实没做到。可以改成只认仓库内的 `.gitignore`（`-v` 输出里仓库内的来源是相对路径）。
   现在不做：误报方向是失败，不会漏掉问题；CI 上没有全局忽略文件。
+- 以后迁到 mcp 2.x（`FastMCP` 改名 `MCPServer`），去掉 `pyproject.toml` 里的 `mcp<2`。
+  现在不做：离最细通路目标（2026-11-14）只剩两天；2.x 对 `server/discover` 怎么回、`structured_output` 等行为都没验证，迁了 Kiro 里的实测也要重做。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -688,3 +690,9 @@
   EN: CI failed for the first time (run 43029425190, on push). The Test step failed in test (3.12); in test (3.11) it also failed and the job was marked cancelled after 3.12 failed. Install succeeded in both. The Test step took about 76 s (13:28:38 to 13:29:54) versus 13–14 s in task 4. The only failure text reachable without login is the check-run annotations: "Process completed with exit code 1." (3.12, log line 269; 3.11, line 266) and "The strategy configuration was canceled because "test._3_12" failed", plus a notice that ubuntu-latest moves to Ubuntu 26 from October 19, 2026. The pytest output needs authentication, so the failing test is unknown. One TLS disconnect on the jobs fetch; the retry succeeded.
 - 推测（没验证）：时间从 13 秒涨到 76 秒，像是有测试在等超时。新加的测试里只有 `tests/test_mcp_server.py` 起子进程并设了 30 秒和 60 秒的等待，嫌疑最大。按用户的规矩，没改代码，先问用户。
   EN: Guess, not verified: the jump from 13 s to 76 s looks like tests waiting on timeouts; the only new tests with 30 s and 60 s waits are the subprocess tests in tests/test_mcp_server.py. Per the user's rule, no code was changed before asking.
+- CI 失败原因（用户登录 GitHub 后贴来的日志）：`5 failed, 148 passed, 1 skipped in 75.93s`。失败的子进程 stderr 结尾是 `...py.sdk.modelcontextprotocol.io/v2/migration/#fastmcp-renamed-to-mcpserver or pin 'mcp<2' to keep running v1 code.`。也就是 CI 按 `pyproject.toml` 里不限版本的 `mcp` 装到了 2.x，2.x 把 `FastMCP` 改名为 `MCPServer`，`refcov_mcp` 一 import 就失败。本机装的是 1.28.1，所以本机全过。`pip index versions mcp` 显示最新是 2.3.0（2.x 有 2.0.0–2.3.0，1.x 最新是 1.30.0）。前面"等超时"的推测不对：时间变长应该是失败的测试在等子进程或读输出，没有核实。skipped 的 1 个应该是只在 Windows 上跑的大小写测试，也没核实。
+  EN: CI failure cause, from the log the user pasted after logging in: 5 failed, 148 passed, 1 skipped in 75.93 s. The failing subprocess stderr ends with a pointer to the SDK v2 migration note "fastmcp renamed to mcpserver, or pin 'mcp<2' to keep running v1 code". CI installed the unpinned mcp at 2.x, where FastMCP is renamed MCPServer, so refcov_mcp fails on import; locally it is 1.28.1. pip lists 2.3.0 as the latest (1.x ends at 1.30.0). The earlier timeout guess was wrong; why the run took longer was not checked, nor which test was skipped.
+- 教训：任务 1 写 `pyproject.toml` 时 `mcp` 没限版本，本机和 CI 装到的大版本不同。没改，先问用户。
+  EN: Lesson: task 1 left mcp unpinned in pyproject.toml, so local and CI got different major versions. Not changed yet; asking the user first.
+- 用户选了限定版本：`pyproject.toml` 里 `mcp` 改成 `mcp>=1.28,<2`，代码不动。迁 2.x 记进"以后再做"。本机重新 `pip install -e ".[dev]"` 后仍是 mcp 1.28.1，已安装包的依赖显示 `mcp<2,>=1.28`；全量 154 个测试通过。同时按用户要求把开发依赖 `pytest` 改成 `pytest<10`：本机每次跑测试都有 `PytestRemovedIn10Warning`（anyio 的 pytest 插件用了要在 pytest 10 删掉的 `CallSpec2`），免得 CI 装到 pytest 10 再出同样的事。
+  EN: The user chose to pin: mcp is now "mcp>=1.28,<2" in pyproject.toml, with no code change; moving to 2.x is in the backlog. After reinstalling, mcp is still 1.28.1, the installed metadata shows mcp<2,>=1.28, and all 154 tests pass. Per the user, the dev dependency is now pytest<10: every local run warns PytestRemovedIn10Warning because anyio's pytest plugin uses CallSpec2, which pytest 10 removes, so CI must not pick up pytest 10.

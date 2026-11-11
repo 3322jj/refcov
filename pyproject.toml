@@ -10,10 +10,11 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 # 运行时只有 MCP 服务模块（refcov_mcp）依赖第三方包；核心层 refcov/ 只用标准库。
-dependencies = ["mcp"]
+# mcp 2.x 把 FastMCP 改名为 MCPServer，refcov_mcp 按 1.x 写（DEVLOG 2026-11-11 任务 5）
+dependencies = ["mcp>=1.28,<2"]
 
 [project.optional-dependencies]
-dev = ["pytest", "hypothesis"]
+dev = ["pytest<10", "hypothesis"]  # pytest 10 会删掉 anyio 插件还在用的 CallSpec2
 
 [project.scripts]
 refcov = "refcov.cli:main"
