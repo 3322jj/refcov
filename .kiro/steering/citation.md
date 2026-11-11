@@ -5,7 +5,7 @@ fileMatchPattern: ".kiro/specs/**"
 
 # 需求出处写法（草案）
 
-EN summary: Draft citation format for requirements. Requirements cite units as `[ref:<source-id>/<unit-id>]`, usually on a `出处：` (source) line; a requirement block with no valid reference anywhere is a phantom requirement, and a reference to a missing source or unit is an invalid reference; in strict mode either one fails the check. Unit IDs come from headings: CJK kept, runs of whitespace, square brackets and `@` become one hyphen, `-2`, `-3` for duplicate headings, `@2`, `@3` for parts of an over-long section. User instructions given in chat are saved under `docs/decisions/` and cited like any other unit.
+EN summary: Draft citation format for requirements. Requirements cite units as `[ref:<source-id>/<unit-id>]`, usually on a `出处：` (source) line; a requirement block with no valid reference anywhere is a phantom requirement, and a reference to a missing source or unit is an invalid reference; in strict mode either one fails the check. Unit IDs come from headings: CJK kept, runs of whitespace, square brackets and `@` become one hyphen, `-2`, `-3` for duplicate headings (compared case-insensitively, skipping every heading's own ID; a unit named after the file gets its ID last), `@2`, `@3` for parts of an over-long section. User instructions given in chat are saved under `docs/decisions/` and cited like any other unit.
 
 > 状态：**草案**。格式按设计文档 `.kiro/specs/refcov-skeleton/design.md` 第 4 节定下，实现时如有改动同步改这里。对应需求 6.1。
 
@@ -30,7 +30,7 @@ EN summary: Draft citation format for requirements. Requirements cite units as `
 由单元标题生成（需求 2.5，设计第 4 节）：
 
 1. 把连续的空白、`[`、`]`、`@` 换成一个 `-`，去掉首尾的 `-`。其余字符原样保留，含中日韩文字和大小写。结果为空时用 `section`。
-2. 同一参考源里标题重名，第二个起加 `-2`、`-3`……，还重名就继续往后数。
+2. 同一参考源里标题重名，第二个起加 `-2`、`-3`……，还重名就继续往后数。空号要避开所有标题自己的 ID，所以本身不重名的标题 ID 不会因为别处多了重名章节而变。查重不区分大小写，ID 保留原来的大小写（设计第 4 节第 2 条）。第一个标题之前那段用文件名当标题，它最后分 ID，和真标题撞了就由它加后缀，例如 `hooks.md` 里 `# Hooks` 是 `Hooks`、开头那段是 `hooks-2`（设计第 4 节第 5 条）。
 3. 超过 4000 个字符的章节拆成几段：第一段沿用原 ID；后面的标题是"原标题 (2)"，ID 是原 ID 加 `@2`、`@3`……。标题生成的 ID 里没有 `@`，所以拆分出的 ID 不会和重名的 ID 撞。
 
 例子：`退出码`、`退出码-2`（第二个叫"退出码"的章节）、`退出码@2`（第一个"退出码"章节超长拆出的第二段）。单元 ID 不含空白和方括号，单元标题不限。
