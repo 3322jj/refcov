@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "RefCov：MCP 读取补记会话",
+      "trigger": "PostToolUse",
+      "description": "RefCov 的 MCP 工具返回后，按返回文字最后一行的 refcov-call 编号把会话 ID 补记进日志（需求 4.5）。出错一律放行。",
+      "matcher": "^mcp_refcov_",
+      "action": {
+        "type": "command",
+        "command": "python integrations/kiro/hook.py post-mcp",
+        "timeout": 10
+      }
+    }
+  ]
+}

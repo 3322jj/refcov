@@ -45,7 +45,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 完成标志：在 Kiro 里读 3 个单元，日志里 3 条 `read`，哈希链完整
   - _需求：4.1、4.6、4.7、4.8、13.2、13.4_
 
-- [ ] 6. 会话补记钩子
+- [x] 6. 会话补记钩子
   - `integrations/kiro/hook.py`：按设计 8 第 1、3 步写好编码处理、按自己的位置算仓库根目录并放进 `sys.path`、出错放行并写 `.refcov/errors.log`；先只接 PostToolUse 的 MCP 分支
   - `api.attach_session(call, session)`：只认 `tool_response` 最后一行的 `refcov-call:`，追加 `session` 记录
   - `integrations/kiro/hooks/refcov-post-mcp.json`（匹配 `^mcp_refcov_`），由用户确认后放进 `.kiro/hooks/`
