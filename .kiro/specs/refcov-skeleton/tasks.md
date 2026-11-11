@@ -38,7 +38,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 手动检查：登记 `https://kiro.dev/docs/hooks.md`。这台机器外网时断时续，失败不算任务失败，结果记进 DEVLOG
   - _需求：1.1、1.4、1.5、2.6、3.4_
 
-- [ ] 5. MCP 服务：`list_units`、`read_unit`
+- [x] 5. MCP 服务：`list_units`、`read_unit`
   - `refcov/api.py`：`read(source, unit)`，唯一追加 `read` 记录的函数，记 `text_units`、`images`，返回内容和调用编号；拿不到日志锁时报错、不返回内容
   - `refcov_mcp/server.py`：官方 SDK，stdio；启动参数 `--root <仓库根目录>`；两个工具按设计 5 的输入输出；返回顺序是正文 → "直接读文件不算看过"的提示 → `refcov-call: c-<seq>`，`refcov-call:` 永远是最后一行；单元不存在时返回最接近的 3 个 ID
   - 更新 `docs/mcp.example.json`，指向正式服务，写出 `--root` 参数；用户手动改 `.kiro/settings/mcp.json`

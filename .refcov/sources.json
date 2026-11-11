@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "kiro-hooks",
+      "origin": "https://kiro.dev/docs/hooks.md",
+      "fetched": "2026-11-11T21:28:37+08:00",
+      "sha256": "20ee07aecd135812b4cc4e37b1b52355b89fa262dbf61bab73a319cc406d3b6c",
+      "adapter": "markdown",
+      "registered_seq": 1,
+      "units": [
+        {
+          "id": "hooks-2",
+          "title": "hooks",
+          "kind": "section",
+          "sha256": "d49d568ab403885476a74a56b3d292aa20f893eeb39c79219d2c16b6882956af",
+          "chars": 171
+        },
+        {
+          "id": "Hooks",
+          "title": "Hooks",
+          "kind": "section",
+          "sha256": "67b95fb3ca43dae8def24262018052d569096761ef4cf87ff7157228a82ceb74",
+          "chars": 589
+        },
+        {
+          "id": "What-you-can-do-with-hooks",
+          "title": "What you can do with hooks",
+          "kind": "section",
+          "sha256": "21198efb83cd8b736578304839ed68a87ad04056fa30c3cbd245c547a28c8f36",
+          "chars": 479
+        },
+        {
+          "id": "Quick-example",
+          "title": "Quick example",
+          "kind": "section",
+          "sha256": "79805224cd386ca270c7afd96a0e6d93d13e406624d5b1057e2c47df5d4b9785",
+          "chars": 592
+        },
+        {
+          "id": "How-hooks-work",
+          "title": "How hooks work",
+          "kind": "section",
+          "sha256": "76c96fb47382464f66c40728d9c15df2745655e48388394d2339464aaa42228b",
+          "chars": 668
+        },
+        {
+          "id": "Choose-a-trigger",
+          "title": "Choose a trigger",
+          "kind": "section",
+          "sha256": "19b59ed94f02a70905b87073d16cbc29b0a9a1c46c831977c8ae00fb8c2af7dc",
+          "chars": 197
+        },
+        {
+          "id": "Hook-file-schema",
+          "title": "Hook file schema",
+          "kind": "section",
+          "sha256": "f2977e9ce5b794f74e12918ee6f97f80fd07c46de2c55d6d2952fa6cd32e7a86",
+          "chars": 318
+        },
+        {
+          "id": "Field-reference",
+          "title": "Field reference",
+          "kind": "section",
+          "sha256": "c06e71bcd4fa2c61bb95c159a377964243ec690669ff47cf07377ad15989039d",
+          "chars": 1418
+        },
+        {
+          "id": "Confirmation-prompts",
+          "title": "Confirmation prompts",
+          "kind": "section",
+          "sha256": "c8784df5ab62b90bf593a70359f11b2256912a487d473ba5adb50c9ee8b3c464",
+          "chars": 1696
+        },
+        {
+          "id": "File-naming-and-location",
+          "title": "File naming and location",
+          "kind": "section",
+          "sha256": "a578502966703c8f12bd88128cc2b42d115e6d80cdbae8c08b1415fea1ab10d5",
+          "chars": 469
+        },
+        {
+          "id": "Setting-up-hooks",
+          "title": "Setting up hooks",
+          "kind": "section",
+          "sha256": "e056e061c8a3925a5fb212d774c55b2ab37ea634bd758e9b1ad2a3842b8056b0",
+          "chars": 1231
+        },
+        {
+          "id": "Previous-versions",
+          "title": "Previous versions",
+          "kind": "section",
+          "sha256": "f3f2d5cd22b676c32107606babfd52d7c52e451717b0bac779987cff717eb530",
+          "chars": 703
+        },
+        {
+          "id": "Next-steps",
+          "title": "Next steps",
+          "kind": "section",
+          "sha256": "8e6ab22de33d2136e15ba81f3e0cee69bbcd56d053db28fa105677bdfab784a2",
+          "chars": 583
+        }
+      ]
+    }
+  ]
+}
