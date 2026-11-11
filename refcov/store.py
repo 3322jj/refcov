@@ -240,6 +240,11 @@ class Store:
         with self.locked():
             return self.append_locked(type, session, **fields)
 
+    def next_seq_locked(self) -> int:
+        """拿着锁时，下一条记录会用的 seq（例如调用编号 `c-<seq>` 要写进这条记录本身）。"""
+        lines = self._read_lines()
+        return int(json.loads(lines[-1].decode("utf-8"))["seq"]) + 1 if lines else 1
+
     def append_locked(self, type: str, session: str | None = None, **fields) -> dict:
         """调用方已经用 `locked()` 拿着锁时追加一条记录。不拿锁就调用会破坏哈希链。"""
         for reserved in ("seq", "time", "type", "session", "prev"):

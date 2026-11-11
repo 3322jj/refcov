@@ -30,6 +30,16 @@ def test_append_locked_inside_locked_block(tmp_path):
     assert s.verify_chain().ok and [r["seq"] for r in s.records()] == [1, 2, 3]
 
 
+def test_next_seq_locked_matches_the_appended_record(tmp_path):
+    """next_seq_locked：拿着锁时预知下一条记录的 seq（读单元时调用编号 c-<seq> 要写进这条记录本身）。"""
+    s = Store(tmp_path)
+    with s.locked():
+        assert s.next_seq_locked() == 1
+        n = s.next_seq_locked()
+        assert s.append_locked("read", None, call=f"c-{n}")["seq"] == n
+        assert s.next_seq_locked() == 2
+
+
 def test_locked_block_not_run_when_lock_is_held(tmp_path):
     """别的进程拿着新鲜的锁时，locked() 抛 LockTimeout，块里的代码一行都不执行。"""
     s = Store(tmp_path)

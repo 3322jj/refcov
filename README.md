@@ -2,7 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), and source registration with `refcov add` (task 4). Everything else below describes what the skeleton is specified to do, not what it does today.
+> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), source registration with `refcov add` (task 4), and the MCP server with `list_units` and `read_unit` (task 5). Everything else below describes what the skeleton is specified to do, not what it does today.
 
 ## What it does
 
@@ -32,16 +32,16 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 | `docs/decisions/` | The user's chat instructions saved as files, one heading per instruction, so requirements can cite them like any other unit |
 | `.kiro/specs/refcov-skeleton/design.md` | Skeleton design: modules, data formats, MCP tools, hooks, unit-ID rules, property tests, build order |
 | `.kiro/specs/refcov-skeleton/tasks.md` | Implementation tasks; the thinnest path (register, split, read via MCP, record, report) comes first |
-| `docs/mcp.example.json` | Example workspace MCP config for the probe server. Copy it to `.kiro/settings/mcp.json` and fill in the absolute repo path. The real file is kept out of git via `.git/info/exclude`, not `.gitignore` |
+| `docs/mcp.example.json` | Example workspace MCP config for the RefCov server (`python -m refcov_mcp --root <repo root>`). Copy it to `.kiro/settings/mcp.json` and fill in the absolute paths of your Python and the repo. The real file is kept out of git via `.git/info/exclude`, not `.gitignore` |
 | `pyproject.toml` | Package metadata; console script `refcov`; runtime dependency `mcp`, dev extras `pytest` and `hypothesis` |
-| `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock), `sources.py` (adapter interface, unit-ID rules, splitting units over 4000 characters into `@2`, `@3` parts, and source registration), `adapters/markdown.py` (splits on `#` to `###` headings, skipping fenced code and `>` lines) and the CLI (`refcov add` only so far). Known adapter limits: setext headings (`===`, `---` underlines) are not split on, and a blank line inside a code block can become a split point |
-| `refcov_mcp/` | MCP server module (empty package for now) |
+| `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock), `sources.py` (adapter interface, unit-ID rules, splitting units over 4000 characters into `@2`, `@3` parts, and source registration), `adapters/markdown.py` (splits on `#` to `###` headings, skipping fenced code and `>` lines), `api.py` (tool-independent entry points; `read` is the only writer of `read` records) and the CLI (`refcov add` only so far). Known adapter limits: setext headings (`===`, `---` underlines) are not split on, and a blank line inside a code block can become a split point |
+| `refcov_mcp/` | MCP server (official SDK, FastMCP over stdio, server name `refcov`). So far two tools: `list_units` and `read_unit`. Each `read_unit` result is one text block ending in the line `refcov-call: c-<seq>`, and appends a `read` record to the log |
 | `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml`, the example config with Kiro paths |
 | `tests/` | pytest tests, including `test_gitignore.py`, which fails if any `.gitignore` rule ignores a file under `.kiro` |
 | `.github/workflows/ci.yml` | GitHub Actions: runs `pytest` on Linux (Python 3.11 and 3.12) |
 | `experiments/mcp-posttooluse/` | Probe MCP server, hook logger, raw logs and the disabled probe hooks from the test showing that PostToolUse on MCP tools carries the correct session ID |
 
-Planned, not yet present: the rest of the core library (coverage, citations, MCP tools), the Kiro hooks, `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
+Planned, not yet present: the rest of the core library (coverage, citations, the `check`, `request_token` and `report` MCP tools), the Kiro hooks, `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
 
 ## Language
 

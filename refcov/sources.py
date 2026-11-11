@@ -228,7 +228,19 @@ def _is_url(origin: str) -> bool:
     return urllib.parse.urlsplit(origin).scheme.lower() in ("http", "https")
 
 
-def _load_url(origin: str, source_id: str, fetch) -> tuple[bytes, str, str]:
+def file_name(origin: str, source_id: str) -> str:
+    """拆单元时借来当标题的文件名（不带扩展名）。登记和读取都按清单里的 `origin` 算，结果一致。
+
+    网址取路径最后一段（先 unquote），本地文件取文件名；为空时用参考源 ID。
+    """
+    if _is_url(origin):
+        last = urllib.parse.unquote(urllib.parse.urlsplit(origin).path).rsplit("/", 1)[-1]
+    else:
+        last = origin.replace("\\", "/").rsplit("/", 1)[-1]
+    return PurePosixPath(last).stem or source_id
+
+
+def _load_url(origin: str, fetch) -> tuple[bytes, str]:
     try:
         data, ctype = fetch(origin)
     except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError) as e:
@@ -241,10 +253,10 @@ def _load_url(origin: str, source_id: str, fetch) -> tuple[bytes, str, str]:
             f"不支持该格式：{origin} 返回的 Content-Type 是 {ctype or '（没有）'}。"
             "只登记 Markdown（text/markdown；text/plain 只在地址以 .md 或 .markdown 结尾时接受）"
         )
-    return data, origin, PurePosixPath(last).stem or source_id
+    return data, origin
 
 
-def _load_file(store: Store, origin: str) -> tuple[bytes, str, str]:
+def _load_file(store: Store, origin: str) -> tuple[bytes, str]:
     path = Path(origin)
     if not path.is_absolute():
         path = store.root / path
@@ -258,7 +270,7 @@ def _load_file(store: Store, origin: str) -> tuple[bytes, str, str]:
         data = resolved.read_bytes()
     except OSError as e:
         raise RegisterError(f"读取失败：{origin}：{e}") from e
-    return data, os.path.relpath(resolved, root).replace("\\", "/"), resolved.stem
+    return data, os.path.relpath(resolved, root).replace("\\", "/")
 
 
 def register(store: Store, origin: str, source_id: str,
@@ -276,9 +288,10 @@ def register(store: Store, origin: str, source_id: str,
     if not SOURCE_ID.fullmatch(source_id):
         raise RegisterError(f"参考源 ID 只能用小写字母、数字和短横线：{source_id!r}")
     if _is_url(origin):
-        data, stored, name = _load_url(origin, source_id, fetch)
+        data, stored = _load_url(origin, fetch)
     else:
-        data, stored, name = _load_file(store, origin)
+        data, stored = _load_file(store, origin)
+    name = file_name(stored, source_id)
     try:
         text = data.decode("utf-8-sig")
     except UnicodeDecodeError as e:
