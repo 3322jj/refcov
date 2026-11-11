@@ -2,7 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), source registration with `refcov add` (task 4), and the MCP server with `list_units` and `read_unit` (task 5). Everything else below describes what the skeleton is specified to do, not what it does today.
+> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), source registration with `refcov add` (task 4), the MCP server with `list_units` and `read_unit` (task 5), and the PostToolUse hook that attaches Kiro's session ID to each read (task 6). Everything else below describes what the skeleton is specified to do, not what it does today.
 
 ## What it does
 
@@ -36,12 +36,13 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 | `pyproject.toml` | Package metadata; console script `refcov`; runtime dependency `mcp`, dev extras `pytest` and `hypothesis` |
 | `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock), `sources.py` (adapter interface, unit-ID rules, splitting units over 4000 characters into `@2`, `@3` parts, and source registration), `adapters/markdown.py` (splits on `#` to `###` headings, skipping fenced code and `>` lines), `api.py` (tool-independent entry points; `read` is the only writer of `read` records) and the CLI (`refcov add` only so far). Known adapter limits: setext headings (`===`, `---` underlines) are not split on, and a blank line inside a code block can become a split point |
 | `refcov_mcp/` | MCP server (official SDK, FastMCP over stdio, server name `refcov`). So far two tools: `list_units` and `read_unit`. Each `read_unit` result is one text block ending in the line `refcov-call: c-<seq>`, and appends a `read` record to the log |
-| `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml`, the example config with Kiro paths |
+| `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml` (example config with Kiro paths), `hook.py` (one hook script dispatching on its first argument; currently only `post-mcp`) and `hooks/refcov-post-mcp.json` (PostToolUse on `^mcp_refcov_`: reads the `refcov-call: c-<seq>` last line of the tool result and appends a `session` record). The user copies hook files into `.kiro/hooks/`; moving a file out of that folder disables it immediately |
+| `experiments/hook-python/` | Probe hook that records which Python and working directory Kiro hook processes use |
 | `tests/` | pytest tests, including `test_gitignore.py`, which fails if any `.gitignore` rule ignores a file under `.kiro` |
 | `.github/workflows/ci.yml` | GitHub Actions: runs `pytest` on Linux (Python 3.11 and 3.12) |
 | `experiments/mcp-posttooluse/` | Probe MCP server, hook logger, raw logs and the disabled probe hooks from the test showing that PostToolUse on MCP tools carries the correct session ID |
 
-Planned, not yet present: the rest of the core library (coverage, citations, the `check`, `request_token` and `report` MCP tools), the Kiro hooks, `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
+Planned, not yet present: the rest of the core library (coverage, citations, the `check`, `request_token` and `report` MCP tools), the remaining Kiro hooks (gates, protection, status line), `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
 
 ## Language
 

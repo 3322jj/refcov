@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "试验：钩子进程的 python 和当前目录",
+      "trigger": "PostToolUse",
+      "description": "任务 6 试验：记下钩子进程的 sys.executable、cwd、PATH 前几项，一律放行。测完挪出 .kiro/hooks/。",
+      "matcher": "^mcp_refcov_",
+      "action": {
+        "type": "command",
+        "command": "python experiments/hook-python/probe.py",
+        "timeout": 10
+      }
+    }
+  ]
+}

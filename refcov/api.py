@@ -1,11 +1,12 @@
 """与工具无关的核心层入口（设计 6）。接入层和 MCP 服务只调用这里，参数里没有任何 AI 工具的字段名。
 
-现在只有读单元（任务 5）。`read` 是唯一追加 `read` 记录的函数（需求 4.8）。
+现在有读单元（任务 5）和会话补记（任务 6）。`read` 是唯一追加 `read` 记录的函数（需求 4.8）。
 """
 
 from __future__ import annotations
 
 import difflib
+import re
 from dataclasses import dataclass
 
 from refcov.sources import content_sha256, file_name
@@ -16,8 +17,54 @@ HINT = "参考材料要用 RefCov 的 MCP 工具读，直接读文件不算看�
 CALL_PREFIX = "refcov-call: "
 
 
+_CALL_LINE = re.compile(r"refcov-call: (c-\d+)")
+
+
 class ReadError(Exception):
     """读不了这个单元。消息就是给 AI 看的原因。抛出时没有写 read 记录。"""
+
+
+class AttachError(Exception):
+    """会话补记不能写（调用编号对不上 read 记录、参数对不上、已记成别的会话）。抛出时没有写记录。"""
+
+
+def call_from_text(text: str) -> str | None:
+    """工具返回文字的最后一行完全是 `refcov-call: c-<数字>` 时返回调用编号，否则返回 None（设计 5）。
+
+    只去掉末尾的换行，不去其他空白。list_units 和出错的 read_unit 没有这一行，返回 None。
+    """
+    lines = text.rstrip("\r\n").split("\n")
+    m = _CALL_LINE.fullmatch(lines[-1].rstrip("\r"))
+    return m.group(1) if m else None
+
+
+def attach_session(store: Store, call: str, session: str,
+                   source: str | None = None, unit: str | None = None) -> bool:
+    """会话补记（需求 4.5）：给调用编号 `call` 对应的 read 记录追加一条 `session` 记录，不改原记录。
+
+    - `call` 必须对应一条已有的 read 记录；给了 `source`、`unit` 时还要和那条记录一致。
+    - 同一个调用编号已经补记成同一个会话：不写，返回 False。
+    - 已经补记成别的会话：不写，抛 AttachError。
+    写入时返回 True。2 秒拿不到锁时抛 LockTimeout，什么都不写。检查和追加都在锁里做，
+    并行读取时几个钩子同时补记也不会重复。
+    """
+    if not session:
+        raise AttachError(f"{call}：会话 ID 为空")
+    with store.locked():
+        records = store.records()
+        read_rec = next((r for r in records if r.get("type") == "read" and r.get("call") == call), None)
+        if read_rec is None:
+            raise AttachError(f"{call}：日志里没有这个调用编号的 read 记录")
+        for field, given in (("source", source), ("unit", unit)):
+            if given is not None and read_rec.get(field) != given:
+                raise AttachError(f"{call}：工具参数 {field}={given!r} 和 read 记录里的 {read_rec.get(field)!r} 不一致")
+        done = [r.get("session") for r in records if r.get("type") == "session" and r.get("call") == call]
+        if session in done:
+            return False
+        if done:
+            raise AttachError(f"{call}：已经补记成会话 {done[0]!r}，这次是 {session!r}")
+        store.append_locked("session", session, call=call)
+    return True
 
 
 @dataclass(frozen=True)
