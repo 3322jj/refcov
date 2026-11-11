@@ -620,3 +620,9 @@
   EN: Limits (noted at the top of markdown.py and in the README): setext headings are not split on; a blank line inside a code block can become a split point. Also, a hard cut can produce a whitespace-only part when the first 4000 characters are all whitespace; the property test allows exactly that case.
 - 用到的 Kiro 功能：引导文档的 fileMatch 加载（读 `.kiro/specs/**` 时 `citation.md` 进了上下文，读 `tests/**` 时 `testing.md` 进了上下文）；规格流程（只按用户决定改 design.md 一条，没有重新生成）。
   EN: Kiro features used: fileMatch steering (citation.md loaded when the agent read .kiro/specs/**, testing.md when it read tests/**); the spec workflow, editing one design.md item per the user's decision without regenerating.
+- 提交 `6349d46`，普通推送一次成功（`673c985..6349d46`），没遇到 TLS 错误。提交说明是推送前定的，写着"6 property tests"，实际是 7 条（第 7 条是后来加的）；已推送，没有改写历史。
+  EN: Commit 6349d46, pushed with a plain push on the first try (673c985..6349d46), no TLS error. Its message, fixed before the last change, says "6 property tests"; there are actually 7. Already pushed, so history was not rewritten.
+- CI（run 43019924494，push 触发）：`test (3.11)` 和 `test (3.12)` 都是 success，Install、Test 各步都成功。结论来自公开 API 的 runs 和 jobs 接口；第一次取 jobs 时网页抓取报 TLS 断开，重试一次成功。日志要登录才能看，Linux 上跑了几个测试没看到。
+  EN: CI (run 43019924494, on push): test (3.11) and test (3.12) both succeeded, including Install and Test. Read from the public runs and jobs API; the first jobs fetch hit a TLS disconnect and succeeded on retry. Logs need authentication, so the Linux test count was not seen.
+- 过程问题：agent 把"跑测试 + 提交推送"和改 DEVLOG 行数（37 改成 38）的两个操作同时发了出去，顺序没有保证。事后用 `git grep` 核对，提交里是 38，工作区干净，这次没出错；之后有先后依赖的操作分开发。
+  EN: Process slip: the agent issued "test, commit and push" in parallel with the DEVLOG edit changing 37 to 38 lines, with no ordering guarantee. git grep afterwards showed the commit has 38 and the tree was clean; dependent steps will be issued one after another from now on.
