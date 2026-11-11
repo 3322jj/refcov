@@ -583,3 +583,9 @@
   EN: Kiro feature used: spec task execution, with a sub-agent running task 2 from tasks.md.
 - README 的状态行和目录表补上了 `test_gitignore.py` 和 `.github/workflows/ci.yml`。
   EN: The README status line and layout table now mention test_gitignore.py and .github/workflows/ci.yml.
+- 按用户要求把 `ci.yml` 里的 `actions/checkout@v4` 改成 `@v5`、`actions/setup-python@v5` 改成 `@v6`，Python 3.11、3.12 两个版本不变。提交 `ee011a4`。
+  EN: Per the user, ci.yml now uses actions/checkout@v5 and actions/setup-python@v6; the Python 3.11 and 3.12 matrix is unchanged. Commit ee011a4.
+- 问题 2（网络）：第一次 `git push origin main` 报 `TLS connect error: error:00000000:lib(0)::reason(0)`，原样重试一次就推上去了（`c51734a..ee011a4`），没有出现 workflow 权限错误。推送后 shell 里用 `Invoke-RestMethod` 查 GitHub API 连续两次报 `Received an unexpected EOF or 0 bytes from the transport stream`，改用 agent 的网页抓取工具查公开 API 才拿到结果。
+  EN: Issue 2 (network): the first git push origin main failed with a TLS connect error; the same command succeeded on retry (c51734a..ee011a4), with no workflow-permission error. Invoke-RestMethod against the GitHub API then failed twice with an unexpected EOF; the public API was read with the agent's web fetch tool instead.
+- CI 第一次运行（run 43016103431，push 触发）：`test (3.11)` 和 `test (3.12)` 两个作业都是 success，Install、Test 各步都成功，总共约 20 秒。结论来自公开 API 的 runs 和 jobs 接口；日志要登录才能下载，所以 Linux 上跑了几个测试没看到，只知道 pytest 退出码为 0。
+  EN: First CI run (run 43016103431, on push): both test (3.11) and test (3.12) succeeded, every step including Install and Test, in about 20 s. Taken from the public runs and jobs API; logs need authentication, so the Linux test count was not seen, only that pytest exited 0.
