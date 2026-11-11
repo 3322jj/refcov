@@ -30,7 +30,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 属性测试：ID 不含空白和方括号、标题生成的 ID 不含 `@`；同一标题序列两次结果相同、ID 互不重复；拆分后拼回等于原文（设计 9）
   - _需求：2.1、2.2、2.3、2.4、2.5、3.1、3.2、3.3、3.5、3.6_
 
-- [ ] 4. 登记参考源和 `refcov add`
+- [x] 4. 登记参考源和 `refcov add`
   - `sources.register(origin, source_id)`：抓取（本地文件或网址）、存进 `.refcov/cache/`、拆单元、写清单和 `register` 记录；重新登记时校验值变了就重拆
   - 不是 Markdown 时登记失败并报"不支持该格式"；抓取失败报原因；两种情况都不改清单
   - 命令行 `refcov add <路径或网址> --id <参考源ID>`（只能由用户跑，任务 14 拦 AI 在 shell 里跑）

@@ -1,15 +1,25 @@
-"""适配器接口和单元 ID 规则（需求 2、3.5，设计 4 第 1–3、8 条）。
+"""适配器接口、单元 ID 规则和登记参考源（需求 1、2、3.4、3.5，设计 2、3.1、4）。
 
-只用标准库。核心层不 import 任何具体适配器（需求 2.6）。登记参考源（抓取、缓存、
-写清单）是任务 4 的事，不在这里。
+只用标准库。登记时按名字选用 `refcov.adapters` 里的适配器；视频、地理适配器在各自的应用里，
+核心层不 import 它们（需求 2.6）。
 """
 
 from __future__ import annotations
 
 import hashlib
+import http.client
+import json
+import os
 import re
+import urllib.error
+import urllib.parse
+import urllib.request
 from dataclasses import dataclass, field
-from typing import Iterable, Protocol, Sequence
+from pathlib import Path, PurePosixPath
+from typing import Callable, Iterable, Protocol, Sequence
+
+from refcov import __version__
+from refcov.store import Store, now_iso
 
 LIMIT = 4000  # 单元正文上限，按换行统一后的 len 算（设计 4 第 3 条）
 EMPTY_ID = "section"
@@ -175,3 +185,130 @@ def find_unit(units: Iterable[Unit], unit_id: str) -> Unit:
         if u.id == unit_id:
             return u
     raise KeyError(unit_id)
+
+
+# ---- 登记参考源（需求 1.1、1.4、1.5、3.4，任务 4）----
+
+SOURCE_ID = re.compile(r"[a-z0-9-]+")  # 和 citation.md 引用正则里的参考源 ID 部分一致
+MARKDOWN_EXT = (".md", ".markdown")
+MARKDOWN_TYPES = {"text/markdown", "text/x-markdown"}
+FETCH_TIMEOUT = 10.0
+USER_AGENT = f"refcov/{__version__} (+https://github.com/3322jj/refcov)"
+
+
+class RegisterError(Exception):
+    """登记失败。消息就是给用户看的原因。抛出时清单、缓存、日志都没动。"""
+
+
+@dataclass(frozen=True)
+class Registered:
+    """登记结果。`written` 为 False 表示来源和内容都没变，什么都没写。"""
+
+    entry: dict
+    changed: bool
+    written: bool
+
+
+def fetch_url(url: str, timeout: float = FETCH_TIMEOUT) -> tuple[bytes, str | None]:
+    """用 urllib 抓网址，返回 (原始字节, Content-Type)。出错时抛 urllib 自己的异常。"""
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read(), resp.headers.get("Content-Type")
+
+
+def content_sha256(text: str) -> str:
+    """参考源整体的校验值：去掉 BOM、换行统一成 `\\n` 后的 UTF-8 字节的 SHA-256。
+
+    同一份 .md 在 Windows 上可能是 CRLF（core.autocrlf），在 CI 上是 LF，按原始字节算会对不上。
+    """
+    return hashlib.sha256(normalize_newlines(text).encode("utf-8")).hexdigest()
+
+
+def _is_url(origin: str) -> bool:
+    return urllib.parse.urlsplit(origin).scheme.lower() in ("http", "https")
+
+
+def _load_url(origin: str, source_id: str, fetch) -> tuple[bytes, str, str]:
+    try:
+        data, ctype = fetch(origin)
+    except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError) as e:
+        raise RegisterError(f"抓取失败：{origin}：{e}") from e
+    mime = (ctype or "").split(";", 1)[0].strip().lower()
+    last = urllib.parse.unquote(urllib.parse.urlsplit(origin).path).rsplit("/", 1)[-1]
+    md_name = last.lower().endswith(MARKDOWN_EXT)
+    if not (mime in MARKDOWN_TYPES or (mime == "text/plain" and md_name)):
+        raise RegisterError(
+            f"不支持该格式：{origin} 返回的 Content-Type 是 {ctype or '（没有）'}。"
+            "只登记 Markdown（text/markdown；text/plain 只在地址以 .md 或 .markdown 结尾时接受）"
+        )
+    return data, origin, PurePosixPath(last).stem or source_id
+
+
+def _load_file(store: Store, origin: str) -> tuple[bytes, str, str]:
+    path = Path(origin)
+    if not path.is_absolute():
+        path = store.root / path
+    resolved = path.resolve()  # 先 resolve：去掉 ..，跟到链接指向的真实位置
+    root = store.root.resolve()
+    if not Path(os.path.normcase(resolved)).is_relative_to(os.path.normcase(root)):
+        raise RegisterError(f"参考源文件要放在仓库里：{resolved} 不在 {root} 下")
+    if resolved.suffix.lower() not in MARKDOWN_EXT:
+        raise RegisterError(f"不支持该格式：{origin}。只登记 Markdown（扩展名 .md 或 .markdown）")
+    try:
+        data = resolved.read_bytes()
+    except OSError as e:
+        raise RegisterError(f"读取失败：{origin}：{e}") from e
+    return data, os.path.relpath(resolved, root).replace("\\", "/"), resolved.stem
+
+
+def register(store: Store, origin: str, source_id: str,
+             fetch: Callable[[str], tuple[bytes, str | None]] = fetch_url) -> Registered:
+    """登记或重新登记一个参考源（本地 Markdown 文件或网址）。
+
+    抓取、解码、拆分在拿锁之前做完（抓网址最多 10 秒，锁超过 10 秒会被别的进程当残留删掉）。
+    锁里只做：读清单、比对、写缓存、追加 `register`、替换清单。日志排在清单前面：中途出错时
+    宁可"日志有登记、清单没变"（凭证提前失效），不要"清单变了、日志没记"。
+    来源和校验值都没变时什么都不写。任何一步失败都抛 RegisterError 或 StoreError。
+    本地相对路径按仓库根目录解释；清单里存相对仓库根目录、用 `/` 分隔的路径。
+    """
+    from refcov.adapters import markdown  # 目前唯一的内置适配器
+
+    if not SOURCE_ID.fullmatch(source_id):
+        raise RegisterError(f"参考源 ID 只能用小写字母、数字和短横线：{source_id!r}")
+    if _is_url(origin):
+        data, stored, name = _load_url(origin, source_id, fetch)
+    else:
+        data, stored, name = _load_file(store, origin)
+    try:
+        text = data.decode("utf-8-sig")
+    except UnicodeDecodeError as e:
+        raise RegisterError(f"不是 UTF-8 编码：{origin}：{e}") from e
+    sha = content_sha256(text)
+    units = markdown.split(data, name)
+
+    with store.locked():
+        try:
+            manifest = store.read_sources()
+        except (OSError, ValueError) as e:
+            raise RegisterError(f"清单读不了：{store.sources_path}：{e}") from e
+        sources = manifest.setdefault("sources", [])
+        old = next((s for s in sources if s.get("id") == source_id), None)
+        if old and old.get("origin") == stored and old.get("sha256") == sha:
+            return Registered(old, changed=False, written=False)
+        changed = old is None or old.get("sha256") != sha
+        store.cache_dir.mkdir(parents=True, exist_ok=True)
+        cache = store.cache_dir / sha
+        tmp = cache.with_name(sha + ".tmp")
+        tmp.write_bytes(data)  # 缓存里存原始字节
+        os.replace(tmp, cache)
+        rec = store.append_locked("register", None, source=source_id, origin=stored, sha256=sha,
+                                  adapter=markdown.name, units=len(units), changed=changed)
+        entry = {"id": source_id, "origin": stored, "fetched": now_iso(), "sha256": sha,
+                 "adapter": markdown.name, "registered_seq": rec["seq"],
+                 "units": [u.manifest_entry() for u in units]}
+        if old is None:
+            sources.append(entry)
+        else:
+            sources[sources.index(old)] = entry
+        store.write_sources(manifest)
+    return Registered(entry, changed=changed, written=True)

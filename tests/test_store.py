@@ -17,6 +17,46 @@ from refcov.store import GENESIS, LockTimeout, Store
 REPO = Path(__file__).resolve().parents[1]
 
 
+def test_append_locked_inside_locked_block(tmp_path):
+    """已拿着锁时追加：块里连续追加几条，链完整、seq 连续；块结束后锁已放掉。"""
+    s = Store(tmp_path)
+    s.append("register", source="a")
+    with s.locked():
+        assert s.lock_path.exists()
+        r2 = s.append_locked("register", None, source="b")
+        r3 = s.append_locked("read", "sess", unit="x")
+    assert (r2["seq"], r3["seq"]) == (2, 3)
+    assert not s.lock_path.exists()
+    assert s.verify_chain().ok and [r["seq"] for r in s.records()] == [1, 2, 3]
+
+
+def test_locked_block_not_run_when_lock_is_held(tmp_path):
+    """别的进程拿着新鲜的锁时，locked() 抛 LockTimeout，块里的代码一行都不执行。"""
+    s = Store(tmp_path)
+    s.ensure_state_dir()
+    s.lock_path.write_text("other", encoding="ascii")
+    ran = []
+    with pytest.raises(LockTimeout):
+        with s.locked(timeout=0.2):
+            ran.append(1)
+    assert ran == [] and s.lock_path.read_text(encoding="ascii") == "other"
+
+
+def test_locked_releases_lock_on_error(tmp_path):
+    s = Store(tmp_path)
+    with pytest.raises(RuntimeError):
+        with s.locked():
+            raise RuntimeError("boom")
+    assert not s.lock_path.exists()
+
+
+def test_append_locked_rejects_reserved_fields(tmp_path):
+    s = Store(tmp_path)
+    with s.locked():
+        with pytest.raises(ValueError):
+            s.append_locked("x", None, seq=5)
+
+
 def test_state_dir_created_on_first_write_only(tmp_path):
     s = Store(tmp_path)
     s.load_config()

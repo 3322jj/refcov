@@ -77,6 +77,12 @@ Kiro 钩子 ──▶ integrations/kiro ─┘        │
 - 上面的例子里，"退出码"这个标题在文档里出现了两次，第一个超长被拆成两段。拆出的第二段是 `退出码@2`，重名的第二个标题是 `退出码-2`，两者不会撞（第 4 节）。
 - `registered_seq` 是登记时日志的序号，凭证失效判断用它（需求 7.4"登记了新的参考源"）。
 - 单元的 `kind` 和"严格必看 / 关键类型"的声明来自适配器，不写进清单，避免两处不一致。
+- 登记（`sources.register`，任务 4，用户 2026-11-11 的决定）：
+  - 顶层 `sha256` 按去掉 BOM、换行统一成 `\n` 后的文本算（仓库 `core.autocrlf=true`，同一份 `.md` 在 Windows 和 CI 上原始字节不同）。缓存文件是 `.refcov/cache/<sha256>`，里面存原始字节；新内容写新文件，旧文件不删。
+  - 抓取、解码、拆分在拿日志锁之前做完（抓网址最多等 10 秒，锁超过 10 秒会被当残留删掉）。锁里依次：读清单、比对、写缓存、追加 `register`、替换清单。日志排在清单前面：中途出错时宁可凭证提前失效，也不让清单变了而日志没记。拿不到锁时什么都不写。
+  - 来源和 `sha256` 都没变时什么都不写（不记 `register`，免得凭证白白失效）。只换了来源时照常登记，`register` 记录里 `changed: false`。
+  - 本地文件只认扩展名 `.md`、`.markdown`，必须在仓库里（先 `resolve()`，Windows 上不分大小写比较），`origin` 存相对仓库根目录、用 `/` 分隔的路径。网址按 Content-Type 认：`text/markdown`、`text/x-markdown` 接受，`text/plain` 只在路径以 `.md` 或 `.markdown` 结尾时接受，其余（含 `text/html`、没有 Content-Type）报"不支持该格式"。只认 UTF-8（允许 BOM）。
+  - `register` 记录的字段：`source`、`origin`、`sha256`、`adapter`、`units`（单元数）、`changed`。
 
 ### 3.2 日志 `.refcov/log.jsonl`（读取记录在这里）
 

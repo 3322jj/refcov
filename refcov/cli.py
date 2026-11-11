@@ -1,13 +1,76 @@
-"""命令行 `refcov`。子命令在后面的任务里加（add：任务 4，report：任务 7，check：任务 10、11）。"""
+"""命令行 `refcov`。现在只有 `add`（任务 4）；report：任务 7，check：任务 10、11。
+
+仓库根目录取当前目录，要在仓库根目录下运行：当前目录下没有 `.git` 时报错，什么都不写。
+"""
 
 import argparse
+import sys
+from pathlib import Path
 
 from refcov import __version__
+from refcov.sources import RegisterError, register
+from refcov.store import Store, StoreError
+
+
+def _match_console_encoding() -> None:
+    """Windows 上输出被捕获或重定向时，改用控制台代码页编码，编不出的字符转义。
+
+    pwsh 按控制台代码页（例如 936）解读程序输出；Python 在 UTF-8 模式下往管道写 UTF-8，
+    中文会乱码。直接输出到控制台时 Python 走宽字符接口，本来就不乱码，不动。
+    """
+    if sys.platform != "win32":
+        return
+    import ctypes
+
+    cp = ctypes.windll.kernel32.GetConsoleOutputCP()
+    for stream, original in ((sys.stdout, sys.__stdout__), (sys.stderr, sys.__stderr__)):
+        if cp and stream is original and stream is not None and not stream.isatty():
+            stream.reconfigure(encoding=f"cp{cp}", errors="backslashreplace")
+
+
+def _repo_root() -> Path | None:
+    """当前目录下有 `.git`（目录，或 worktree 里的文件）时返回当前目录，否则返回 None。
+
+    不往上找：在子目录里跑时报错，免得悄悄在子目录里建一个 `.refcov/`。
+    """
+    cwd = Path.cwd()
+    return cwd if (cwd / ".git").exists() else None
+
+
+def _add(args) -> int:
+    root = _repo_root()
+    if root is None:
+        print(f"登记失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
+        return 1
+    try:
+        result = register(Store(root), args.origin, args.source_id)
+    except (RegisterError, StoreError, OSError) as e:
+        print(f"登记失败：{e}", file=sys.stderr)
+        return 1
+    entry = result.entry
+    if not result.written:
+        print(f"内容没变，未改动：{entry['id']}（{entry['origin']}）")
+        return 0
+    if not result.changed:
+        print(f"已更新 {entry['id']} 的来源：{entry['origin']}。内容没变，单元不变")
+        return 0
+    print(f"已登记 {entry['id']}：{len(entry['units'])} 个单元（{entry['origin']}）")
+    for u in entry["units"]:
+        title = "" if u["title"] == u["id"] else f"  标题：{u['title']}"
+        print(f"  {u['id']}  {u['chars']} 字{title}")
+    return 0
 
 
 def main(argv=None) -> int:
+    _match_console_encoding()
     parser = argparse.ArgumentParser(prog="refcov", description="Coverage for reference material.")
     parser.add_argument("--version", action="version", version=f"refcov {__version__}")
-    parser.parse_args(argv)
+    sub = parser.add_subparsers(dest="command")
+    add = sub.add_parser("add", help="登记或重新登记一个参考源（本地 Markdown 文件或网址）。只能由用户运行")
+    add.add_argument("origin", help="本地文件路径（相对当前目录，要在仓库里）或网址")
+    add.add_argument("--id", required=True, dest="source_id", help="参考源 ID：小写字母、数字、短横线")
+    args = parser.parse_args(argv)
+    if args.command == "add":
+        return _add(args)
     parser.print_help()
     return 0

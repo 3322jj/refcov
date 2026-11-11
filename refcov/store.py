@@ -13,6 +13,7 @@ import os
 import posixpath
 import time
 import tomllib
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -220,32 +221,46 @@ class Store:
             lines.pop()
         return lines
 
+    @contextmanager
+    def locked(self, timeout: float = LOCK_TIMEOUT):
+        """拿着日志锁执行一段操作（例如登记：读清单、写缓存、追加记录、换清单）。
+
+        拿不到锁时抛 LockTimeout，块里的代码一行都不执行。锁超过 LOCK_STALE 秒会被别的进程
+        当残留删掉，所以块里不要做慢操作（例如抓网址）。
+        """
+        self.ensure_state_dir()
+        self._acquire_lock(timeout)
+        try:
+            yield self
+        finally:
+            self._release_lock()
+
     def append(self, type: str, session: str | None = None, **fields) -> dict:
         """追加一条记录，返回写进去的记录。2 秒内拿不到锁时抛 LockTimeout，日志不变。"""
+        with self.locked():
+            return self.append_locked(type, session, **fields)
+
+    def append_locked(self, type: str, session: str | None = None, **fields) -> dict:
+        """调用方已经用 `locked()` 拿着锁时追加一条记录。不拿锁就调用会破坏哈希链。"""
         for reserved in ("seq", "time", "type", "session", "prev"):
             if reserved in fields:
                 raise ValueError(f"字段 {reserved} 由日志自己填")
-        self.ensure_state_dir()
-        self._acquire_lock()
-        try:
-            lines = self._read_lines()
-            if lines:
-                last = lines[-1]
-                prev = sha256_bytes(last)
-                seq = int(json.loads(last.decode("utf-8"))["seq"]) + 1
-            else:
-                prev, seq = GENESIS, 1
-            record = {"seq": seq, "time": now_iso(), "type": type, "session": session}
-            record.update(fields)
-            record["prev"] = prev
-            line = json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-            with open(self.log_path, "ab") as f:  # 二进制追加：换行固定 \n
-                f.write(line + b"\n")
-                f.flush()
-                os.fsync(f.fileno())
-            return record
-        finally:
-            self._release_lock()
+        lines = self._read_lines()
+        if lines:
+            last = lines[-1]
+            prev = sha256_bytes(last)
+            seq = int(json.loads(last.decode("utf-8"))["seq"]) + 1
+        else:
+            prev, seq = GENESIS, 1
+        record = {"seq": seq, "time": now_iso(), "type": type, "session": session}
+        record.update(fields)
+        record["prev"] = prev
+        line = json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        with open(self.log_path, "ab") as f:  # 二进制追加：换行固定 \n
+            f.write(line + b"\n")
+            f.flush()
+            os.fsync(f.fileno())
+        return record
 
     def records(self) -> list[dict]:
         """按顺序读出全部记录。"""
