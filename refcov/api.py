@@ -180,3 +180,98 @@ def read(store: Store, source: str, unit: str) -> ReadResult:
     except (StoreError, OSError) as e:
         raise ReadError(f"写读取记录失败，这次不返回内容：{e}") from e
     return ReadResult(source, unit, found.title, texts, [], rec["call"], rec)
+
+
+# ---- 报告（任务 7，设计 3.5，需求 9.8、12.1–12.4）----
+# 报告和状态行都只读：不拿锁、不写任何文件、不写日志记录。
+
+MODE_NAMES = {"strict": "严格模式", "light": "轻量模式"}
+STATUS_FIRST = 5  # 状态行列出还差的前几个
+
+
+def report(store: Store, session: str | None = None) -> dict:
+    """报告 JSON（设计 3.5）。这一步只填 sources、missing、unknown_session_calls、by_session、chain，
+    外加头部的 version、generated、session、session_available、mode。必看 = 全部单元。
+
+    `session` 为 None（MCP 拿不到会话、命令行没给 --session）时 session_available 为 false，
+    各 read_session 字段为 null。mode 取自配置文件。
+    """
+    from refcov import coverage
+    from refcov.store import now_iso
+
+    cfg = store.load_config()
+    sources = _manifest(store)
+    data = coverage.summarize(sources, store.records(), session)
+    chain_result = store.verify_chain()
+    chain = {"ok": chain_result.ok, "lines": chain_result.lines}
+    if not chain_result.ok:
+        chain["broken_at"] = chain_result.broken_at  # 文字版要写"第 N 行起断开"（设计 3.2）
+    if store.log_tail_partial():
+        chain["partial_tail"] = True  # 末尾有别的进程正在写的半行，这次没算
+    return {"version": 1, "generated": now_iso(), "session": session, "session_available": session is not None,
+            "mode": cfg["mode"], **data, "chain": chain}
+
+
+def _mode_name(rep: dict) -> str:
+    return MODE_NAMES.get(rep.get("mode"), str(rep.get("mode")))
+
+
+def _chain_text(chain: dict) -> str:
+    text = (f"链完整（{chain['lines']} 行）" if chain["ok"]
+            else f"第 {chain.get('broken_at')} 行起断开（共 {chain['lines']} 行）")
+    if chain.get("partial_tail"):
+        text += "；日志末尾有一行还没写完，这次没算"
+    return text
+
+
+def _totals(rep: dict) -> tuple[int, int, int | None]:
+    total = sum(s["required"] for s in rep["sources"])
+    hist = sum(s["required_read_history"] for s in rep["sources"])
+    sess = None if not rep["session_available"] else sum(s["required_read_session"] for s in rep["sources"])
+    return total, hist, sess
+
+
+def report_text(rep: dict) -> str:
+    """文字版报告，只从 JSON 生成（需求 12.3）。"""
+    lines = [f"RefCov {_mode_name(rep)}（这一步必看 = 全部单元，还不算必看集合）"]
+    if not rep["sources"]:
+        lines.append("还没有登记任何参考源。")
+    for s in rep["sources"]:
+        sess = "不可用" if s["read_session"] is None else f"{s['read_session']}/{s['units']}"
+        lines.append(f"{s['id']}：单元 本会话 {sess}，历史 {s['read_history']}/{s['units']}")
+    if rep["missing"]:
+        lines.append(f"还差 {len(rep['missing'])} 个：" +
+                     "、".join(f"{m['source']}/{m['unit']}" for m in rep["missing"]))
+    else:
+        lines.append("没有还差的单元。")
+    lines.append(f"会话未知的读取：{rep['unknown_session_calls']} 次")
+    known = [b for b in rep["by_session"] if b["session"] != "unknown"][-5:]
+    unknown = [b for b in rep["by_session"] if b["session"] == "unknown"]
+    lines.append("按会话（最近 5 个）：")
+    for b in known + unknown:
+        lines.append(f"  {b['session']}：看过 {b['units_read']} 个单元，被拦 {b['blocks']} 次，"
+                     f"送出文字 {b['text_units']} 段、图片 {b['images']} 张")
+    lines.append(f"哈希链：{_chain_text(rep['chain'])}")
+    lines.append(HINT)
+    return "\n".join(lines)
+
+
+def status_line(store: Store, session: str | None) -> str:
+    """一行简短报告（需求 9.8、12.4），由报告 JSON 生成。这一步还没有达标判断，不写达标。"""
+    rep = report(store, session)
+    head = f"RefCov {_mode_name(rep)}："
+    if not rep["sources"]:
+        return f"{head}还没有登记参考源。{HINT}"
+    total, hist, sess = _totals(rep)
+    sess_text = "不可用" if sess is None else f"{sess}/{total}"
+    text = f"{head}单元 本会话 {sess_text}，历史 {hist}/{total}；"
+    missing = rep["missing"]
+    if missing:
+        first = "、".join(f"{m['source']}/{m['unit']}" for m in missing[:STATUS_FIRST])
+        more = "、…" if len(missing) > STATUS_FIRST else ""
+        text += f"还差 {len(missing)} 个：{first}{more}。"
+    else:
+        text += "没有还差的单元。"
+    if not rep["chain"]["ok"]:
+        text += f"日志哈希链{_chain_text(rep['chain'])}。"
+    return text + HINT

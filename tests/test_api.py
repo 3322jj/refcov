@@ -166,7 +166,10 @@ def test_list_units_and_valid_reads(store):
 def test_read_is_the_only_writer_of_read_records():
     """需求 4.8：核心层只有 api.read 追加 type 为 "read" 的记录。"""
     root = Path(__file__).resolve().parents[1]
+    import re
+
+    writes_read = re.compile(r"append(_locked)?\(\s*\"read\"")
     hits = [p.relative_to(root).as_posix()
             for p in list((root / "refcov").rglob("*.py")) + list((root / "refcov_mcp").rglob("*.py"))
-            if '"read"' in p.read_text(encoding="utf-8")]
+            if writes_read.search(p.read_text(encoding="utf-8"))]
     assert hits == ["refcov/api.py"]

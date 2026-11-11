@@ -52,7 +52,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 完成标志：两个会话各读一次，日志里两次读取分属两个会话；把钩子挪走再读一次，日志里有这次的 `read` 行、没有对应的 `session` 行；`.refcov/errors.log` 是空的
   - _需求：4.5、9.5、9.10、11.1、11.3_
 
-- [ ] 7. 报告和一行简短报告
+- [x] 7. 报告和一行简短报告
   - `refcov/coverage.py`：有效读取（校验值和清单一致）、覆盖率，按历史和按会话各算一次（这一步还不算必看集合，必看 = 全部单元）
   - `api.report(session)`：生成设计 3.5 的 JSON（这一步只填 `sources`、`missing`、`unknown_session_calls`、`by_session`、`chain`）；文字版由 JSON 生成；`api.status_line(session)`
   - 命令行 `refcov report [--json] [--session <会话ID>]`；MCP 工具 `report`（本会话一栏"不可用"）

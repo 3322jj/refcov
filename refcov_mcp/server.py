@@ -2,12 +2,13 @@
 
 启动：`python -m refcov_mcp --root <仓库根目录>`。Kiro 起服务时工作目录不一定是仓库根目录
 （docs/验证结果.md 第 6 项），所以根目录必须由参数给出。stdout 只走协议消息，其他输出都写 stderr。
-现在只有 list_units、read_unit 两个工具；check、request_token、report 在后面的任务里加。
+现在有 list_units、read_unit、report 三个工具；check、request_token 在后面的任务里加。
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -44,6 +45,19 @@ def build(root: Path) -> FastMCP:
             return api.read(store, source, unit).text()
         except api.ReadError as e:
             raise ToolError(str(e)) from e
+
+    @mcp.tool(structured_output=False)
+    def report(format: str = "text") -> str:
+        """覆盖率报告。format 为 text（默认）或 json。MCP 拿不到会话 ID，所以本会话一栏是"不可用"。"""
+        if format not in ("text", "json"):
+            raise ToolError("format 只能是 text 或 json")
+        try:
+            rep = api.report(store, None)
+        except Exception as e:  # 配置文件坏了、清单读不了等
+            raise ToolError(f"报告生成失败：{e}") from e
+        if format == "json":
+            return json.dumps(rep, ensure_ascii=False, indent=2) + f"\n\n{api.HINT}"
+        return api.report_text(rep)
 
     return mcp
 

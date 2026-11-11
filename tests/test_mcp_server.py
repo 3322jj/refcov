@@ -48,11 +48,20 @@ def test_sdk_client_list_and_read_over_stdio(repo):
                 listed = await session.call_tool("list_units", {"source": "sample"})
                 got = await session.call_tool("read_unit", {"source": "sample", "unit": "匹配-工具名"})
                 missing = await session.call_tool("read_unit", {"source": "sample", "unit": "退出"})
-                return init, tools, listed, got, missing
+                rep_text = await session.call_tool("report", {})
+                rep_json = await session.call_tool("report", {"format": "json"})
+                return init, tools, listed, got, missing, rep_text, rep_json
 
-    init, tools, listed, got, missing = asyncio.run(asyncio.wait_for(run(), 60))
+    init, tools, listed, got, missing, rep_text, rep_json = asyncio.run(asyncio.wait_for(run(), 60))
     assert init.serverInfo.name == "refcov"
-    assert {t.name for t in tools.tools} == {"list_units", "read_unit"}
+    assert {t.name for t in tools.tools} == {"list_units", "read_unit", "report"}
+    # report：本会话一栏"不可用"，只有一个文字块，最后一行不是 refcov-call（钩子会静默跳过）
+    assert not rep_text.isError and len(rep_text.content) == 1
+    assert "本会话 不可用" in rep_text.content[0].text
+    assert api.call_from_text(rep_text.content[0].text) is None
+    body = json.loads(rep_json.content[0].text.rsplit("\n\n", 1)[0])
+    assert body["session"] is None and body["session_available"] is False
+    assert body["sources"][0]["read_session"] is None and body["sources"][0]["read_history"] == 1
     assert not listed.isError and len(listed.content) == 1
     assert "sample/匹配-工具名\t匹配 [工具名]\tsection\t没看过" in listed.content[0].text
     assert listed.content[0].text.endswith(api.HINT)

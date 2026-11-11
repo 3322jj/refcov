@@ -252,3 +252,102 @@ def test_hook_config_matches_design():
     assert hook["trigger"] == "PostToolUse" and hook["matcher"] == "^mcp_refcov_"
     assert hook["action"] == {"type": "command", "command": "python integrations/kiro/hook.py post-mcp",
                               "timeout": 10}
+
+
+# ---- UserPromptSubmit（任务 7，需求 9.8）----
+
+PROMPT = "请继续做任务 7，这是用户消息全文：秘密内容 XYZ-123"
+
+
+def prompt_payload(root, session=SESSION_A, prompt=PROMPT):
+    """和 2026-11-10 实测的 UserPromptSubmit 输入同样的键：用户消息全文在 prompt 字段。"""
+    return {"cwd": str(root), "hook_event_name": "UserPromptSubmit", "session_id": session, "prompt": prompt}
+
+
+def test_prompt_writes_one_status_line(repo):
+    """完成标志 2：stdout 里有"本会话 x/y，历史 a/y"和"直接读文件不算看过"的提示，只有这一行。"""
+    store = Store(repo)
+    r = api.read(store, "sample", "Hooks")
+    api.attach_session(store, r.call, SESSION_A)
+    api.read(store, "sample", "退出码")  # 会话未知
+    before = {p: p.read_bytes() for p in (repo / ".refcov").rglob("*") if p.is_file()}
+    proc = run_hook(repo, prompt_payload(repo), arg="prompt")
+    assert proc.returncode == 0 and proc.stderr == b""
+    out = proc.stdout.decode("utf-8")
+    assert out.count("\n") == 1 and out.endswith("\n")
+    assert "本会话 1/5，历史 2/5" in out
+    assert "直接读文件不算看过" in out
+    assert out.startswith("RefCov 严格模式：")
+    after = {p: p.read_bytes() for p in (repo / ".refcov").rglob("*") if p.is_file()}
+    assert after == before  # 只读，不写任何文件
+
+
+def test_prompt_text_is_never_logged(repo):
+    """用户消息全文不写进任何日志，出错时也一样。"""
+    (repo / "refcov.toml").write_text("mode = [", encoding="utf-8")  # 让分支出错
+    proc = run_hook(repo, prompt_payload(repo), arg="prompt")
+    assert proc.returncode == 0 and proc.stdout == b""
+    raw = (repo / ".refcov" / "errors.log").read_bytes()
+    assert b"XYZ-123" not in raw and "秘密".encode("unicode_escape") not in raw
+    assert len(errors(repo)) == 1
+    for p in repo.rglob("*"):
+        if p.is_file():
+            assert b"XYZ-123" not in p.read_bytes()
+
+
+@pytest.mark.parametrize("breakage", ["bad-config", "bad-manifest", "unit-without-sha256"])
+def test_prompt_errors_write_nothing_to_stdout(repo, breakage):
+    """出任何错都不往 stdout 写东西（报错文字会被送进上下文），原因记 errors.log，退出码 0。"""
+    if breakage == "bad-config":
+        (repo / "refcov.toml").write_text("mode = [", encoding="utf-8")
+    elif breakage == "bad-manifest":
+        (repo / ".refcov" / "sources.json").write_text("{坏", encoding="utf-8")
+    else:
+        (repo / ".refcov" / "sources.json").write_text('{"sources": [{"id": "x", "units": [{"id": "u"}]}]}',
+                                                        encoding="utf-8")
+    proc = run_hook(repo, prompt_payload(repo), arg="prompt")
+    assert proc.returncode == 0 and proc.stdout == b""
+    assert len(errors(repo)) == 1
+
+
+def test_prompt_without_session_still_reports_history(repo):
+    data = prompt_payload(repo)
+    del data["session_id"]
+    out = run_hook(repo, data, arg="prompt").stdout.decode("utf-8")
+    assert "本会话 不可用，历史 0/5" in out and errors(repo) == []
+
+
+def test_prompt_branch_ignores_other_events(repo):
+    data = {**prompt_payload(repo), "hook_event_name": "PostToolUse"}
+    proc = run_hook(repo, data, arg="prompt")
+    assert proc.returncode == 0 and proc.stdout == b"" and errors(repo) == []
+
+
+def test_prompt_on_empty_repo(tmp_path):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / "integrations" / "kiro").mkdir(parents=True)
+    shutil.copyfile(REPO / "integrations" / "kiro" / "hook.py", tmp_path / "integrations" / "kiro" / "hook.py")
+    out = run_hook(tmp_path, prompt_payload(tmp_path), arg="prompt").stdout.decode("utf-8")
+    assert "还没有登记参考源" in out and "直接读文件不算看过" in out
+    assert not (tmp_path / ".refcov").exists()
+
+
+def test_report_tool_result_is_skipped_by_post_mcp(repo):
+    """MCP 工具 report（Kiro 里是 mcp_refcov_report）也触发 PostToolUse，但没有调用编号：静默跳过。"""
+    store = Store(repo)
+    api.read(store, "sample", "Hooks")
+    before = store.log_path.read_bytes()
+    text = api.report_text(api.report(store, None))
+    proc = run_hook(repo, payload(repo, text, tool="mcp_refcov_report", tool_input={"format": "text"}))
+    assert proc.returncode == 0 and proc.stdout == b""
+    assert store.log_path.read_bytes() == before and errors(repo) == []
+
+
+def test_prompt_hook_config_copies_post_mcp_format():
+    cfg = json.loads((REPO / "integrations" / "kiro" / "hooks" / "refcov-prompt.json").read_text(encoding="utf-8"))
+    tpl = json.loads((REPO / "integrations" / "kiro" / "hooks" / "refcov-post-mcp.json").read_text(encoding="utf-8"))
+    (hook,) = cfg["hooks"]
+    # 照抄实测能用的 UserPromptSubmit 钩子（kirohe/hook-test/hooks-disabled/probe-prompt-submit.json）：没有 matcher 键
+    assert cfg["version"] == tpl["version"] and set(hook) == set(tpl["hooks"][0]) - {"matcher"}
+    assert hook["trigger"] == "UserPromptSubmit"
+    assert hook["action"] == {"type": "command", "command": "python integrations/kiro/hook.py prompt", "timeout": 10}

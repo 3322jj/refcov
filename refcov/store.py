@@ -211,15 +211,32 @@ class Store:
 
     # ---- 日志 ----
 
-    def _read_lines(self) -> list[bytes]:
+    def _read_log(self, writer: bool = False) -> tuple[list[bytes], bool]:
+        """读出日志的完整行（不含换行符），并返回末尾有没有一段没写完的行。
+
+        一条记录是一次写进去的"一行 JSON + \\n"，所以完整的行一定以 \\n 结尾。
+        - 不拿锁的读取方（`writer=False`，例如报告）：末尾没有 \\n 的那段当成别的进程正在写的行，
+          不算进记录，也不参与哈希链校验。
+        - 拿着锁的写入方（`writer=True`）：这时不会有别人在写，末尾的半行说明上次写入中断。
+          抛 StoreError、不写，免得新记录接在半行后面变成一行坏记录。
+        """
         try:
             data = self.log_path.read_bytes()
         except FileNotFoundError:
-            return []
+            return [], False
+        partial = bool(data) and not data.endswith(b"\n")
+        if partial and writer:
+            raise StoreError(f"日志末尾有一行没写完，可能上次写入中断：{self.log_path}")
         lines = data.split(b"\n")
-        if lines and lines[-1] == b"":
-            lines.pop()
-        return lines
+        lines.pop()  # 以 \n 结尾时是空串；否则是没写完的那段
+        return lines, partial
+
+    def _read_lines(self, writer: bool = False) -> list[bytes]:
+        return self._read_log(writer)[0]
+
+    def log_tail_partial(self) -> bool:
+        """日志末尾是否有一行还没写完（不拿锁读，只用于报告里提示）。"""
+        return self._read_log()[1]
 
     @contextmanager
     def locked(self, timeout: float = LOCK_TIMEOUT):
@@ -242,7 +259,7 @@ class Store:
 
     def next_seq_locked(self) -> int:
         """拿着锁时，下一条记录会用的 seq（例如调用编号 `c-<seq>` 要写进这条记录本身）。"""
-        lines = self._read_lines()
+        lines = self._read_lines(writer=True)
         return int(json.loads(lines[-1].decode("utf-8"))["seq"]) + 1 if lines else 1
 
     def append_locked(self, type: str, session: str | None = None, **fields) -> dict:
@@ -250,7 +267,7 @@ class Store:
         for reserved in ("seq", "time", "type", "session", "prev"):
             if reserved in fields:
                 raise ValueError(f"字段 {reserved} 由日志自己填")
-        lines = self._read_lines()
+        lines = self._read_lines(writer=True)
         if lines:
             last = lines[-1]
             prev = sha256_bytes(last)

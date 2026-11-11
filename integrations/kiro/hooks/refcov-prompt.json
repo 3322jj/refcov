@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "RefCov：发消息时报一行覆盖率",
+      "trigger": "UserPromptSubmit",
+      "description": "用户发消息时把一行简短报告（本会话 x/y，历史 a/y，还差的单元）写到 stdout，进 AI 的上下文（需求 9.8）。出错一律放行，不往 stdout 写东西。",
+      "action": {
+        "type": "command",
+        "command": "python integrations/kiro/hook.py prompt",
+        "timeout": 10
+      }
+    }
+  ]
+}

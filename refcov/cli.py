@@ -1,13 +1,14 @@
-"""命令行 `refcov`。现在只有 `add`（任务 4）；report：任务 7，check：任务 10、11。
+"""命令行 `refcov`。现在有 `add`（任务 4）和 `report`（任务 7）；check：任务 10、11。
 
 仓库根目录取当前目录，要在仓库根目录下运行：当前目录下没有 `.git` 时报错，什么都不写。
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
-from refcov import __version__
+from refcov import __version__, api
 from refcov.sources import RegisterError, register
 from refcov.store import Store, StoreError
 
@@ -35,6 +36,20 @@ def _repo_root() -> Path | None:
     """
     cwd = Path.cwd()
     return cwd if (cwd / ".git").exists() else None
+
+
+def _report(args) -> int:
+    root = _repo_root()
+    if root is None:
+        print(f"报告失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
+        return 1
+    try:
+        rep = api.report(Store(root), args.session)
+    except (StoreError, OSError, ValueError, api.ReadError) as e:
+        print(f"报告失败：{e}", file=sys.stderr)
+        return 1
+    print(json.dumps(rep, ensure_ascii=False, indent=2) if args.json else api.report_text(rep))
+    return 0
 
 
 def _add(args) -> int:
@@ -69,8 +84,13 @@ def main(argv=None) -> int:
     add = sub.add_parser("add", help="登记或重新登记一个参考源（本地 Markdown 文件或网址）。只能由用户运行")
     add.add_argument("origin", help="本地文件路径（相对当前目录，要在仓库里）或网址")
     add.add_argument("--id", required=True, dest="source_id", help="参考源 ID：小写字母、数字、短横线")
+    rep = sub.add_parser("report", help="覆盖率报告（只读，不写任何文件）")
+    rep.add_argument("--json", action="store_true", help="输出 JSON")
+    rep.add_argument("--session", help="会话 ID；不给时本会话一栏为“不可用”")
     args = parser.parse_args(argv)
     if args.command == "add":
         return _add(args)
+    if args.command == "report":
+        return _report(args)
     parser.print_help()
     return 0

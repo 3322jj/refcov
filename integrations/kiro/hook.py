@@ -1,7 +1,8 @@
 """Kiro 接入层的钩子脚本（设计 8）。一个脚本，按第一个参数分派事件。
 
 用法：python integrations/kiro/hook.py <事件>
-现在只有 post-mcp：RefCov MCP 工具的 PostToolUse，按返回文字最后一行的调用编号补记会话（需求 4.5，任务 6）。
+- post-mcp：RefCov MCP 工具的 PostToolUse，按返回文字最后一行的调用编号补记会话（需求 4.5，任务 6）。
+- prompt：UserPromptSubmit，把一行简短报告写到 stdout（需求 9.8，任务 7）。用户消息全文不读、不记。
 
 规矩（tech.md、需求 11.1、11.3）：
 - stdin 按字节读，UTF-8 解码；stdout、stderr 改成 UTF-8。
@@ -86,7 +87,21 @@ def post_mcp(data: dict) -> None:
         log_error("post-mcp", str(e), tool_name=tool, call=call)
 
 
-HANDLERS = {"post-mcp": post_mcp}
+def prompt(data: dict) -> str | None:
+    """UserPromptSubmit：返回一行简短报告（需求 9.8），由 main 在成功后写 stdout，进 AI 的上下文。
+
+    data["prompt"] 是用户消息全文，不读、不记。出错时由 main 记 errors.log，stdout 什么都不写。
+    """
+    from refcov import api
+    from refcov.store import Store
+
+    if data.get("hook_event_name") != "UserPromptSubmit":
+        return None
+    session = data.get("session_id") if isinstance(data.get("session_id"), str) and data.get("session_id") else None
+    return api.status_line(Store(ROOT), session)
+
+
+HANDLERS = {"post-mcp": post_mcp, "prompt": prompt}
 
 
 def main() -> int:
@@ -106,9 +121,16 @@ def main() -> int:
         if not isinstance(data, dict):
             log_error(event, "钩子输入不是 JSON 对象")
             return 0
-        handler(data)
-    except Exception as e:  # 出错放行（需求 11.1）
+        out = handler(data)
+    except Exception as e:  # 出错放行（需求 11.1），stdout 什么都不写
         log_error(event, "钩子脚本出错", e)
+        return 0
+    if out:  # 只有分支整个跑完才写 stdout，出错的半截文字进不了上下文
+        try:
+            sys.stdout.write(out + "\n")
+            sys.stdout.flush()
+        except Exception as e:
+            log_error(event, "写 stdout 失败", e)
     return 0
 
 
