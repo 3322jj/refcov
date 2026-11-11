@@ -22,6 +22,7 @@
   现在不做：需求已冻结；设计里标了"偏离需求原文"。
 - 需求 14.4 原文要拦"其他会写记录的 RefCov 入口"，但 `refcov add` 会写登记记录，用户决定放行。需求原文要改成"会清空、重建日志或写确认、配置的入口"。
   现在不做：需求已冻结；设计里标了"偏离需求原文"。
+  2026-11-11 更新：用户改为 `add` 只能由用户跑（设计第二版审阅一.2），设计已不再偏离 14.4 原文，这一条不用再改需求。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -495,3 +496,48 @@
   EN: The user approved docs/decisions/2026-11-10-design-review.md; committed as final.
 - 用户在 `.kiro/settings/mcp.json` 里关掉了试验服务。`experiments/mcp-posttooluse/logs/server.jsonl` 之后多出来的行没提交，用 `git checkout` 恢复成上次提交时的内容。
   EN: The user disabled the probe server in mcp.json; the extra lines in server.jsonl were discarded with git checkout, not committed.
+
+## 2026-11-11（上午：按设计第二版的外部审阅改 design.md 和 tasks.md）
+
+- 收到对设计第二版和任务清单（提交 `694d340`）的外部审阅，存为 `docs/设计第二版审阅.md`。审阅没有运行代码。用户定了三件事，其余指定照审阅改；不出设计第三版，只改 `design.md`、`tasks.md` 里对应的句子。
+  EN: Received an external review of design v2 and tasks.md (commit 694d340), saved as docs/设计第二版审阅.md; the reviewer ran no code. The user decided three items and told the agent to apply the rest; only the matching sentences in design.md and tasks.md were edited, no design v3.
+- 用户的三个决定：
+  - 一.2：`refcov add` 加进 `USER_ONLY`，只有用户能在终端跑。原来放行的理由（重新登记只会让覆盖率变低）不成立：AI 可以用同一个 ID 登记一个很小的文件，把参考源变成一个单元，读一下就是 100%。设计第 6、8、11 节和任务 4、14 跟着改；"以后再做"里 14.4 那一条标了已不再偏离。
+    EN: 1.2: refcov add joins USER_ONLY (user-only, blocked in AI shell commands). The old reason was wrong: re-registering a tiny file under the same ID makes one read reach 100%. Design §6, §8, §11 and tasks 4 and 14 updated; the 14.4 backlog item is marked resolved.
+  - 三.1：砍掉 `refcov init`。配置由用户从 `integrations/kiro/refcov.example.toml` 手动复制（README 写一行，放进任务 1），状态目录第一次写入时自动建。原任务 16 改成可选。这也消掉了一.6（核心层命令行写死接入层路径）。
+    EN: 3.1: refcov init is cut. The user copies the example config by hand (README line, task 1); the state directory is created on first write. Old task 16 becomes optional. This also removes issue 1.6 (core CLI hard-coding an integration-layer path).
+  - 三.2：原任务 18（任务开工关卡）改成必做，排在原任务 16 前面。
+    EN: 3.2: old task 18 (task-start gate) becomes required and moves ahead of old task 16.
+- 任务编号：原 18 和原 16 对调，现在 16 是任务开工关卡（必做），18 是 `refcov confirm` 和文件校验值（可选，不含 `init`），17 不变。下面各条里的任务编号都按新编号。
+  EN: Renumbering: old tasks 18 and 16 swapped. Task 16 is now the task-start gate (required), task 18 is refcov confirm plus file checksums (optional, no init); task 17 is unchanged. Task numbers below use the new numbering.
+- 一.1（怎么找到代码和仓库根目录）：设计第 2 节新增几条。核心层不按当前目录找状态目录，根目录由调用方传入；`hook.py` 按自己的文件位置算根目录并放进 `sys.path`；MCP 服务用 `--root` 启动参数，`docs/mcp.example.json` 写出它；用 PATH 上的 `python` 跑 `pip install -e .`，写进 README。任务 1、5、6 跟着改，任务 6 的完成标志加"`.refcov/errors.log` 是空的"。
+  EN: 1.1: design §2 now says the core never locates the state directory from the working directory; hook.py derives the repo root from its own path and puts it on sys.path; the MCP server takes --root; install with pip install -e . into the PATH python. Tasks 1, 5, 6 updated; task 6 now also requires an empty errors.log.
+- 一.4（shell 文本匹配会拦住本项目的日常开发）：`.refcov`、`refcov.toml` 仍是出现就拦；`integrations/kiro`、`refcov_mcp` 改成只在被执行时拦（用 Python 运行 `hook.py`、`-m refcov_mcp`）。`git add integrations/kiro/hook.py`、`pytest tests/test_refcov_mcp.py` 能跑了。设计第 8 节第 2 步重写，任务 14 的测试加了这几条。
+  EN: 1.4: .refcov and refcov.toml still block on any mention; integrations/kiro and refcov_mcp now block only when executed (python … hook.py, -m refcov_mcp), so git add on integration files and pytest on MCP tests pass. Design §8 step 2 rewritten; task 14 tests extended.
+- 改一.4 时发现审阅没提到的一点：用管道把样例喂给 `hook.py` 自测，仍然是"用 Python 运行钩子脚本"，任务 14 之后照样被拦。所以设计里写明钩子脚本的自测改写成 pytest 测试（命令文本是 `pytest …`），测试用临时目录当仓库根目录；任务 7 的自动测试也按这个写法。另外 `py` 启动器、拼接字符串仍然匹配不上，归进需求 11.4 的局限。
+  EN: Found while applying 1.4: piping a sample into hook.py is still "running the hook script" and stays blocked after task 14, so hook self-tests become pytest tests using a temp repo root (task 7 uses this). The py launcher and string concatenation still slip through, covered by the 11.4 limitations.
+- 一.5（保护检查写错会把 Kiro 锁死）：设计第 8 节和任务 14 加逃生办法：用户把 `.kiro/hooks/refcov-pre-*.json` 移出 `.kiro/hooks/` 立即停用，README 写明。
+  EN: 1.5: added an escape hatch to design §8 and task 14: moving .kiro/hooks/refcov-pre-*.json out of .kiro/hooks disables them at once; to be documented in the README.
+- 一.7（`watch` 组的标红只出现一次）：随原任务 16（现在的任务 18）推后。设计 3.6 写明只有终端跑 `refcov report` 更新基准，钩子和 MCP 生成的报告只比较。改的时候发现：AI 在 shell 里跑 `refcov report` 也会更新基准，命令行分不出是谁在跑，留到做任务 18 时再定要不要拦。
+  EN: 1.7: deferred with task 18. Design §3.6 now says only the terminal refcov report updates the watch baseline; hook and MCP reports only compare. Open point found while editing: an AI running refcov report in the shell would also update it; to be decided in task 18.
+- 一.8（小处）全部写进设计：MCP 返回顺序是正文 → 提示 → `refcov-call:`，钩子只认最后一行；哈希按不含换行符的 UTF-8 内容算，换行固定 `\n`，`.gitattributes` 写 `*.jsonl -text`；路径和模式转小写后用 `fnmatchcase`；2 秒拿不到锁时 `api.read` 报错、不返回内容；shell 钩子匹配加 `execute_bash`（本机测不到）；`.gitignore` 加 `errors.log`、`log.lock`、`report-last.json`，`log.jsonl`、`sources.json` 照常提交。`.gitignore`、`.gitattributes` 的实际改动放进任务 1，这次没动。
+  EN: 1.8: all small fixes went into the design: refcov-call is always the last line; hashes cover the line without its newline, LF only, *.jsonl -text; lowercase plus fnmatchcase; api.read fails if the lock is not acquired in 2 s; execute_bash added to the shell matcher (untestable here); errors.log, log.lock and report-last.json to be ignored. The .gitignore and .gitattributes edits themselves are in task 1, not done yet.
+- 一.3（PostFileSave 去重和实测对不上）：按用户要求不先测，放进任务 17 第一步：实测 AI 用 shell 写文件时 PostFileSave 触不触发。不触发就不做 `refcov-file-save.json`；触发就让 PostToolUse 每次写入都记，"来源不明"在生成报告时按前后 10 秒判断。设计第 6、8、11 节写了两个分支。
+  EN: 1.3: not tested now; task 17 starts by testing whether a shell write fires PostFileSave. If not, the PostFileSave hook is dropped; if yes, every write is recorded and "unknown source" is decided at report time within a 10-second window. Both branches are in design §6, §8, §11.
+- 第二节（任务清单）全部照改：
+  - 任务 4：自动测试改用 `tests/` 下的本地 Markdown 样例；登记 `kiro.dev` 改成手动检查，失败不算任务失败。
+  - 任务 6：完成标志改成看日志（有 `read` 行、没有对应的 `session` 行）；"会话未知计数"挪到任务 7。
+  - 任务 7：加一条自动测试，用 pytest 把 UserPromptSubmit 样例从 stdin 喂给 `hook.py`，查 stdout；AI 的转述只作旁证。
+  - 任务 9：比赛规则页由用户存成本地 Markdown，放在 `.refcov/` 下、`cache/` 旁边，再登记。
+  - 任务 10：测试改用固定样例文件，不用 `requirements.md`。
+  - 任务 11：加最后一步，把 `requirements.md` 的文字出处换成 `[ref:…]`，结果记进 DEVLOG。
+  - 任务 15：开头写明用户先手动建好带 `[[scope]]` 的 `refcov.toml`。
+  - 持续集成从任务 12 提到任务 2，需求 13.5 跟着挪。
+  - 设计第 10 节的目标日期 11-12 改成 11-14，和 tasks.md 一致（11-10 记过的不一致已消掉）。
+  EN: Section 2 applied in full: task 4 tests use a local Markdown sample (kiro.dev registration is a manual check); task 6 checks the log directly and the unknown-session count moves to task 7; task 7 adds a pytest that pipes a UserPromptSubmit sample into hook.py; task 9 has the user save the rules page as local Markdown; task 10 tests use a fixed sample; task 11 ends by converting requirement citations to [ref:…]; task 15 starts with the user creating refcov.toml; CI moves from task 12 to task 2; design §10 target date changed from 11-12 to 11-14.
+- 没照做的：三.4（凭证放最后）、三.5（`tokens`、`files` 两栏推后）、"骨架做到哪一步就转去做应用"，用户这次没点名。
+  EN: Not applied because the user did not name them: 3.4 (tokens last), 3.5 (defer the tokens and files report fields), and the "switch to the apps after these tasks" suggestion.
+- README 目录表补了 `docs/设计第二版审阅.md` 一行（`language.md` 要求目录变了同步改）。其余 README 改动（安装、复制配置、逃生办法、提交清单）按任务 1、14 做，这次没写。
+  EN: README layout table gained a row for the new review file, per language.md. The other README additions (install, config copy, escape hatch, committing the manifest) belong to tasks 1 and 14 and were not written yet.
+- 用到的 Kiro 功能：规格流程（设计、任务两份文件按审阅逐句修改，没有重新生成）。
+  EN: Kiro feature used: the spec workflow, editing design.md and tasks.md sentence by sentence instead of regenerating them.

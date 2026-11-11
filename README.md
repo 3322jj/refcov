@@ -28,6 +28,7 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 | `docs/验证结果.md` | Hands-on verification of Kiro hooks and MCP behavior (exit codes, hook payloads, MCP images, session IDs) |
 | `docs/DEVLOG.md` | Development log; every entry has an English line (`EN:`) |
 | `docs/需求第五稿审阅.md` | External review of requirements draft 5 |
+| `docs/设计第二版审阅.md` | External review of design v2 and the task list |
 | `docs/decisions/` | The user's chat instructions saved as files, one heading per instruction, so requirements can cite them like any other unit |
 | `.kiro/specs/refcov-skeleton/design.md` | Skeleton design: modules, data formats, MCP tools, hooks, unit-ID rules, property tests, build order |
 | `.kiro/specs/refcov-skeleton/tasks.md` | Implementation tasks; the thinnest path (register, split, read via MCP, record, report) comes first |

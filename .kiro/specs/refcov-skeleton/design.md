@@ -2,7 +2,7 @@
 
 EN summary: Design for the RefCov skeleton: 8 modules (7 core/MCP plus the Kiro integration layer), one hash-chained append-only log for all records, 5 MCP tools, 7 Kiro hook files on 5 events, the citation and unit-ID rules (`-2` for duplicate headings, `@2` for split parts), a 4000-character unit limit, checksum tracking for hook files and `docs/decisions/` (the latter confirmed by the user with `refcov confirm`), Hypothesis data generation for requirement 16, and a build order that delivers the thinnest path (register Markdown, split, read via MCP, record, report) before any gate.
 
-对应需求：`.kiro/specs/refcov-skeleton/requirements.md`（第五稿按外部审阅修订，提交 `d04e8fa`，已冻结）。文中"需求 N.M"都指这份文档。设计中发现的需求问题记在 `docs/DEVLOG.md`"以后再做"，不改需求。设计第二版按 spec-auditor 的报告和用户 2026-11-10 的意见修改，和冻结需求原文不一致的地方在文中标"偏离需求原文"。
+对应需求：`.kiro/specs/refcov-skeleton/requirements.md`（第五稿按外部审阅修订，提交 `d04e8fa`，已冻结）。文中"需求 N.M"都指这份文档。设计中发现的需求问题记在 `docs/DEVLOG.md`"以后再做"，不改需求。设计第二版按 spec-auditor 的报告和用户 2026-11-10 的意见修改，和冻结需求原文不一致的地方在文中标"偏离需求原文"。2026-11-11 按外部审阅 `docs/设计第二版审阅.md` 和用户的决定改了对应的句子，不另出第三版，逐条改动记在 DEVLOG 2026-11-11。
 
 ## 1. 总体
 
@@ -38,8 +38,13 @@ Kiro 钩子 ──▶ integrations/kiro ─┘        │
 
 文件位置：
 
-- 状态目录：仓库根目录 `.refcov/`。`cache/` 被 `.gitignore` 忽略（已有）；`sources.json`（清单）提交；`log.jsonl`、`log.lock`、`report-last.json`、`errors.log` 也在这里。日志要不要提交由用户定，默认不忽略，因为在线演示页要回放它（需求 4.4）。
-- 配置文件：仓库根目录 `refcov.toml`。
+- 状态目录：仓库根目录 `.refcov/`。第一次写入时自动建（没有 `init` 命令）。`cache/` 被 `.gitignore` 忽略（已有）；`errors.log`（含报错堆栈和本机路径）、`log.lock`、`report-last.json` 也忽略（任务 1 加进 `.gitignore`）；`sources.json`（清单）和 `log.jsonl` 照常提交，在线演示页要回放日志（需求 4.4）。
+- `.gitattributes` 加一行 `*.jsonl -text`，日志不做换行转换，换一台机器校验哈希链不会报断链（第 3.2 节）。
+- 配置文件：仓库根目录 `refcov.toml`。由用户从 `integrations/kiro/refcov.example.toml` 手动复制，README 里写一行说明。
+- 仓库根目录怎么定：核心层不按当前目录找状态目录，根目录由调用方传入。
+  - `hook.py` 按自己的文件位置算出仓库根目录（`Path(__file__).resolve().parents[2]`），放到 `sys.path` 最前面再 import 核心层，并把它传给核心层。钩子的工作目录实测是工作区根目录，但不依赖这一点。
+  - MCP 服务由 Kiro 的扩展宿主启动，工作目录不一定是工作区根目录（`docs/验证结果.md` 第 6 项），所以用启动参数接收：`python -m refcov_mcp --root <仓库根目录>`。`docs/mcp.example.json` 写出这个参数。
+  - Python 用 PATH 上的那个（钩子命令里的 `python`），在它里面 `pip install -e .`。README 写明这一步。import 失败会被当成"自身出错"放行（第 8 节第 3 步），关卡会无声失效，所以任务 6 的完成标志包括 `.refcov/errors.log` 为空。
 - 测试：`tests/`。只有 `tests/` 下的代码 import Hypothesis（需求 13.4）。
 - `.gitignore` 检查（需求 1.3）：`tests/test_gitignore.py` 对 `.kiro` 下所有已跟踪和未跟踪的文件，加上几个构造的路径（`.kiro/specs/x/requirements.md`、`.kiro/hooks/x.json`、`.kiro/settings/mcp.json`），运行 `git check-ignore -v --no-index`。只要有一个命中的规则来自某个 `.gitignore` 文件，测试就失败。命中来自 `.git/info/exclude` 的不算失败：本机的 `.kiro/settings/mcp.json` 是用户有意写进那里的，而需求 1.3 只管 `.gitignore`。
 
@@ -75,7 +80,7 @@ Kiro 钩子 ──▶ integrations/kiro ─┘        │
 
 ### 3.2 日志 `.refcov/log.jsonl`（读取记录在这里）
 
-每行一条，所有行共用字段：`seq`（从 1 递增）、`time`（本地时间带时区）、`type`、`session`（知道时填，不知道时为 `null`）、`prev`（上一行原文的 SHA-256，第一行是 64 个 0）。
+每行一条，所有行共用字段：`seq`（从 1 递增）、`time`（本地时间带时区）、`type`、`session`（知道时填，不知道时为 `null`）、`prev`（上一行原文的 SHA-256，第一行是 64 个 0）。哈希按上一行**不含换行符**的 UTF-8 字节算；写文件时换行固定用 `\n`（`open(..., newline="\n")`），`.gitattributes` 让 `*.jsonl` 不做换行转换。
 
 读取记录（MCP 服务写，需求 4.1、4.6）。MCP 服务拿不到会话，所以 `session` 是 `null`：
 
@@ -106,7 +111,7 @@ Kiro 钩子 ──▶ integrations/kiro ─┘        │
 - 调用编号 `call` 就是这条读取记录的 `seq`，写进工具返回文字的最后一行（`refcov-call: c-57`）。PostToolUse 钩子从 `tool_response` 里取出它，对上是哪一次调用。实测里两次并行调用也是分开返回的，按编号对不会混。
 - 报告里一条记录的会话：本行的 `session`；为 `null` 时取按 `call` 对上的 `session` 补记；都没有就算"未知"（需求 4.5）。
 - 有效读取记录：`unit_sha256` 等于清单里该单元当前的 `sha256`（需求 1.4）。
-- 写入时先拿 `log.lock`（`os.open` 加 `O_CREAT | O_EXCL`，每 50 毫秒重试，最多 2 秒；锁文件超过 10 秒视为残留，删掉重拿），读最后一行算 `prev`，追加，放锁。MCP 服务和钩子脚本是不同进程，必须加锁，否则哈希链会断。
+- 写入时先拿 `log.lock`（`os.open` 加 `O_CREAT | O_EXCL`，每 50 毫秒重试，最多 2 秒；锁文件超过 10 秒视为残留，删掉重拿），读最后一行算 `prev`，追加，放锁。MCP 服务和钩子脚本是不同进程，必须加锁，否则哈希链会断。2 秒内拿不到锁时，`api.read` 让这次工具调用报错、不返回单元内容（少算不多算）；钩子脚本按第 8 节第 3 步的出错处理。
 - 哈希链只能让随手追加或改动留下痕迹（需求 11.4）。报告里写"链完整"或"第 N 行起断开"。
 
 ### 3.3 凭证（日志里 `type: "token"` 的一行）
@@ -148,7 +153,7 @@ paths   = ["integrations/kiro/**"]
 sources = ["kiro-hooks"]
 ```
 
-- 路径一律转成相对仓库根目录的 `/` 分隔形式再匹配；Windows 上不分大小写。匹配用 `fnmatch`，`*` 也能跨 `/`，所以 `docs/decisions/**` 能匹配子目录。`**/DEVLOG.md` 不匹配根目录的 `DEVLOG.md`（前面要有 `/`），所以根目录那个单独列。需求 8.3 只写了文件名，默认值按"任何位置叫 `DEVLOG.md` 的文件"处理。
+- 路径一律转成相对仓库根目录的 `/` 分隔形式，路径和模式都转成小写，再用 `fnmatch.fnmatchcase` 匹配。不用 `fnmatch.fnmatch`：它在 Windows 上不分大小写、在 Linux 上分，持续集成里结果会不一样。`*` 也能跨 `/`，所以 `docs/decisions/**` 能匹配子目录。`**/DEVLOG.md` 不匹配根目录的 `DEVLOG.md`（前面要有 `/`），所以根目录那个单独列。需求 8.3 只写了文件名，默认值按"任何位置叫 `DEVLOG.md` 的文件"处理。
 - 一个路径命中多条 `scope`，取这些规则的参考源并集；一条都不命中，要求全部参考源（需求 8.2）。
 - 配置文件不存在时用默认值：`mode = "strict"`、`enforce = true`、`exempt` 和 `confirm` 为上面的值、其余为空。`requirements` 为空时，出处相关的检查报"未配置需求文档"，不算达标失败。
 
@@ -203,15 +208,16 @@ sources = ["kiro-hooks"]
 - 一行简短形式（需求 9.8、12.4），例如：
   `RefCov 严格模式 未达标：必看单元 本会话 3/14，历史 9/14；还差 5 个：kiro-hooks/退出码@2、…；1 个 decisions 文件待用户确认。参考材料要用 RefCov 的 MCP 工具读，直接读文件不算看过。`
 
-### 3.6 文件校验值和用户确认（`files`）
+### 3.6 文件校验值和用户确认（`files`，任务 18，可选）
 
 钩子配置、接入层脚本（需求 12.2）和 `docs/decisions/` 下的文件用同一套办法：每次生成报告时，对 `watch` 和 `confirm` 两组路径下的每个文件算 SHA-256，和一个基准比较，结果写进 `files`。两组只差在基准：
 
 | 组 | 基准 | `status` 取值 | 标红 |
 | --- | --- | --- | --- |
-| `watch` | 上一次报告（`.refcov/report-last.json`） | `unchanged`、`changed`、`new`、`removed` | `changed`、`removed`；`new` 在第一次报告时不标红，之后标红 |
+| `watch` | 上一次在终端跑 `refcov report` 时存下的 `.refcov/report-last.json`。钩子和 MCP 生成的报告只比较、不更新基准，否则 UserPromptSubmit 每条消息都会刷新基准，标红只出现一次 | `unchanged`、`changed`、`new`、`removed` | `changed`、`removed`；`new` 在第一次报告时不标红，之后标红 |
 | `confirm` | 日志里这个路径最后一条 `confirm` 记录 | `confirmed`、`unconfirmed`（没确认过，或确认后改过）、`removed` | `unconfirmed` 标红并写"待用户确认"；`removed` 标红 |
 
+- AI 在 shell 里跑 `refcov report` 同样会更新基准（命令行分不出是谁在跑）。要不要拦，做任务 18 时再定。
 - `report-last.json` 只是缓存，被删了就全部按"首次"处理，`watch` 组不标红；`confirm` 组的基准在日志里，不受影响。
 - `docs/decisions/**` 仍然豁免写文件关卡（需求 8.3）。确认不影响达标，只影响报告和一行简短报告里的提示。
 - 用户确认的方式：在终端里跑 `refcov confirm <文件>…`。它算出每个文件当前的校验值，追加 `confirm` 记录，并打印"已确认 N 个文件"。不带参数时列出所有 `unconfirmed` 的文件，不确认任何文件。
@@ -248,6 +254,7 @@ sources = ["kiro-hooks"]
 
 - 没有登记、确认、改配置、写记录的工具（需求 14.3）。登记和确认只能用命令行，由用户运行。
 - 每个工具的返回都带一句提示：直接读参考文件不算看过（和需求 9.9 同一句）。
+- 返回文字的顺序：正文 → 提示 → `refcov-call:` 行。`refcov-call:` 永远是最后一行，钩子只认最后一行，单元正文里恰好有一行 `refcov-call:` 也不会认错。
 
 ## 6. 核心层入口（`refcov/api.py`）
 
@@ -258,7 +265,7 @@ sources = ["kiro-hooks"]
 | `read(source, unit)` | 单元 | 内容、调用编号；追加 `read`。唯一追加 `read` 的函数（需求 4.8） |
 | `attach_session(call, session)` | 调用编号、会话 | 追加 `session` |
 | `check_write(path, session)` | 目标路径 | 放行 / 拦截 + 原因；拦截时追加 `block` |
-| `record_write(path, session, tool, source_known)` | 写入后的路径 | 追加 `write`（不达标、无法判断、来源不明时） |
+| `record_write(path, session, tool, source_known)` | 写入后的路径 | 追加 `write`（不达标、无法判断、来源不明时）。如果任务 17 第一步实测 shell 写入会触发 PostFileSave，改成每次写入都追加（含达标的），见第 8 节 |
 | `check_task(tasks_file, task_line, session)` | tasks.md 路径和任务行 | 放行 / 拦截 + 原因；找不到任务时放行并追加 `task_not_found` |
 | `issue_token(session=None)` | 无 | 凭证或拒绝原因 |
 | `report(session=None)` | 会话（可无） | 报告 JSON |
@@ -268,15 +275,15 @@ sources = ["kiro-hooks"]
 
 | 子命令 | 做什么 | AI 用 shell 跑 |
 | --- | --- | --- |
-| `add <路径或网址> --id <参考源ID>` | 登记或重新登记 | 放行：重新登记只会让旧记录失效，覆盖率只会变低 |
-| `report [--json] [--session <会话ID>]` | 报告 | 放行（只读） |
+| `add <路径或网址> --id <参考源ID>` | 登记或重新登记 | **拦**：AI 可以用同一个参考源 ID 登记一个很小的文件，把参考源变成一个单元，读一下就是 100% |
+| `report [--json] [--session <会话ID>]` | 报告 | 放行（只读；更新基准见第 3.6 节） |
 | `check [路径]`、`check-spec <需求文档>` | 只读检查 | 放行 |
-| `init` | 没有 `refcov.toml` 时从 `integrations/kiro/refcov.example.toml` 复制一份，没有 `.refcov/` 时建空目录；已存在的一律不动 | **拦** |
-| `confirm [<文件>…]` | 第 3.6 节 | **拦** |
+| `confirm [<文件>…]` | 第 3.6 节（任务 18，可选） | **拦** |
 
-- 只能由用户跑的子命令记在核心层的 `USER_ONLY = ("init", "confirm")` 里。规则：会写配置文件、会建立或清空日志、会追加 `confirm` 的子命令都要放进这个元组。现在没有清空或重建日志的子命令；以后加了也要放进去。
+- 没有 `init`：配置由用户从 `integrations/kiro/refcov.example.toml` 手动复制，状态目录第一次写入时自动建（第 2 节）。这样核心层的命令行也不用知道接入层的路径。
+- 只能由用户跑的子命令记在核心层的 `USER_ONLY = ("add", "confirm")` 里。规则：会往日志里追加记录、会写配置文件、会建立或清空日志的子命令都要放进这个元组。现在没有清空或重建日志的子命令；以后加了也要放进去。
 - 接入层的保护检查不能 import 核心层（需求 14.5），所以 `hook.py` 里抄一份同名元组，`tests/test_user_only.py` 检查两份一致。
-- 命令行没有会写读取记录的子命令（需求 14.3）。`add` 会写 `register` 记录，按用户 2026-11-10 的决定放行；需求 14.4 原文要求拦"其他会写记录的 RefCov 入口"，属于偏离需求原文，已记进"以后再做"。
+- 命令行没有会写读取记录的子命令（需求 14.3）。`add` 会写 `register` 记录，按需求 14.4 拦（用户 2026-11-11 的决定），不再偏离需求原文。
 
 ## 7. 判断规则（`refcov/coverage.py`）
 
@@ -296,28 +303,40 @@ sources = ["kiro-hooks"]
 | 钩子文件 | 事件 | 匹配条件 | 调用 | 需求 |
 | --- | --- | --- | --- | --- |
 | `refcov-pre-write.json` | PreToolUse | `^(fs_write\|str_replace\|fs_append)$` | 先做需求 14.1、14.2 的保护；再 `check_write` | 9.1、11.2、14.1、14.2 |
-| `refcov-pre-shell.json` | PreToolUse | `^(execute_pwsh\|control_pwsh_process)$` | 只做需求 14.4 的文本匹配，不调用核心层 | 14.4、14.5 |
+| `refcov-pre-shell.json` | PreToolUse | `^(execute_pwsh\|control_pwsh_process\|execute_bash)$` | 只做需求 14.4 的文本匹配，不调用核心层 | 14.4、14.5 |
 | `refcov-post-write.json` | PostToolUse | `^(fs_write\|str_replace\|fs_append)$` | `record_write(source_known=True)` | 10.1 |
-| `refcov-post-mcp.json` | PostToolUse | `^mcp_refcov_` | 从 `tool_response` 取 `refcov-call:`，`attach_session` | 4.5、7.1 |
-| `refcov-file-save.json` | PostFileSave | 无 | 10 秒内同一路径已有 `write` 记录就跳过；否则 `record_write(source_known=False)` | 10.3 |
+| `refcov-post-mcp.json` | PostToolUse | `^mcp_refcov_` | 从 `tool_response` 的最后一行取 `refcov-call:`，`attach_session` | 4.5、7.1 |
+| `refcov-file-save.json` | PostFileSave | 无 | `record_write(source_known=False)`；留不留看任务 17 第一步，见表下 | 10.3 |
 | `refcov-pretask.json` | PreTaskExec | 无 | `check_task(spec_name, task_name)` | 9.6、9.7 |
 | `refcov-prompt.json` | UserPromptSubmit | 无 | `status_line(session_id)` 写 stdout | 9.8、9.9 |
 
-（共 7 个钩子文件、5 种事件。）
+（共 7 个钩子文件、5 种事件；`refcov-file-save.json` 可能删掉，见下。）
 
-shell 工具名：`execute_pwsh` 在 `docs/验证结果.md` 第 2 项里实测过。`control_pwsh_process` 只在 agent 的工具列表里见过，钩子能不能按这个名字匹配上没测过，第 10 节第 7 步做关卡前先实测。
+`refcov-file-save.json` 留不留，由任务 17 第一步的实测决定：AI 用 shell 写文件（例如 `Set-Content`）时 PostFileSave 触不触发。
+
+- 不触发：这个钩子看到的每次保存，PostToolUse 都已经处理过（2026-11-10 的样本里用户手动保存没触发它，只测了一次），没有新信息。删掉这个钩子文件和 `hook.py` 里的分支。需求 10.3 是"收到保存事件时"才适用的条件句，不注册这个钩子不违反它。
+- 触发：它是唯一能发现 shell 写入的地方，留下。去重不在钩子里做：`refcov-post-write.json` 每次写入都追加 `write`（含达标的），`refcov-file-save.json` 每次也追加一条；生成报告时，一条保存记录前后 10 秒内同一路径没有写文件工具的 `write` 记录，才算"来源不明"。这样和两个钩子进程谁先写日志无关（两者几乎同时触发，`hooks.jsonl` 20:34:54 的三条）。
+
+shell 工具名：`execute_pwsh` 在 `docs/验证结果.md` 第 2 项里实测过。`control_pwsh_process` 只在 agent 的工具列表里见过，钩子能不能按这个名字匹配上没测过，第 10 节第 7 步做关卡前先实测。`execute_bash` 是其他系统上的 shell 工具名（AWS Labs 的记录里有），加上它，评委在 Mac 上试时保护也生效；本机测不到。
 
 `hook.py` 的顺序（需求 11.1、11.3、14.5）：
 
-1. 按字节读 stdin，UTF-8 解码，stdout、stderr 改成 UTF-8。
+1. 按字节读 stdin，UTF-8 解码，stdout、stderr 改成 UTF-8。按自己的文件位置算出仓库根目录（第 2 节），不依赖当前目录。
 2. 事件是 PreToolUse 时做保护检查，命中就退出码 2，这一步的任何异常也退出码 2，这一步不 import 核心层：
    - 写文件：`tool_input.path` 在 `.refcov/` 下或是 `refcov.toml`。
-   - shell：`tool_input.command` 里出现 `.refcov`、`refcov.toml`、`integrations/kiro`（两种斜杠）、`refcov_mcp`；或者匹配正则 `(^|[\s;&|(])(refcov(\.exe)?|python3?(\.exe)?\s+-m\s+refcov)\s+(init|confirm)\b`（`init`、`confirm` 来自 `USER_ONLY`）。都不分大小写。
-   - `refcov add` 不在匹配范围内，放行。
+   - shell，出现就拦：`tool_input.command` 里出现 `.refcov` 或 `refcov.toml`。
+   - shell，只在被执行时拦：用 Python 运行钩子脚本，正则 `(^|[\s;&|(])python3?(\.exe)?\s[^;&|\n]*hook\.py\b`；运行 MCP 服务，正则 `-m\s+refcov_mcp\b`。只是在命令里提到 `integrations/kiro` 或 `refcov_mcp` 不拦，所以 `git add integrations/kiro/hook.py`、`git diff integrations/kiro/…`、`pytest tests/test_refcov_mcp.py` 都能跑。
+   - shell，只能用户跑的子命令：正则 `(^|[\s;&|(])(refcov(\.exe)?|python3?(\.exe)?\s+-m\s+refcov)\s+(add|confirm)\b`（`add`、`confirm` 来自 `USER_ONLY`）。
+   - 以上都不分大小写。
 3. import 核心层，调用入口。任何异常都写 `.refcov/errors.log`（`json.dumps(..., ensure_ascii=True)`）并退出码 0。
 4. 拦截时原因写 stderr、退出码 2；同一会话同一目标第 2 次起加"停下来，向用户说明情况"（需求 11.2）。`enforce = false` 时第 3 步一律放行，第 2 步照常（需求 17.1）。
 
-注意：第 2 步的文本匹配也会拦住 AI 用 shell **读**状态目录（例如 `Get-Content .refcov/log.jsonl`）和提交信息里写到这些名字的 `git commit`。AI 看记录要用 MCP 的 `report`。文本匹配挡不住改了写法的命令（例如拼接字符串），这是需求 11.4 写明的局限。
+注意：
+
+- 第 2 步的文本匹配也会拦住 AI 用 shell **读**状态目录（例如 `Get-Content .refcov/log.jsonl`）、`git add .refcov/sources.json`，以及提交信息里写到这些名字的 `git commit`。AI 看记录要用 MCP 的 `report`；清单要提交时用 `git add -A` 或由用户提交，README 写明。
+- 用管道把样例喂给 `hook.py` 自测，也会被"运行钩子脚本"那条拦住。钩子脚本的自测写成 pytest 测试（命令文本是 `pytest …`，不匹配），测试里用临时目录当仓库根目录。
+- 文本匹配挡不住改了写法的命令（例如拼接字符串、用 `py` 启动），这是需求 11.4 写明的局限。
+- 逃生办法：保护检查出异常时一律拦（需求 14.5），这一步要是写错一行，每次写文件和每条 shell 命令都会被拦，Kiro 自己改不回来。用户把 `.kiro/hooks/refcov-pre-*.json` 移出 `.kiro/hooks/` 就能立即停用（2026-11-10 实测移走钩子文件立即生效）。README 写明这一步。
 
 ## 9. 属性测试（需求 16）
 
@@ -361,17 +380,19 @@ Hypothesis 直接生成第 7 节纯函数的输入，不经过文件。
 | 4 | `refcov report` 文字和 JSON，`refcov-prompt.json` 一行报告 | api、coverage（只算覆盖率） | 发消息时上下文里出现"本会话 x/y，历史 a/y" |
 | 5 | 用它管自己：登记比赛规则页和 Kiro 钩子文档，后面写钩子代码前先经 MCP 读完 | — | DEVLOG 开始记"RefCov 拦了自己几次"所需的数据 |
 | 6 | `citations`、`check-spec`，必看集合和达标；属性测试 16.1–16.6 | citations、coverage | 属性测试通过 |
-| 7 | 关卡：实测 `control_pwsh_process`；保护检查；`refcov init`、`refcov confirm` 和文件校验值；写文件、任务开工、写入后记录、拦截次数提示 | integrations/kiro、api | 没读完时写 `integrations/kiro/**` 被拦，读完后放行；AI 跑 `refcov confirm` 被拦 |
+| 7 | 关卡：实测 `control_pwsh_process`；保护检查；写文件、任务开工、写入后记录、拦截次数提示；`refcov confirm` 和文件校验值（可选，放在最后） | integrations/kiro、api | 没读完时写 `integrations/kiro/**` 被拦，读完后放行；用户点引用了没读单元的任务的 Start task 被拦；AI 跑 `refcov add` 被拦 |
 | 8 | 凭证和 `check`、`request_token` | api、refcov_mcp | 凭证在配置修改后显示失效 |
 
-目标：第 1–4 步在 2026-11-12 前跑通（审阅 D1 说"两天内"）。第 7 步之后，开发本项目的写入就会被自己的关卡管住。
+持续集成（GitHub Actions 在 Linux 上跑 `pytest`）在第 1 步就建好，换行、大小写这类只在 Linux 上暴露的问题早发现。
+
+目标：第 1–4 步在 2026-11-14 前跑通（审阅 D1 说"两天内"；用户 11-12 要先写两个应用和演示页的需求，所以推到 11-14，和 `tasks.md` 一致）。第 7 步之后，开发本项目的写入就会被自己的关卡管住。
 
 ## 11. 已知取舍
 
 - 一个日志文件放所有记录：格式最少；代价是报告要扫全文件。记录量是每次读取一行，比赛期间预计几千行，直接扫可以接受。
-- AI 能用 shell 跑 `refcov add` 重新登记。重新登记只会让旧记录失效（覆盖率变少），不会多算，所以放行（用户 2026-11-10 的决定）。
+- `refcov add` 只能由用户在终端跑。2026-11-10 曾决定放行，理由是"重新登记只会让旧记录失效"；这只在登记同一份内容时成立，用同一个 ID 登记一个很小的文件就能把覆盖率做到 100%，所以 2026-11-11 改为拦（外部审阅一.2）。
 - 经 MCP 的 `report` 没有本会话数，本会话数只在 UserPromptSubmit 那一行和命令行 `--session` 里有。
-- PostFileSave 在用户手动保存时这次实测没触发（DEVLOG 2026-11-10，只测了一次）。钩子仍按需求 10.3 写，触发了就记"来源不明"。
+- PostFileSave 在用户手动保存时这次实测没触发（DEVLOG 2026-11-10，只测了一次）。要不要注册这个钩子，看任务 17 第一步的实测（第 8 节）。
 
 ---
 
