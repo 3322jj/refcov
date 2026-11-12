@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "RefCov：任务开工关卡",
+      "trigger": "PreTaskExec",
+      "description": "点 Start task 前检查：任务和它列的需求块引用的单元都看过、严格模式下出处检查通过，否则用退出码 2 拦下（需求 9.6）。被拦的任务会停在 [~]，读完再点前可能要手动改回 [ ]。找不到任务时放行并记录，其他出错也放行（需求 9.7、11.1）。RefCov 不改 tasks.md。出问题时把这个文件移出 .kiro/hooks/ 立即停用。",
+      "action": {
+        "type": "command",
+        "command": "python integrations/kiro/hook.py pretask",
+        "timeout": 10
+      }
+    }
+  ]
+}
