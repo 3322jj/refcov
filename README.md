@@ -36,10 +36,10 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 | `pyproject.toml` | Package metadata; console script `refcov`; runtime dependency `mcp`, dev extras `pytest` and `hypothesis` |
 | `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock), `sources.py` (adapter interface, unit-ID rules, splitting units over 4000 characters into `@2`, `@3` parts, and source registration), `adapters/markdown.py` (splits on `#` to `###` headings, skipping fenced code and `>` lines), `api.py` (tool-independent entry points; `read` is the only writer of `read` records; `report` and `status_line` are read-only), `coverage.py` (pure coverage calculation) and the CLI (`refcov add`, `refcov report [--json] [--session <id>]`). Known adapter limits: setext headings (`===`, `---` underlines) are not split on, and a blank line inside a code block can become a split point |
 | `refcov_mcp/` | MCP server (official SDK, FastMCP over stdio, server name `refcov`). So far three tools: `list_units`, `read_unit` and `report` (the MCP server cannot see Kiro's session ID, so the "this session" column reads "unavailable"). Each `read_unit` result is one text block ending in the line `refcov-call: c-<seq>`, and appends a `read` record to the log |
-| `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml` (example config with Kiro paths), `hook.py` (one hook script dispatching on its first argument: `post-mcp`, `prompt`), `hooks/refcov-prompt.json` (UserPromptSubmit: writes one status line to stdout, which Kiro adds to the AI's context; the user's message text is never read or logged) and `hooks/refcov-post-mcp.json` (PostToolUse on `^mcp_refcov_`: reads the `refcov-call: c-<seq>` last line of the tool result and appends a `session` record). The user copies hook files into `.kiro/hooks/`; moving a file out of that folder disables it immediately |
+| `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml` (example config with Kiro paths), `hook.py` (one hook script dispatching on its first argument: `post-mcp`, `prompt`), `hooks/refcov-prompt.json` (UserPromptSubmit: writes one status line to stdout, which Kiro adds to the AI's context; the user's message text is never read or logged) and `hooks/refcov-post-mcp.json` (PostToolUse on `^mcp_refcov_`: reads the `refcov-call: c-<seq>` last line of the tool result and appends a `session` record). Copies of both hook files are committed in `.kiro/hooks/`, where Kiro picks them up; moving a file out of that folder disables it immediately |
 | `experiments/hook-python/` | Probe hook that records which Python and working directory Kiro hook processes use |
 | `tests/` | pytest tests, including `test_gitignore.py`, which fails if any `.gitignore` rule ignores a file under `.kiro` |
-| `.github/workflows/ci.yml` | GitHub Actions: runs `pytest` on Linux (Python 3.11 and 3.12) |
+| `.github/workflows/ci.yml` | GitHub Actions: runs `pytest` on Linux (Python 3.11 and 3.12) and on Windows (Python 3.12, default `core.autocrlf=true`, so text files are checked out with CRLF) |
 | `experiments/mcp-posttooluse/` | Probe MCP server, hook logger, raw logs and the disabled probe hooks from the test showing that PostToolUse on MCP tools carries the correct session ID |
 
 Planned, not yet present: the rest of the core library (required set and pass/fail, citations, the `check` and `request_token` MCP tools), the remaining Kiro hooks (gates, protection), `apps/shot-coverage` (reference video, per shot), `apps/layer-coverage` (GIS data, per layer property), and an online demo page that replays recorded sessions.
@@ -68,14 +68,31 @@ Python 3.11+. The core library uses only the standard library. The MCP server mo
    Check with `python -c "import refcov"`. If the hooks run a different Python than the one you installed into, they fail silently (errors go to `.refcov/errors.log`).
 2. Copy `integrations/kiro/refcov.example.toml` to `refcov.toml` in the repo root and edit it there. Only the user edits this file. There is no `refcov init`; the state directory `.refcov/` is created on the first write.
 
-3. Register reference material from the repo root (`refcov` refuses to run in a directory without `.git`). Only the user runs this; an AI must not (the hook that blocks it comes in task 14):
+3. Configure the MCP server. `.kiro/settings/mcp.json` is not in the repo (it holds local paths), so a fresh clone has no RefCov tools until you create it. Copy `docs/mcp.example.json` to `.kiro/settings/mcp.json` and replace both placeholders with absolute paths: the Python you installed into in step 1 (`python -c "import sys; print(sys.executable)"`) and the repo root. Example:
+
+   ```json
+   {
+     "mcpServers": {
+       "refcov": {
+         "command": "D:\\pyth\\python.exe",
+         "args": ["-m", "refcov_mcp", "--root", "D:\\agent\\kiro\\refcov"],
+         "disabled": false
+       }
+     }
+   }
+   ```
+
+   Then open the MCP panel in Kiro and check that `refcov` is connected. After pulling changes that add MCP tools, reconnect `refcov` there; a server process started earlier keeps the old tool list.
+4. Hooks need no setup. `.kiro/hooks/refcov-post-mcp.json` and `.kiro/hooks/refcov-prompt.json` are committed and take effect as soon as the clone is open in Kiro. Open the repo root itself as the workspace: the hook commands run `python integrations/kiro/hook.py ...` with a relative path. To disable a hook, move its file out of `.kiro/hooks/`.
+5. Register at least one piece of reference material from the repo root (`refcov` refuses to run in a directory without `.git`). Only the user runs this; an AI must not (the hook that blocks it comes in task 14):
 
    ```
    refcov add https://kiro.dev/docs/hooks.md --id kiro-hooks
    refcov add docs/decisions/2026-11-10-review-reply.md --id review-reply
    ```
 
-   Accepted: local `.md` / `.markdown` files inside the repo, and URLs served as `text/markdown` (or `text/plain` when the path ends in `.md`). UTF-8 only. Source IDs use lowercase letters, digits and hyphens. On failure nothing is changed and the reason goes to stderr. Registering unchanged content again writes nothing.
+   Accepted: local `.md` / `.markdown` files inside the repo, and URLs served as `text/markdown` (or `text/plain` when the path ends in `.md`). UTF-8 only. Source IDs use lowercase letters, digits and hyphens. On failure nothing is changed and the reason goes to stderr. Registering unchanged content again writes nothing. A fresh clone has the committed `.refcov/sources.json` but no `.refcov/cache/`; run `refcov add` again for each listed source before reading it, or `read_unit` reports that the cache is missing.
+6. Check the setup. In a Kiro chat, ask the agent to call the RefCov `read_unit` tool for one unit (for example source `kiro-hooks`, unit `Hooks`). The result should end with a line `refcov-call: c-<n>`. Then run `refcov report` in a terminal: the unit counts as read, and it is listed under a session ID rather than under unknown sessions, which shows the PostToolUse hook ran. Your next chat message should also carry the one-line RefCov status in the agent's context.
 
 `.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). `.refcov/cache/`, `errors.log`, `log.lock` and `report-last.json` are git-ignored. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
 

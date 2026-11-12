@@ -128,7 +128,9 @@ def test_manifest_unit_checksum_not_matching_split(store):
 def test_crlf_cache_still_matches(store):
     """缓存里是 CRLF 的原始字节（Windows 上 core.autocrlf），校验值按换行统一后算，照样能读。"""
     (cache,) = store.cache_dir.iterdir()
-    cache.write_bytes(cache.read_bytes().replace(b"\n", b"\r\n"))
+    # 缓存可能已是 CRLF（样例在 Windows 克隆时 core.autocrlf=true），先统一成 LF 再构造 CRLF 版本
+    lf = cache.read_bytes().replace(b"\r\n", b"\n")
+    cache.write_bytes(lf.replace(b"\n", b"\r\n"))
     assert api.read(store, "sample", "Hooks").texts == ["\n钩子在事件发生时运行命令。\n\n"]
 
 

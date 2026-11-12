@@ -101,6 +101,247 @@
           "chars": 583
         }
       ]
+    },
+    {
+      "id": "kiro-permissions",
+      "origin": "https://kiro.dev/docs/permissions.md",
+      "fetched": "2026-11-11T23:24:10+08:00",
+      "sha256": "daa195104a7fadf38405918f9ec25aa86d351ac0edd2e61983b44f4a07b238c6",
+      "adapter": "markdown",
+      "registered_seq": 10,
+      "units": [
+        {
+          "id": "permissions-2",
+          "title": "permissions",
+          "kind": "section",
+          "sha256": "d49d568ab403885476a74a56b3d292aa20f893eeb39c79219d2c16b6882956af",
+          "chars": 171
+        },
+        {
+          "id": "Permissions",
+          "title": "Permissions",
+          "kind": "section",
+          "sha256": "1f3a31c3832e0c0738b57d32926cb4fda77e738d913a99a7e15c30862aadc717",
+          "chars": 973
+        },
+        {
+          "id": "How-it-works",
+          "title": "How it works",
+          "kind": "section",
+          "sha256": "85dad5f8d4ba6ee5a32296a89b25ba7683578105987fcbb5f1c1c10cb54e30fb",
+          "chars": 1174
+        },
+        {
+          "id": "Sandbox-network-rules",
+          "title": "Sandbox network rules",
+          "kind": "section",
+          "sha256": "06afeb1e75a0973b142d835ca48e723c80a50a9e0e8c33483cc0cb2289cb5d78",
+          "chars": 743
+        },
+        {
+          "id": "Defining-rules",
+          "title": "Defining rules",
+          "kind": "section",
+          "sha256": "3d37707941df243f554aa59e3317bd78796c0f362cfe2f87d108a3b58416b9a9",
+          "chars": 1101
+        },
+        {
+          "id": "Exclude-syntax",
+          "title": "Exclude syntax",
+          "kind": "section",
+          "sha256": "2db445790d2835717ad6f37a22c32dc0d59902d5073c86c9d1d11d30b0ac0ee9",
+          "chars": 202
+        },
+        {
+          "id": "Pattern-matching",
+          "title": "Pattern matching",
+          "kind": "section",
+          "sha256": "792f13534b2308e48f389e8b15f596742ef934e01585129e6c17efd38fc1616b",
+          "chars": 818
+        },
+        {
+          "id": "Shell-command-parsing",
+          "title": "Shell command parsing",
+          "kind": "section",
+          "sha256": "6619c727aabc1e01fbd19a1ff96f3cb79eb45f5b80b4baf15801d76d8a5d2ce0",
+          "chars": 1182
+        },
+        {
+          "id": "Scopes",
+          "title": "Scopes",
+          "kind": "section",
+          "sha256": "36d116aceccbe9ffed890e18b0e17b73366ae4251af831fee3b7ecf565d70828",
+          "chars": 1670
+        },
+        {
+          "id": "Sub-agents",
+          "title": "Sub-agents",
+          "kind": "section",
+          "sha256": "5ee33057b4ab6d1ff71a96f36c27824b5e3348615945a2efd0bd850236376a22",
+          "chars": 712
+        },
+        {
+          "id": "Policy-presets",
+          "title": "Policy presets",
+          "kind": "section",
+          "sha256": "b4246f95b91b43deff8f094aa6ee1975ee9d64b7d32f788b2c49ee5217b81bf9",
+          "chars": 1340
+        },
+        {
+          "id": "How-client-requested-presets-are-applied",
+          "title": "How client-requested presets are applied",
+          "kind": "section",
+          "sha256": "06164ba239b4c6cac5c524cb141145608518245e110a941e10a99bf7f4effd98",
+          "chars": 1018
+        },
+        {
+          "id": "Available-presets",
+          "title": "Available presets",
+          "kind": "section",
+          "sha256": "5e7f089bb44fcc4ae8fefd8143f515bfd708c0d806530f688f910ab00c7a73ef",
+          "chars": 1325
+        },
+        {
+          "id": "Choosing-presets-for-a-session",
+          "title": "Choosing presets for a session",
+          "kind": "section",
+          "sha256": "701b4551af715c9e819708f7bc8aa370387318b660a76dee8da1453e34845b7d",
+          "chars": 2385
+        },
+        {
+          "id": "Presets-in-embedded-and-headless-clients",
+          "title": "Presets in embedded and headless clients",
+          "kind": "section",
+          "sha256": "171af4e8f490fa0bce54f375e7772fbec7e9cf9b2726d2f3e528c0abba1bcb39",
+          "chars": 790
+        },
+        {
+          "id": "Trust-invariants",
+          "title": "Trust invariants",
+          "kind": "section",
+          "sha256": "b008966b1d408b73ba7f65acdcf933aeeb599ae64da7091f79e5604524f5e45a",
+          "chars": 912
+        },
+        {
+          "id": "Default-behavior",
+          "title": "Default behavior",
+          "kind": "section",
+          "sha256": "e23eabcba78b07c3f3b8099ccbfa04c772de21fc5375a71cbb529bde9b6dd87b",
+          "chars": 1703
+        },
+        {
+          "id": "Workspace-trust",
+          "title": "Workspace trust",
+          "kind": "section",
+          "sha256": "bfa92cf636df16c008b9d47d7d6da29059431385efba2b7eeaf7eef7a830b0ca",
+          "chars": 3475
+        },
+        {
+          "id": "Trust-a-workspace-in-Kiro-CLI",
+          "title": "Trust a workspace in Kiro CLI",
+          "kind": "section",
+          "sha256": "e58c60e47901ad8b47d01608df78a13ec04f4eec5f2a6e43a3a9c569c14c0fc1",
+          "chars": 1868
+        },
+        {
+          "id": "Managing-permissions-by-surface",
+          "title": "Managing permissions by surface",
+          "kind": "section",
+          "sha256": "78ff974110f8a07b89e325f3dc587002423ea5127cd18a51d95a5b96b2608655",
+          "chars": 26
+        },
+        {
+          "id": "Permission-modes",
+          "title": "Permission modes",
+          "kind": "section",
+          "sha256": "c898f68ba32d4d15222b251e467f22ccd244f2ba12cc8f88cd15b27508154fa2",
+          "chars": 875
+        },
+        {
+          "id": "Interactive-approval-flow",
+          "title": "Interactive approval flow",
+          "kind": "section",
+          "sha256": "888179ad3ed20eef2088a383f6b48ca09672739b12be5d06b7d8f297413b8fe7",
+          "chars": 1942
+        },
+        {
+          "id": "Interactive-tool-management",
+          "title": "Interactive tool management",
+          "kind": "section",
+          "sha256": "52274cd03561b8b895e611ea98a29be93814f4e93b8803a7dde1f173eb2bbb09",
+          "chars": 1073
+        },
+        {
+          "id": "Available-built-in-tools",
+          "title": "Available built-in tools",
+          "kind": "section",
+          "sha256": "38fd54b3f37ba50bdfbc4f400e87fbe66bd1a752a4d01ffaa4616fe0956fd415",
+          "chars": 849
+        },
+        {
+          "id": "Approval-scopes-in-CLI-V3",
+          "title": "Approval scopes in CLI V3",
+          "kind": "section",
+          "sha256": "3f87a3b407f9174425c3d71a02a355d04090be6c6a41cbeb28a157385e0947b5",
+          "chars": 2480
+        },
+        {
+          "id": "Read-and-write-path-trust-levels",
+          "title": "Read and write path trust levels",
+          "kind": "section",
+          "sha256": "c72ed8d3496468c0c271a31470d327b91a995890fd10adb5717e454d091e73ab",
+          "chars": 803
+        },
+        {
+          "id": "CI-and-headless-environments",
+          "title": "CI and headless environments",
+          "kind": "section",
+          "sha256": "efe213357d05f438bb8cf8ba896785357ba97ea22123ace79ff10f794b8fae76",
+          "chars": 1401
+        },
+        {
+          "id": "Approve-for-me",
+          "title": "Approve for me",
+          "kind": "section",
+          "sha256": "9c06ca5ead9bac864c4109a08c55d4951bc03f0f319bcfffdc9f32f048d188b8",
+          "chars": 3529
+        },
+        {
+          "id": "Approve-for-me-in-Kiro-Web",
+          "title": "Approve for me in Kiro Web",
+          "kind": "section",
+          "sha256": "105d2be24d14b94d234514f0a7fe6287ed2db49410a4de2ca028792c67740e0f",
+          "chars": 1912
+        },
+        {
+          "id": "Security-and-trust",
+          "title": "Security and trust",
+          "kind": "section",
+          "sha256": "cdc966c26c448c772d28666f9009fbad61d07b56e5de925f7380eef3779474b2",
+          "chars": 1685
+        },
+        {
+          "id": "Approval-rule-tiers",
+          "title": "Approval rule tiers",
+          "kind": "section",
+          "sha256": "0349ce160985ea7320748bc9c9b86ccc786c8edc4b4b4bc81c0aa099004b813e",
+          "chars": 1138
+        },
+        {
+          "id": "Permission-examples",
+          "title": "Permission examples",
+          "kind": "section",
+          "sha256": "2f4d5eb72fd58c6d10fce02accc82f683f7cd7eeea952e2332bb0215fa94adf0",
+          "chars": 649
+        },
+        {
+          "id": "Migrating-from-older-versions",
+          "title": "Migrating from older versions",
+          "kind": "section",
+          "sha256": "3ea7017406ebc03ab83441eec58608599caa4b8178e82ae04d95b046bc83cbd4",
+          "chars": 447
+        }
+      ]
     }
   ]
 }

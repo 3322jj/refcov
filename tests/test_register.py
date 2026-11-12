@@ -83,7 +83,9 @@ def test_crlf_copy_counts_as_same_content(repo):
     register(store, "docs/sample-hooks.md", "sample-hooks")
     before = snapshot(repo)
     p = repo / "docs" / "sample-hooks.md"
-    p.write_bytes(b"\xef\xbb\xbf" + SAMPLE.read_bytes().replace(b"\n", b"\r\n"))
+    # 样例在工作区可能已是 CRLF（Windows 克隆时 core.autocrlf=true），先统一成 LF 再构造 CRLF 版本
+    lf = SAMPLE.read_bytes().replace(b"\r\n", b"\n")
+    p.write_bytes(b"\xef\xbb\xbf" + lf.replace(b"\n", b"\r\n"))
     r = register(store, "docs/sample-hooks.md", "sample-hooks")
     assert not r.written
     assert snapshot(repo) == before
