@@ -31,6 +31,9 @@
   现在不做：离最细通路目标（2026-11-14）只剩两天；2.x 对 `server/discover` 怎么回、`structured_output` 等行为都没验证，迁了 Kiro 里的实测也要重做。
 - 任务 14 做完后，开着 Approve for me 把任务 8 从登记到报告重走一遍，看自动审批下 AI 用 shell 挪钩子、跑 `refcov add` 会不会被拦。
   现在不做：任务 14 的 shell 保护检查还没做，现在开着它重走，只会再确认一遍 shell 能绕过钩子（2026-11-12 要紧发现），得不到新结论。
+- 单元 ID 可以自带全角分号"；"（例如 `dec-review-reply/二·2-幻影需求和无效引用影响达标；聊天要求怎么当出处`）。以后再用脚本按"；"切出处行，会把这个引用切成两半。要切的话先把 `[ref:…]` 整个取出来再切，或者生成单元 ID 时把"；"也换成短横线。
+  现在不做：任务 11 的转换已经做完，那次切段发生在加引用之前，没受影响；改 ID 规则会让已写好的引用失效，也要改设计 4 第 1 条。
+  EN: Unit IDs may contain a full-width semicolon (e.g. in dec-review-reply 二·2); a later script splitting source lines on it would cut such a reference in half. Extract references before splitting, or map the semicolon to a hyphen in IDs. Not now: the task 11 conversion split before references were added, and changing the ID rule would break existing references and design section 4 rule 1.
 
 ## 待定
 
@@ -1023,3 +1026,32 @@
   EN: Kiro features used: the spec (task 11; design sections 3.5, 5, 7), steering (the tech.md ordering rule, still broken twice; testing.md), hooks (the UserPromptSubmit status line now starts with pass/fail), MCP (the new check tool, called once from Kiro after the user reconnected).
 - 任务 11 的代码部分完成；最后一步（把 `requirements.md` 的文字出处换成 `[ref:…]`）还没做，要用户参与，所以 tasks.md 任务 11 没打勾。
   EN: Task 11 code part done; the last step (converting requirements.md text sources to references) needs the user and is not done, so task 11 stays unticked.
+
+## 2026-11-12（任务 11 最后一步：需求文档的出处换成引用）
+
+- 补记 `aa748f5`（任务 11 代码部分）的推送：一共推了 3 次。第 1 次直接推、第 2 次等 5 秒，都报 `TLS connect error: error:00000000:lib(0)::reason(0)`，退出码 128；第 3 次等 10 秒，成功（`841abf4..aa748f5`）。都是普通推送。
+  EN: Catch-up on pushing aa748f5 (task 11 code part): 3 attempts; the first (immediate) and second (after 5 s) failed with the TLS connect error (exit 128); the third (after 10 s) succeeded (841abf4..aa748f5). Plain pushes only.
+- 补记 `aa748f5` 的 CI：run 43176909022 success，`test (3.11)`、`test (3.12)`、`test-windows` 三个作业都是 success。数据取自公开的 runs 和 jobs API，看不到测试个数。第一次查 runs 用了短哈希，`head_sha` 只认完整哈希，查到 0 条；用完整哈希重查才找到。查 jobs 时前两次 TLS 断开，等 10 秒后第 3 次拿到。
+  EN: Catch-up on CI for aa748f5: run 43176909022 succeeded on all three jobs, read from the public runs and jobs API; test counts not visible. The first runs query used the short hash and returned nothing (head_sha needs the full hash); the jobs query failed twice with TLS disconnects and worked on the third try after 10 s.
+- 第 1 步（只读）：把 `requirements.md` 17 条出处行里的文字出处去重，列成"能对上已登记单元 / 拿不准 / 文件在仓库里但没登记 / 对不上"四类。没有用 MCP 读单元正文，因为 `read_unit` 会往日志追加记录，和"只读、不改任何文件"冲突；只按单元标题判断，判断不了的标"拿不准"。
+  EN: Step 1 (read-only): the text sources on the 17 source lines were de-duplicated into four groups (matches a registered unit / unsure / file in the repo but unregistered / no match). Units were not read through MCP, since read_unit appends to the log and the step was read-only; matches were judged from unit titles and anything undecidable was marked unsure.
+- 用户定的：外部审阅回复·疑问 N 就是 `dec-questions-reply` 的疑问 N（那个文件第 3 行自己写了）；分析 #N 按编号对应 `dec-analysis-answers`，需求 10 引用分析 #2，需求 8 的分析 #4 引用两节（严格模式下写需求文档、附：默认豁免）；需求 11 的"权限文档"保留文字，不猜是哪一节；出处行写成先写引用（空格隔开），再接"；"和剩下的文字出处；不登记新文件。
+  EN: Decided by the user: "external review reply, question N" is question N in dec-questions-reply (stated on line 3 of that file); analysis #N maps by number to dec-analysis-answers, requirement 10 cites #2 and requirement 8 cites both #4 sections; "permissions doc" in requirement 11 stays as text; source lines list references first (space-separated), then "；" and the remaining text; no new files are registered.
+- 第 2 步：用放在 `%TEMP%\refcov_convert.py` 的脚本改（不进仓库）。规则：只处理需求 2–15、17 的 `出处：` 行；按"；"切段，以"外部审阅回复·"或"分析 #"开头的段整段转成引用，其余段原样保留；单元 ID 按前缀从 `sources.json` 取（例如 `二·1-`、`疑问-2-`、`分析-#4-`，前缀以"-"结尾，`#1-` 不会配上 `#10-`），每个前缀必须正好配上 1 个单元，`分析-#4-` 必须配上 2 个，否则退出；保留原来的换行和编码。先只打印核对，再写回。
+  EN: Step 2: edited with a script in %TEMP%\refcov_convert.py (not committed). Rules: only the source lines of requirements 2–15 and 17; split on "；", convert whole segments starting with the external-review-reply or analysis prefix, keep the rest; unit IDs taken from sources.json by prefix ending in "-" (so #1- cannot match #10-), each prefix must match exactly one unit (two for analysis #4) or the script exits; line endings and encoding preserved. A print-only run was checked before writing.
+- 结果：`git diff` 删 15 行、加 15 行，增删的都是 `出处：` 行。`refcov check-spec .kiro/specs/refcov-skeleton/requirements.md`：17 条需求，幻影需求 0、无效引用 0、未转换 2（需求 1、16）、被引用单元 22 个（`dec-review-reply` 7、`dec-analysis-answers` 11、`dec-questions-reply` 4），和用户事先给的预期一致。
+  EN: Result: git diff showed 15 lines removed and 15 added, all source lines. refcov check-spec on requirements.md: 17 requirements, 0 phantom, 0 invalid, 2 unconverted (requirements 1 and 16), 22 cited units (review-reply 7, analysis-answers 11, questions-reply 4), matching the user's expectation given beforehand.
+- 第 3 步：`refcov report --json`（只读）：严格模式，未达标；幽灵单元 105 个；被忽略单元 9 个，就是读过的 9 个（kiro-hooks 的 `hooks-2`、`Hooks`、`Quick-example`、`How-hooks-work`、`Hook-file-schema`、`Confirmation-prompts`、`Next-steps`，kiro-permissions 的 `Permissions`、`How-it-works`），22 个被引用单元都在 dec-* 里，这 9 个一个都没被引用；本模式未要求的单元 0 个；哈希链完整，23 行。
+  EN: Step 3: refcov report --json (read-only): strict, not passed; 105 ghost units; 9 ignored units, exactly the 9 read units (7 in kiro-hooks, 2 in kiro-permissions), since all 22 cited units are in dec-* sources; 0 not-required units; chain intact, 23 lines.
+- 报告里幻影需求 0、无效引用 0、未转换 0，`requirement_docs` 为空，和 `check-spec` 的 0、0、2 不一样。原因：仓库里还没有 `refcov.toml`，默认配置的 `requirements` 是空的，报告不解析任何需求文档；`check-spec` 直接给了文件路径。这不说明需求 1、16 已转换。任务 15 建好 `refcov.toml`（示例里 `requirements = [".kiro/specs/*/requirements.md"]`）后，报告才会算这份需求文档，那时 22 个被引用单元也会进必看集合。
+  EN: The report showed 0 phantom, 0 invalid, 0 unconverted and an empty requirement_docs, unlike check-spec's 0/0/2. Reason: there is no refcov.toml yet and the default requirements list is empty, so the report parses no requirement document, while check-spec was given the path. It does not mean requirements 1 and 16 were converted. Once task 15 creates refcov.toml (the example has requirements = [".kiro/specs/*/requirements.md"]), the report will parse this document and the 22 cited units join the required set.
+- **已知局限**：需求 1、16 一直是"未转换"。需求 1 的出处是交接说明和 11-10 回复一，需求 16 的是交接说明、第二稿审阅和外部审阅 A3，都没有已登记的单元（交接说明在工作区外；外部审阅在 `docs/需求第五稿审阅.md`，用户决定不登记）。未转换不算幻影需求，严格模式也拦不住。
+  EN: Known limitation: requirements 1 and 16 stay unconverted; their sources (handoff notes, reply one of 11-10, draft-2 review, external review A3) have no registered units (the handoff notes are outside the workspace; the external review is in docs/需求第五稿审阅.md, which the user chose not to register). Unconverted is not phantom, so strict mode does not block on them.
+- 本次没写代码、没写测试；属性测试照计划在任务 12。
+  EN: No code or tests this time; property tests remain planned for task 12.
+- RefCov 拦了自己几次：还没有关卡，0 次。本会话经 MCP 读了 0/114 个单元，历史 9/114。
+  EN: RefCov blocks on its own development: no gates yet, 0. This session read 0/114 units via MCP; history 9/114.
+- 用到的 Kiro 功能：规格流程（tasks.md 任务 11 最后一步）、引导文档（citation.md 的引用写法和正则）、钩子（UserPromptSubmit 状态行）。本会话这一段没有调用 RefCov 的 MCP 工具。
+  EN: Kiro features used: the spec (task 11 last step), steering (citation.md format and regex), hooks (the UserPromptSubmit status line). No RefCov MCP tool was called in this part.
+- tasks.md 任务 11 打勾。
+  EN: Task 11 ticked in tasks.md.

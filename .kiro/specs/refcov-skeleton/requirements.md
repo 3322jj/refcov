@@ -88,7 +88,7 @@ EN: As a developer adding a new kind of material, I want to plug it in with very
 5. WHEN 同一份内容被拆两次，THE 适配器 SHALL 给出相同的单元 ID。单元 ID SHALL 由单元标题生成：保留原文字（含中日韩文字），把空白和方括号换成短横线；生成的 ID 已被占用时，依次加 `-2`、`-3`……直到不重复。单元 ID SHALL NOT 含空白和方括号；单元标题不受限制。
 6. THE 核心层 SHALL 不依赖任何具体适配器；视频和地理适配器的依赖（ffmpeg、geopandas）SHALL 只出现在各自的应用里。
 
-出处：交接说明·加强项 5；11-10 回复一第 3 条；第二稿审阅第 6、9 条；实测（MCP 返回的图片 agent 能看到）；外部审阅 A7、A8、A10；外部审阅回复·三、疑问 2。
+出处：[ref:dec-review-reply/三-照改的审阅条目] [ref:dec-questions-reply/疑问-2-单元-ID-保留中日韩文字]；交接说明·加强项 5；11-10 回复一第 3 条；第二稿审阅第 6、9 条；实测（MCP 返回的图片 agent 能看到）；外部审阅 A7、A8、A10。
 
 ### 需求 3：文档适配器
 EN: Document adapter
@@ -105,7 +105,7 @@ EN: As a user, I want documents split into section units, so that I can try the 
 5. WHEN 一个章节超过长度上限，THE 文档适配器 SHALL 把它拆成几个单元：第一个沿用原标题和原 ID，后面的标题依次是"原标题 (2)""原标题 (3)"……，ID 是原 ID 加 `-2`、`-3`……，撞上已有 ID 时按需求 2.5 继续加后缀。长度上限在设计阶段定。
 6. WHEN Markdown 文档里一个标题都没有，THE 文档适配器 SHALL 把整篇当成一个单元，标题取文件名；超长时按需求 3.5 拆分。
 
-出处：交接说明·加强项 2、5；11-10 回复一第 3 条；第二稿审阅第 9 条；外部审阅 A9、C3；外部审阅回复·三、疑问 4；分析 #3。
+出处：[ref:dec-review-reply/三-照改的审阅条目] [ref:dec-questions-reply/疑问-4-超长章节拆分] [ref:dec-analysis-answers/分析-#3-不支持的格式]；交接说明·加强项 2、5；11-10 回复一第 3 条；第二稿审阅第 9 条；外部审阅 A9、C3。
 
 ### 需求 4：通过工具读取单元并记录
 EN: Reading units through tools, with records
@@ -124,7 +124,7 @@ EN: As a user, I want the AI to fetch material unit by unit with a record for ev
 7. WHEN AI 绕开 MCP 工具直接读参考文件（例如 Kiro 的 `read_file` 或 shell 命令），THE 核心层 SHALL 不把它算作看过，也不为此增加读取记录。
 8. THE 核心层 SHALL NOT 根据 AI 的文字自述增加读取记录。
 
-出处：交接说明·核心功能 2；交接说明·仓库结构（在线演示页回放真实会话记录）；第二稿审阅第 6 条；第三稿审阅第 1、4 条；第四稿审阅；实测（MCP 服务拿不到会话 ID，多个会话共用一个 MCP 进程；MCP 工具的 PostToolUse 每次触发并带准确会话 ID 和参数）；外部审阅 B1、B6、C3；外部审阅回复·三、四、疑问 3。
+出处：[ref:dec-review-reply/三-照改的审阅条目] [ref:dec-review-reply/四-实测-MCP-工具的-PostToolUse] [ref:dec-questions-reply/疑问-3-哈希链的说法]；交接说明·核心功能 2；交接说明·仓库结构（在线演示页回放真实会话记录）；第二稿审阅第 6 条；第三稿审阅第 1、4 条；第四稿审阅；实测（MCP 服务拿不到会话 ID，多个会话共用一个 MCP 进程；MCP 工具的 PostToolUse 每次触发并带准确会话 ID 和参数）；外部审阅 B1、B6、C3。
 
 ### 需求 5：覆盖率和必看策略
 EN: Coverage and the required-unit policy
@@ -145,7 +145,7 @@ EN: As a user, I want every unit required by default with optional relaxations, 
 6. WHEN 必看单元全部看过，THE 核心层 SHALL 判定达标；否则判定不达标并列出还差的必看单元。
 7. THE 核心层 SHALL 认所有会话的有效读取记录。覆盖率、达标、发凭证、任务开工检查都不按会话区分。报告和 UserPromptSubmit 那一行 SHALL 同时显示"本会话看过"和"历史上看过"两个数（需求 9.8、12.2），这两个数只用于显示。
 
-出处：11-10 回复一第 3 条；11-10 回复二第 2 条；第二稿审阅第 9 条；第四稿审阅；第五稿审阅第 2 条；交接说明·核心功能 2；外部审阅 A3、A10、B6；外部审阅回复·二·3、三；分析 #10。
+出处：[ref:dec-review-reply/二·3-本会话和历史两个数] [ref:dec-review-reply/三-照改的审阅条目] [ref:dec-analysis-answers/分析-#10-放宽项的方向]；11-10 回复一第 3 条；11-10 回复二第 2 条；第二稿审阅第 9 条；第四稿审阅；第五稿审阅第 2 条；交接说明·核心功能 2；外部审阅 A3、A10、B6。
 
 ### 需求 6：需求出处检查
 EN: Requirement citation checks
@@ -163,7 +163,7 @@ EN: As a user, I want every requirement in a spec to cite the unit it came from,
 6. WHILE 模式是 `strict`，WHEN 需求文档里有幻影需求或无效引用，THE 核心层 SHALL 判定不达标。WHILE 模式是 `light`，THE 核心层 SHALL 只在报告里列出，不影响达标。过渡期的文字出处报为"未转换"，不算幻影需求。
 7. WHEN 写入目标是规格文件，THE 核心层 SHALL NOT 因需求 6.6 判定不达标。否则要补出处时，写需求文档本身会被拦住，AI 无路可走。写规格文件仍按需求 6.5 和 8.4 判断。
 
-出处：交接说明·核心功能 3（优先保证）；交接说明·加强项 6；第二稿审阅第 9 条；外部审阅 A6、A10；外部审阅回复·二·2；分析 #5。
+出处：[ref:dec-review-reply/二·2-幻影需求和无效引用影响达标；聊天要求怎么当出处] [ref:dec-analysis-answers/分析-#5-各关卡独立判断]；交接说明·核心功能 3（优先保证）；交接说明·加强项 6；第二稿审阅第 9 条；外部审阅 A6、A10。
 
 ### 需求 7：开工凭证（记录用）
 EN: Start tokens (for records)
@@ -180,7 +180,7 @@ EN: As a user, I want the core to produce a tool-independent pass/fail decision 
 5. THE 写文件关卡和任务开工关卡 SHALL 在检查时按目标路径或任务现算是否达标（需求 8.1、9.1、9.6），不以是否持有凭证为准。凭证只用于记录和演示。
 6. THE 凭证的发放和达标判断 SHALL 不依赖钩子；拦截依赖接入层。
 
-出处：交接说明·第一步的补充（关卡做成三层，第 1 层）；交接说明·加强项 7；11-10 回复二第 2 条；第二稿审阅第 7 条；第四稿审阅；外部审阅 A1、A4；外部审阅回复·二·5、三。
+出处：[ref:dec-review-reply/二·5-钩子写入时现算是否达标] [ref:dec-review-reply/三-照改的审阅条目]；交接说明·第一步的补充（关卡做成三层，第 1 层）；交接说明·加强项 7；11-10 回复二第 2 条；第二稿审阅第 7 条；第四稿审阅；外部审阅 A1、A4。
 
 ### 需求 8：关卡范围规则
 EN: Gate scope rules
@@ -196,7 +196,7 @@ EN: As a user, I want to define which sources must be read before which files ar
 4. WHILE 模式是 `strict`，THE 核心层 SHALL NOT 默认豁免规格文件；按目标路径判断不达标时，写需求文档也要被拦。
 5. WHEN 关卡判断某次写入，THE 核心层 SHALL 只根据目标路径判断，不看写入的正文。
 
-出处：交接说明·加强项 2；11-10 回复二第 5 条；第二稿审阅第 1、9 条；实测（钩子看到整段输入，正式关卡只能按 `path` 判断）；外部审阅 A4；外部审阅回复·二·2、二·5；分析 #4。
+出处：[ref:dec-review-reply/二·2-幻影需求和无效引用影响达标；聊天要求怎么当出处] [ref:dec-review-reply/二·5-钩子写入时现算是否达标] [ref:dec-analysis-answers/分析-#4-严格模式下写需求文档] [ref:dec-analysis-answers/分析-#4-附：默认豁免]；交接说明·加强项 2；11-10 回复二第 5 条；第二稿审阅第 1、9 条；实测（钩子看到整段输入，正式关卡只能按 `path` 判断）；外部审阅 A4。
 
 ### 需求 9：Kiro 接入层的关卡钩子
 EN: Gate hooks in the Kiro integration layer
@@ -217,7 +217,7 @@ EN: As a user, I want Kiro to automatically block file writes and task starts wh
 9. THE 第 1、6 条的拦截原因和第 8 条的输出 SHALL 都附一句提示：参考材料要用 RefCov 的 MCP 工具读，直接读文件不算看过（需求 4.7）。
 10. THE 接入层 SHALL 只做事件转换和退出码映射，判断逻辑全部在核心层。
 
-出处：交接说明·核心功能 4；交接说明·第一步的补充第 1–4 条；11-10 回复二第 2、4 条；第二稿审阅第 5、7 条；第四稿审阅；实测（只有退出码 2 能拦；UserPromptSubmit 的 stdout 能到 agent；PreTaskExec 能拦且 stderr 原样显示，`task_name` 不含子项，`spec_name` 是 tasks.md 路径，被拦任务停在 `[~]`）；外部审阅 A4、A10、C2；外部审阅回复·二·3、二·5、三；分析 #6。
+出处：[ref:dec-review-reply/二·3-本会话和历史两个数] [ref:dec-review-reply/二·5-钩子写入时现算是否达标] [ref:dec-review-reply/三-照改的审阅条目] [ref:dec-analysis-answers/分析-#6-找不到任务]；交接说明·核心功能 4；交接说明·第一步的补充第 1–4 条；11-10 回复二第 2、4 条；第二稿审阅第 5、7 条；第四稿审阅；实测（只有退出码 2 能拦；UserPromptSubmit 的 stdout 能到 agent；PreTaskExec 能拦且 stderr 原样显示，`task_name` 不含子项，`spec_name` 是 tasks.md 路径，被拦任务停在 `[~]`）；外部审阅 A4、A10、C2。
 
 ### 需求 10：写入后记录（第 3 层）
 EN: Post-write records (layer 3)
@@ -231,7 +231,7 @@ EN: As a user, I want writes made while material was unread to be found afterwar
 2. THE 骨架 SHALL NOT 自动恢复或删除任何文件。
 3. WHEN 接入层收到文件保存事件，且分不清是用户手动保存还是 AI 写入，THE 核心层 SHALL 只记录，在报告里标为"来源不明"，不标红。用户自己保存文件 SHALL NOT 被记成没看够材料时的写入。
 
-出处：交接说明·第一步的补充（关卡第 3 层）；第二稿审阅第 1、2 条；实测（写文件钩子第一轮无声失效）；外部审阅 A4；外部审阅回复·二·5；分析 #2、#7。
+出处：[ref:dec-review-reply/二·5-钩子写入时现算是否达标] [ref:dec-analysis-answers/分析-#2-用户手改不受保护影响] [ref:dec-analysis-answers/分析-#7-写入后判断不了是否达标]；交接说明·第一步的补充（关卡第 3 层）；第二稿审阅第 1、2 条；实测（写文件钩子第一轮无声失效）；外部审阅 A4。
 
 ### 需求 11：安全设计
 EN: Safety design
@@ -253,7 +253,7 @@ EN: As a user, I want the tool to stay out of my way when it fails itself, and t
    - 需求 14.5 管不到解释器启动失败的情况（例如 Python 没装、脚本有语法错误）：这时退出码不是 2，拦不住。
    - 直接读参考文件（`read_file` 或 shell 命令）不算看过，只有经 MCP 工具读取才计入覆盖率。所以 AI 直接读过的材料还得用工具再读一遍才能达标，覆盖率只会少算，不会多算。
 
-出处：交接说明·核心功能 5；11-10 回复二第 7 条；第二稿审阅第 3、4 条；第四稿审阅；实测（Windows 编码问题；退出码 1 的报错被送进上下文）；外部审阅 A2、A9、B1、B2；外部审阅回复·二·1、三、疑问 1、疑问 3；权限文档。
+出处：[ref:dec-review-reply/二·1-取消第三次自动放行] [ref:dec-review-reply/三-照改的审阅条目] [ref:dec-questions-reply/疑问-1-钩子配置不加进需求-14] [ref:dec-questions-reply/疑问-3-哈希链的说法]；交接说明·核心功能 5；11-10 回复二第 7 条；第二稿审阅第 3、4 条；第四稿审阅；实测（Windows 编码问题；退出码 1 的报错被送进上下文）；外部审阅 A2、A9、B1、B2；权限文档。
 
 ### 需求 12：覆盖率报告
 EN: Coverage report
@@ -268,7 +268,7 @@ EN: As a user, I want a coverage report on demand, so that I know how much was r
 3. THE JSON 报告 SHALL 是唯一的数据源；给人看的文字版由它生成，两者内容一致。
 4. THE 文字版 SHALL 有一个一行的简短形式，供 UserPromptSubmit 钩子使用（内容见需求 9.8）。
 
-出处：交接说明·核心功能 2、4；交接说明·仓库结构（在线演示页）；第二稿审阅第 2、3、9、10 条；外部审阅 B1、C6；外部审阅回复·二·1、二·3、三、疑问 1；分析 #9。
+出处：[ref:dec-review-reply/二·1-取消第三次自动放行] [ref:dec-review-reply/二·3-本会话和历史两个数] [ref:dec-review-reply/三-照改的审阅条目] [ref:dec-questions-reply/疑问-1-钩子配置不加进需求-14] [ref:dec-analysis-answers/分析-#9-报告覆盖的范围]；交接说明·核心功能 2、4；交接说明·仓库结构（在线演示页）；第二稿审阅第 2、3、9、10 条；外部审阅 B1、C6。
 
 ### 需求 13：不绑死 Kiro，依赖轻
 EN: Not tied to Kiro, light dependencies
@@ -284,7 +284,7 @@ EN: As a user who may switch AI coding tools later, I want the core to have no d
 4. THE MCP 服务 SHALL 放在单独的模块里，使用官方 Python SDK（`mcp` 包）；运行时只有这个模块依赖第三方包。属性测试用的 Hypothesis 只是开发依赖，只有测试代码可以 import 它。
 5. THE 核心层 SHALL 在 Windows 上运行，Python 版本不低于 3.11；持续集成里另在 Linux 上跑测试。
 
-出处：交接说明·仓库结构（架构上的硬要求）；11-10 回复一第 3 条；11-10 回复二第 6 条；外部审阅 C5；外部审阅回复·三；分析 #8。
+出处：[ref:dec-review-reply/三-照改的审阅条目] [ref:dec-analysis-answers/分析-#8-hypothesis-的-import]；交接说明·仓库结构（架构上的硬要求）；11-10 回复一第 3 条；11-10 回复二第 6 条；外部审阅 C5。
 
 ### 需求 14：保护状态目录和配置文件
 EN: Protecting the state directory and the config file
@@ -303,7 +303,7 @@ EN: As a user, I want the AI unable to change read records, tokens and config, s
 5. THE 这几项保护 SHALL 只按目标路径或命令文本判断，放在接入层脚本的最前面，在加载其余核心代码之前完成。保护检查里的脚本内部异常 SHALL 一律按拦截处理（退出码 2），错误写到 stderr 和日志。解释器启动失败的情况管不到，写进局限（需求 11.4）。
 6. THE 这几项保护 SHALL 只针对 AI 经 Kiro 工具发起的写入和命令。用户自己修改文件（不论在不在 Kiro 编辑器里）SHALL 无条件不受这些保护影响。
 
-出处：第二稿审阅第 1、2 条；第三稿审阅第 3、5 条；外部审阅 A9、B1；外部审阅回复·三；分析 #2。
+出处：[ref:dec-review-reply/三-照改的审阅条目] [ref:dec-analysis-answers/分析-#2-用户手改不受保护影响]；第二稿审阅第 1、2 条；第三稿审阅第 3、5 条；外部审阅 A9、B1。
 
 ### 需求 15：轻量模式
 EN: Light mode
@@ -319,7 +319,7 @@ EN: As a user, I want a light mode for small tasks that only requires cited unit
 2. WHILE 模式是 `light`，THE 核心层 SHALL 把基础集合定为所有参考源中关键类型的单元，必看集合按需求 5.1 算。
 3. （已删除：轻量模式下写规格文件不要求凭证。出处：外部审阅回复·二·4。）
 
-出处：第二稿审阅第 9 条；第三稿审阅第 2 条；第四稿审阅；第五稿审阅第 2 条；外部审阅 C4；外部审阅回复·二·4。
+出处：[ref:dec-review-reply/二·4-轻量模式的范围]；第二稿审阅第 9 条；第三稿审阅第 2 条；第四稿审阅；第五稿审阅第 2 条；外部审阅 C4。
 
 ### 需求 16：属性测试
 EN: Property tests
@@ -353,4 +353,4 @@ EN: As a user, I want a two-group comparison (gate on, gate off), so that the su
 3. THE 报告 SHALL 按会话给出每组需要的数字：看过的单元数、被拦次数、送出的文字单元数和图片数（需求 4.6）。
 4. 用掉的额度不由 RefCov 计算，由用户从 Kiro 的用量界面手动抄下。实验只做两组：严格模式下 `enforce: true` 和 `enforce: false`。实验本身的任务、数据和脚本放在单独的规格里。
 
-出处：第二稿审阅第 10 条；第三稿审阅第 4、6 条；交接说明·加强项 4；外部审阅 C4；外部审阅回复·二·4；分析 #11。
+出处：[ref:dec-review-reply/二·4-轻量模式的范围] [ref:dec-analysis-answers/分析-#11-enforce-为-false]；第二稿审阅第 10 条；第三稿审阅第 4、6 条；交接说明·加强项 4；外部审阅 C4。

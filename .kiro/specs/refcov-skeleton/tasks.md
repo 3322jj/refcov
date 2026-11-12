@@ -82,7 +82,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 测试：用 `tests/` 下一份固定的样例需求文档跑，结果和预期的未转换、幻影需求、无效引用条数一致。不直接用 `requirements.md`，它在任务 11 最后一步会变
   - _需求：6.1、6.2、6.3、6.4、9.6_
 
-- [ ] 11. 必看集合和达标判断
+- [x] 11. 必看集合和达标判断
   - `coverage.py`：必看集合 = 基础集合 − 放宽项 + 被引用单元（设计 7 第 2 条）；按路径和 `scope` 判断（第 3 条）；严格模式下的出处检查和规格文件例外（第 4 条）；达标（第 5 条）；被忽略单元、幽灵单元、本模式未要求的单元
   - 报告补齐：`ghost_units`、`not_required_units`、`ignored_units`、`phantom_requirements`、`invalid_refs`、`unconverted_requirements`、`relaxed`、`exempt`、`config_mtime`
   - MCP 工具 `check`；命令行 `refcov check [路径]`
