@@ -97,7 +97,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
 
 ## 关卡（设计 10 第 7 步）
 
-- [ ] 13. 实测 `control_pwsh_process` 的钩子匹配
+- [x] 13. 实测 `control_pwsh_process` 的钩子匹配
   - 用试验钩子确认 PreToolUse 能按这个工具名匹配上，`tool_input` 里有没有 `command`；结果记进 `docs/验证结果.md` 和 DEVLOG
   - _需求：14.4_
 

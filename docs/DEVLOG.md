@@ -1125,3 +1125,32 @@
   EN: refcov.toml is committed together with this section (the user's decision).
 - RefCov 拦了自己几次：写文件关卡还没做（任务 15），0 次。本会话经 MCP 读了 0/114 个单元，历史 9/114。
   EN: RefCov blocks on its own development: the write gate does not exist yet (task 15), 0. This session read 0/114 units via MCP; history 9/114.
+
+## 2026-11-12（任务 13：实测 control_pwsh_process 的钩子匹配）
+
+- 补记 `6fe5be2`（加配置文件和核对记录）的推送：推一次就成功（`b86ac0a..6fe5be2`），普通推送。CI run 43186361937 的 `test (3.11)`、`test (3.12)`、`test-windows` 都是 success，经 check-runs 接口查到（看不到测试个数）。两个 Linux 作业各带 1 条注释，没打开看。
+  EN: Catch-up on pushing 6fe5be2: first attempt succeeded (plain push). CI run 43186361937 succeeded on all three jobs via the check-runs API (no test counts); each Linux job carries one annotation, not opened.
+- 用户定的顺序：先做要用户在场的任务 13 → 14 → 15 → 16，等用户回消息的空当做任务 12；做完 16 就停，不开始 17–20。
+  EN: Order set by the user: tasks needing the user first (13 → 14 → 15 → 16), task 12 while waiting for replies; stop after 16 and do not start 17–20.
+- 任务 14 的方案用户已定（2026-11-12）：shell 命令文本里出现 `.kiro/hooks`（正反斜杠都算）就拦；钩子文件以后由用户提交，agent 看这个目录用读文件的工具。这比冻结的需求 11.4 多保护了一处，属于**偏离需求原文**，需求不改；局限里照实写"文本匹配，换写法能绕过"。任务 18 里钩子校验值那一块不做了。
+  EN: Task 14 plan decided by the user: block shell commands whose text contains .kiro/hooks (either slash); the user commits hook files and the agent reads that directory with file tools. This protects one more thing than frozen requirement 11.4 (a deviation from the requirement text; requirements unchanged); the limitation "text matching can be bypassed by rewriting" will be stated. The hook-checksum part of task 18 is dropped.
+- 读材料的安排（用户同意）：任务 13 前读完 kiro-hooks 剩下的 6 个单元，任务 14 前读 kiro-permissions 里讲 shell 的几节，其余单元留到任务 15 写文件关卡生效后再读。所以任务 15 时 agent 写 `integrations/kiro/**` 会被关卡拦一次，那是**预料之中**的，不是意外抓到。
+  EN: Reading plan (agreed): the remaining 6 kiro-hooks units before task 13, the shell-related kiro-permissions sections before task 14, the rest after task 15's write gate is live. The block the agent will hit on integrations/kiro/** in task 15 is therefore expected, not a surprise catch.
+- 任务 13 前经 MCP 读了 kiro-hooks 剩下的 6 个单元（调用编号 c-24、c-26、c-28、c-30、c-32、c-34；中间的偶数号之间是会话补记行）：`What-you-can-do-with-hooks`、`Choose-a-trigger`、`Field-reference`、`File-naming-and-location`、`Setting-up-hooks`、`Previous-versions`。kiro-hooks 现在 13/13。读到的和任务 13 有关的：`matcher` 对 PreToolUse 可以写工具 ID、类别标签、`@mcp` 或正则；`hooks[].enabled = false` 能停用钩子而不删文件；触发器完整列表在另一页 `hooks/types.md`，没登记。
+  EN: Before task 13 the agent read the remaining 6 kiro-hooks units via MCP (calls c-24 to c-34): kiro-hooks is now 13/13. Relevant points: a PreToolUse matcher may be a tool ID, category tag, @mcp or regex; hooks[].enabled = false disables a hook without deleting it; the full trigger list is on hooks/types.md, which is not registered.
+- 任务 13 做法：新文件 `experiments/shell-match/probe.py`（按字节读 stdin、转义后追加到同目录的 `hook-input.jsonl`，命令文本里有试验标记词时退出码 2）；用 `createHook` 建试验钩子 `.kiro/hooks/trial-shell-match.json`（PreToolUse，匹配 `^control_pwsh_process$`）。用户说过由他在资源管理器里删这个钩子，agent 没删，也不提交它。
+  EN: Method: new experiments/shell-match/probe.py (reads stdin as bytes, appends escaped input to hook-input.jsonl, exits 2 when the command contains the trial marker); a trial hook .kiro/hooks/trial-shell-match.json created with createHook (PreToolUse, ^control_pwsh_process$). The user will delete the hook in Explorer; the agent neither deleted nor committed it.
+- 结果（详见 `docs/验证结果.md` 第 7 项）：钩子按 `control_pwsh_process` 匹配上了；`tool_input` 里有 `action`、`command`、`cwd`、`terminalId`；`stop` 时 `command` 是 `null`；命令里有标记词的那次被退出码 2 拦住，agent 收到 stderr 原文，工具没执行。启动 1 次、停止 1 次放行，拦住 1 次。
+  EN: Result (docs/验证结果.md item 7): the hook matched control_pwsh_process; tool_input has action, command, cwd and terminalId; command is null for stop; the call containing the marker was blocked with exit code 2, the agent saw the stderr text and the tool did not run. One start and one stop were allowed and one start was blocked.
+- 和提示不一致：`createHook` 返回"下个会话开始才生效"，实测同一会话里建好后第一次调用就触发了。
+  EN: Mismatch: createHook said the hook would be active at the next session start, but it fired on the very next call in the same session.
+- 对任务 14 的影响：保护检查要把 `command` 为 `null` 当空字符串。按需求 14.5 保护检查出异常一律拦，要是对 `null` 调字符串方法出异常，连 `stop` 都会被拦。
+  EN: Consequence for task 14: the protection check must treat a null command as empty; since any exception blocks (requirement 14.5), a crash on null would block even stop.
+- 用户要点的确认：用户说弹过请求权限的确认框，他点了通过。agent 这边看不到弹框，工具结果里也没有提示，所以不知道是哪几次调用弹的、弹了几次。agent 起初按"没看到"写成了"没弹确认框"，用户指出后改正。试验钩子文件由用户在资源管理器里删掉了。
+  EN: Confirmations: the user said permission prompts appeared and he approved them. The agent cannot see the dialogs and the tool results gave no sign, so which calls asked, and how many times, is unknown. The agent first wrote "no dialog appeared" from what it could not see; corrected after the user pointed it out. The user deleted the trial hook file in Explorer.
+- 本次没写核心层代码，属性测试没写。RefCov 拦了自己几次：写文件关卡还没做，0 次（试验钩子拦的是试验命令，不算 RefCov 的关卡）。本会话经 MCP 读了 6/114，历史 15/114。
+  EN: No core code or property tests. RefCov blocks on its own development: no write gate yet, 0 (the trial hook blocked a trial command, not a RefCov gate). This session read 6/114 via MCP; history 15/114.
+- 用到的 Kiro 功能：钩子（`createHook` 建 PreToolUse 试验钩子、退出码 2 拦截）、MCP（`read_unit` 读 6 个单元，PostToolUse 钩子补记会话）、规格流程（tasks.md 任务 13）。
+  EN: Kiro features used: hooks (createHook for a PreToolUse trial hook, exit code 2 blocking), MCP (read_unit for 6 units, with session attachment by the PostToolUse hook), the spec (task 13).
+- tasks.md 任务 13 打勾。
+  EN: Task 13 ticked in tasks.md.
