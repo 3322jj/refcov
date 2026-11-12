@@ -165,9 +165,9 @@ def test_stdout_carries_only_protocol_messages(repo):
 
 @pytest.mark.parametrize("make", ["missing", "no-git"])
 def test_root_must_be_repo_root(tmp_path, make):
-    """--root 下没有 .git：启动就报错退出，原因写 stderr，stdout 为空。"""
+    """--root 下没有 .git：启动就报错退出，原因按 UTF-8 写 stderr（任何代码页下都是），stdout 为空。"""
     root = tmp_path / "x" if make == "missing" else tmp_path
     proc = subprocess.run([sys.executable, "-m", "refcov_mcp", "--root", str(root)], input=b"",
                           capture_output=True, env=_env(), timeout=60)
     assert proc.returncode == 1 and proc.stdout == b""
-    assert "没有 .git".encode("utf-8") in proc.stderr or "没有 .git" in proc.stderr.decode("gbk", "replace")
+    assert "没有 .git" in proc.stderr.decode("utf-8")

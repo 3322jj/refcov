@@ -63,6 +63,10 @@ def build(root: Path) -> FastMCP:
 
 
 def main(argv=None) -> int:
+    # stderr 强制 UTF-8：Windows 英文系统上默认代码页（如 cp1252）会把中文写成 \uXXXX（任务 8，Windows CI）。
+    # 原地改同一个对象，argparse 的报错和 SDK 的日志（创建时绑定 sys.stderr）也跟着走 UTF-8。
+    # stdout 不动：它走 MCP 协议，由 SDK 管。
+    sys.stderr.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(prog="refcov_mcp", description="RefCov MCP server (stdio).")
     parser.add_argument("--root", required=True, help="仓库根目录的路径（下面要有 .git）")
     args = parser.parse_args(argv)
