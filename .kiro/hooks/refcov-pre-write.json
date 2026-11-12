@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "RefCov：写文件前的保护检查",
+      "trigger": "PreToolUse",
+      "description": "写文件工具的目标在 .refcov/ 下或是 refcov.toml 时用退出码 2 拦下（需求 14.1、14.2）。脚本出错也拦（需求 14.5）。出问题时把这个文件移出 .kiro/hooks/ 立即停用。",
+      "matcher": "^(fs_write|str_replace|fs_append)$",
+      "action": {
+        "type": "command",
+        "command": "python integrations/kiro/hook.py pre-write",
+        "timeout": 10
+      }
+    }
+  ]
+}
