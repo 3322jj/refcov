@@ -4,11 +4,18 @@ inclusion: always
 
 # 技术约定
 
-EN summary: Python 3.11+ on Windows; CI also runs the tests on Linux. The core uses only the standard library; only the MCP server module depends on the official `mcp` SDK, and ffmpeg/geopandas stay inside their apps. Hook scripts block only with exit code 2 and a reason on stderr, match exact tool names, and judge only by `tool_input.path` or the command text. On internal errors they allow, except the state/config protection checks, which block. Hook scripts read stdin as bytes, decode UTF-8, force UTF-8 output, and escape text before logging.
+EN summary: Python 3.11+ on Windows; CI runs the tests on Linux and Windows. The core uses only the standard library; only the MCP server module depends on the official `mcp` SDK, and ffmpeg/geopandas stay inside their apps. Hook scripts block only with exit code 2 and a reason on stderr, match exact tool names, and judge only by `tool_input.path` or the command text. On internal errors they allow, except the state/config protection checks, which block. Hook scripts read stdin as bytes, decode UTF-8, force UTF-8 output, and escape text before logging. Dependent agent operations (edit then test, commit then push, push retries) are sent one at a time, each after the previous result is back.
+
+## agent 操作顺序
+
+- **有先后的操作必须分开发出，一次只发一个。** 先等上一个的结果，再发下一个。包括：改文件 → 跑测试；`git commit` → `git push`；`push` 失败后的重试。
+- 同一批发出的工具调用不保证按顺序执行，测试可能跑在改动之前，push 可能跑在 commit 之前。
+
+依据：`docs/DEVLOG.md` 2026-11-12（任务 8 里同批发出出了 4 次）。
 
 ## 语言和依赖
 
-- Python 3.11 及以上，在 Windows 上运行；持续集成里另在 Linux 上跑测试（需求 13.5）。
+- Python 3.11 及以上，在 Windows 上运行；持续集成在 Linux 和 Windows 上跑测试（需求 13.5；Windows 作业 2026-11-12 任务 8 加）。
 - **核心层只用标准库**：单元模型、读取记录、覆盖率、出处检查、凭证、文档适配器都不引第三方包。
 - MCP 服务放单独模块，用官方 SDK（`mcp` 包）。运行时只有这个模块依赖第三方包。
 - ffmpeg 只在 `apps/shot-coverage` 里用，geopandas 只在 `apps/layer-coverage` 里用。核心层和接入层不得 import 它们，也不得假设它们已安装。

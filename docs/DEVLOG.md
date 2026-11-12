@@ -29,6 +29,8 @@
   现在不做：误报方向是失败，不会漏掉问题；CI 上没有全局忽略文件。
 - 以后迁到 mcp 2.x（`FastMCP` 改名 `MCPServer`），去掉 `pyproject.toml` 里的 `mcp<2`。
   现在不做：离最细通路目标（2026-11-14）只剩两天；2.x 对 `server/discover` 怎么回、`structured_output` 等行为都没验证，迁了 Kiro 里的实测也要重做。
+- 任务 14 做完后，开着 Approve for me 把任务 8 从登记到报告重走一遍，看自动审批下 AI 用 shell 挪钩子、跑 `refcov add` 会不会被拦。
+  现在不做：任务 14 的 shell 保护检查还没做，现在开着它重走，只会再确认一遍 shell 能绕过钩子（2026-11-12 要紧发现），得不到新结论。
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -792,3 +794,76 @@
   EN: Per the user, the hook was copied with Copy-Item instead of createHook; both files have the same hash. The user handled any confirmation dialog and did not say whether one appeared, so no conclusion is recorded.
 - 旁证（不算完成标志）：用户发了一条消息（"做到不错"），agent 在上下文里看到 Kiro 附在消息后面的 HOOK_INSTRUCTION，原文：`RefCov 严格模式：单元 本会话 1/13，历史 6/13；还差 7 个：kiro-hooks/hooks-2、kiro-hooks/What-you-can-do-with-hooks、kiro-hooks/Choose-a-trigger、kiro-hooks/Field-reference、kiro-hooks/File-naming-and-location、…。参考材料要用 RefCov 的 MCP 工具读，直接读文件不算看过。` 本会话 1/13 对得上（本会话只有 `c-5` 补记过会话），历史 6/13 和 `refcov report` 一致。只有这一行，没有别的输出。复制后钩子在本会话里立即生效。之后 `log.jsonl` 和提交时一样，没有 errors.log。
   EN: Corroboration, not a completion criterion: on the user's next message the agent saw Kiro's HOOK_INSTRUCTION with exactly the status line (this session 1/13, history 6/13, 7 missing with the first 5 listed, plus the hint). 1/13 matches this session's single attached read (c-5) and 6/13 matches refcov report. Only that one line appeared, the copied hook took effect in this session immediately, log.jsonl stayed as committed, and no errors.log exists.
+
+## 2026-11-12（任务 8：最细通路检查点）
+
+- 环境：Kiro IDE 1.4.154，装在 `D:\agent\kiro\Kiro\`。agent 读 `resources\app\product.json` 核实：`version=1.4.154`，`vsCodeVersion=1.131.0`。是从 1.4.121 升上来的，具体哪天升的不清楚，所以任务 7、任务 8 的实测可能已经是在新版本上做的。
+  EN: Environment: Kiro IDE 1.4.154 in D:\agent\kiro\Kiro\ (product.json checked by the agent: version 1.4.154, vsCodeVersion 1.131.0), upgraded from 1.4.121 on an unknown date, so the task 7 and task 8 checks may already have run on the new version.
+- 新版本带 Approve for me。用户把它关了，这一节里本会话的实测都是在它关着、由用户手动确认的情况下做的。以后每次实测都写明它是开还是关。上一个会话做检查点第 1–5 步（2026-11-11 23:24–23:27）时它开没开，没有记下来。
+  EN: The new version has Approve for me. The user turned it off; every check by this session below ran with it off and manual confirmation. From now on each check states whether it was on or off. Its state during the previous session's checkpoint steps 1–5 (2026-11-11 23:24–23:27) was not recorded.
+- 做法：检查点第 1–5 步是在上一个 IDE 会话里做的。那边走到第 5 步就停下来问用户，没写 DEVLOG。下面第 1–6 步的结果是用户转述的，本会话照写；第 4 步的 MCP 部分由本会话补做（见 C）。都是主 agent 在聊天里做的，没有点 Start task。
+  EN: Checkpoint steps 1–5 ran in the previous IDE session, which stopped at step 5 to ask the user and wrote no DEVLOG. The results for steps 1–6 below were relayed by the user and are recorded as given; this session completed the MCP part of step 4 (see C). All work was done by the main agent from chat, not via Start task.
+- 第 1 步，登记 `kiro-permissions`（`https://kiro.dev/docs/permissions.md`）：33 个单元，最长的 3529 字，`registered_seq` 是 10。开头那段是 `permissions-2`，主章节是 `Permissions`。
+  EN: Step 1, registering kiro-permissions: 33 units, longest 3529 characters, registered_seq 10; the preamble unit is permissions-2 and the main section is Permissions.
+- 第 2 步，再登记一次：输出"内容没变，未改动"，日志不变。
+  EN: Step 2, registering again: "content unchanged, nothing modified", log unchanged.
+- 第 3 步：用户新开会话 `sess_5984b91f-…`，读了 `c-11`（`Permissions`）和 `c-12`（`How-it-works`），两次都有 session 行。那个会话的状态行从"本会话 0/46，历史 6/46"变成了"2/46、8/46"。
+  EN: Step 3: a new session sess_5984b91f-… read c-11 (Permissions) and c-12 (How-it-works), both with session records; its status line went from this-session 0/46, history 6/46 to 2/46, 8/46.
+- 第 4 步：`refcov report` 显示会话未知 4 次，哈希链完整 14 行，`kiro-hooks` 6/13，`kiro-permissions` 2/33。那个会话加载 MCP 的 `report` 工具时是 not_found。推测是 MCP 进程在加 `report` 之前就启动了，需要重连。这一步当时没做完。
+  EN: Step 4: refcov report showed 4 unknown-session reads, an intact 14-line chain, kiro-hooks 6/13 and kiro-permissions 2/33. Loading the MCP report tool returned not_found, presumably because the MCP process predated the tool and needed a reconnect; left unfinished.
+- 第 5 步：照 README 把仓库新克隆到临时目录，新建 venv 安装（mcp 1.30.0、pytest 9.2.0）。pytest 结果是 2 个失败、234 个通过，临时目录事后已删。失败的是 `test_api.py::test_crlf_cache_still_matches` 和 `test_register.py::test_crlf_copy_counts_as_same_content`。原因在测试本身：新克隆时 `core.autocrlf=true`，`tests/data/sample-hooks.md` 检出到工作区是 CRLF，测试又对原始字节做了 `replace(b"\n", b"\r\n")`，结果变成 `\r\r\n`。本机原仓库里这份文件是 LF，CI 只跑 Linux，所以一直没暴露。产品代码没问题。另一个发现：README 的 Setup 没写怎么配 MCP，也没提钩子，评委照着做会连不上 MCP。
+  EN: Step 5: a fresh clone per the README into a temp dir with a new venv (mcp 1.30.0, pytest 9.2.0) gave 2 failures and 234 passes; the temp dir was deleted. Both CRLF tests failed because the clone checks out tests/data/sample-hooks.md as CRLF (core.autocrlf=true) and the tests' raw replace(b"\n", b"\r\n") produced \r\r\n; the local copy is LF and CI was Linux-only. Product code was fine. The README setup also lacked MCP configuration and hooks, so a judge following it could not connect.
+- 第 6 步：没有 errors.log，链完整。
+  EN: Step 6: no errors.log, chain intact.
+- **更正任务 6 的结论**：上一个会话里，用 `Copy-Item` 往 `.kiro/hooks/` 复制文件、用 `Move-Item` 往外挪文件，都没有弹确认框。任务 6 那条写的是"AI 用 shell 往 `.kiro/hooks/` 放文件会弹确认"，依据是 1 次弹框（有用户截图）。现在有 1 次弹、1 次不弹，这个结论不成立。两次可能在不同的 IDE 版本上，是不是版本造成的，没查。任务 6 那条原文不删。
+  EN: Correction to task 6: in the previous session, Copy-Item into .kiro/hooks/ and Move-Item out of it raised no confirmation dialog. Task 6 had concluded that shell writes into .kiro/hooks/ prompt, from one prompted trial (screenshot). With one prompted and one unprompted trial, that conclusion does not hold. The two trials may have been on different IDE versions; not investigated. The task 6 entry stays as written.
+- **要紧发现**：AI 用 shell 往 `.kiro/hooks/` 放文件、挪文件可以不弹确认。开着 Approve for me 时，AI 自己审批操作，更不会去问用户。所以关卡做好以后，AI 可以先用 shell 把钩子挪走，关卡就失效了。需求 11.4 依赖的"写 `.kiro/` 下的文件 Always asks"对 shell 不成立。任务 14 补 shell 漏洞时要考虑这一点，办法由用户定。目前的候选：保护检查把 shell 命令里出现 `.kiro/hooks` 也拦掉；报告里发现钩子文件缺失就标红。等任务 14 做完，开着 Approve for me 把任务 8 重走一遍（已记进"以后再做"）。
+  EN: Key finding: the AI can place or move files in .kiro/hooks/ through the shell without a prompt, and with Approve for me on the AI approves its own actions, so the user is asked even less. Once the gates exist, the AI could move the hooks away and disable them. The "always asks" protection that requirement 11.4 relies on does not hold for the shell. Task 14 must account for this; the user will choose the fix. Candidates: the protection check also blocks shell commands mentioning .kiro/hooks, and the report flags missing hook files in red. After task 14, task 8 will be rerun with Approve for me on (added to the later list).
+- A，测试：两个 CRLF 测试改成先把字节统一成 LF（`replace(b"\r\n", b"\n")`），再构造 CRLF 版本。断言没动，产品代码没动。验证：用 `git -c core.autocrlf=true clone` 克隆到 `%TEMP%`，确认样例检出后是 CRLF；旧测试在这份克隆里 2 个失败，换上新测试文件后 236 个全部通过。
+  EN: A, tests: both CRLF tests now normalize the bytes to LF before building the CRLF copy; assertions and product code unchanged. Verified on a git -c core.autocrlf=true clone in %TEMP% (sample checked out as CRLF): the old tests failed 2, the new ones passed all 236.
+- A，CI：`ci.yml` 加了 `test-windows` 作业（`windows-latest`、Python 3.12），不改 `core.autocrlf`，保留 GitHub Windows 机器的默认值 true。
+  EN: A, CI: ci.yml gained a test-windows job (windows-latest, Python 3.12) that keeps the runner's default core.autocrlf=true.
+- B，README：Setup 从 3 步改成 6 步。新增：从 `docs/mcp.example.json` 建 `.kiro/settings/mcp.json` 并换成绝对路径，附例子，并说明新增工具后要在 MCP 面板重连；`.kiro/hooks/` 里的两个钩子随克隆生效，要把仓库根目录当工作区打开；`refcov add`，补了一句新克隆没有 `.refcov/cache/`、要重新登记（这句是 agent 加的，用户同意保留）；用 `read_unit` 读一个单元验证。Layout 表里 CI 和钩子两行也改了。
+  EN: B, README: setup grew from 3 to 6 steps: create .kiro/settings/mcp.json from docs/mcp.example.json with absolute paths (example included, reconnect in the MCP panel after new tools), committed hooks take effect on clone with the repo root opened as workspace, refcov add (plus a note that a fresh clone has no cache and needs re-registering, added by the agent and kept by the user), and verifying with read_unit. The Layout rows for CI and hooks were updated.
+- 本机全量测试 236 个通过。提交 `b623f1c`。`git push` 前两次报 `TLS connect error`，第三次成功（`f324750..b623f1c`）。
+  EN: 236 local tests passed. Commit b623f1c; two pushes failed with a TLS connect error and the third succeeded (f324750..b623f1c).
+- **Windows CI 抓到了本机和 Linux 都没暴露的编码问题。** CI run 43163181556：`test (3.11)`、`test (3.12)` 通过，`test-windows` 失败，2 个失败、234 个通过。失败的是 `test_mcp_server.py::test_root_must_be_repo_root[missing]` 和 `[no-git]`，stderr 里的中文变成了字面的 `\u542f\u52a8…`。原因：`refcov_mcp/server.py` 写启动失败原因时没把 stderr 改成 UTF-8；Windows 英文系统的代码页（推测是 cp1252）配上 Python stderr 默认的 `backslashreplace`，中文就被写成了 `\uXXXX`。本机的 stderr 是 GBK，测试里的 GBK 备用分支正好兜住了；Linux 上本来就是 UTF-8。按用户要求先把失败原文交给用户，没改代码。
+  EN: Windows CI caught an encoding bug that neither the local machine nor Linux exposed. Run 43163181556: both Linux jobs passed; test-windows failed 2 (test_root_must_be_repo_root[missing] and [no-git]) because the Chinese startup error on stderr came out as literal \uXXXX escapes. The server did not force stderr to UTF-8; on the runner's code page (presumably cp1252) Python's default backslashreplace escapes it. Locally stderr is GBK and the test's GBK fallback hid it; Linux is UTF-8. Per the user, the raw failure was reported before any code change.
+- 修法（用户选的做法 1）：`main()` 开头加 `sys.stderr.reconfigure(encoding="utf-8")`，stdout 不动，因为它走 MCP 协议，由 SDK 管；测试去掉 GBK 分支，只按 UTF-8 解码。查了 `refcov_mcp/` 里其他写 stderr 的地方：直接写的只有这一处；argparse 的报错是 ASCII；SDK 日志用的 `RichHandler(Console(stderr=True))` 或 `StreamHandler()` 写的是同一个 `sys.stderr` 对象，`reconfigure` 是原地改，所以 SDK 日志也跟着走 UTF-8。这一点是读 SDK 1.28.1 的源码得出的，没有触发 SDK 日志去实测。`-h` 的帮助文字有中文，走的是 stdout，没碰。本机用 `PYTHONIOENCODING=cp1252` 模拟 CI 环境：旧代码输出 `\u542f…`，新代码输出 UTF-8 字节。提交 `b654f23`，push 一次成功（`b623f1c..b654f23`）。CI run 43164079139 三个作业都是 success。
+  EN: Fix (the user's option 1): main() now starts with sys.stderr.reconfigure(encoding="utf-8"); stdout is untouched because it carries the MCP protocol; the test decodes stderr as UTF-8 only. Other stderr writers in refcov_mcp/: none direct; argparse errors are ASCII; SDK logging writes to the same sys.stderr object, which reconfigure changes in place (read from SDK 1.28.1 source, not triggered). The Chinese -h help goes to stdout and was left alone. With PYTHONIOENCODING=cp1252 locally, the old code printed \u542f… and the new one UTF-8 bytes. Commit b654f23, pushed first try; CI run 43164079139 succeeded on all three jobs.
+- C，第 4 步补做（1.4.154，Approve for me 关着）：用户在 MCP 面板重连 refcov 后，本会话能加载 `refcov::report` 了。MCP 版报告和终端 `refcov report` 的文字逐行一致：`kiro-hooks` 历史 6/13，`kiro-permissions` 历史 2/33，两个参考源的"本会话"一栏都是"不可用"；还差 38 个；会话未知 4 次；按会话 3 个会话加 unknown（1、1、2、4 个单元）；链完整 14 行。终端版不带 `--session` 时"本会话"一栏也写"不可用"，所以两边完全一样。
+  EN: C, step 4 completed (1.4.154, Approve for me off): after the user reconnected refcov in the MCP panel, refcov::report loaded. Its text matched refcov report line for line: kiro-hooks 6/13, kiro-permissions 2/33, "this session" unavailable for both, 38 missing, 4 unknown-session reads, three sessions plus unknown (1, 1, 2, 4 units), intact 14-line chain. The CLI without --session also prints "unavailable", so the two are identical.
+- D，复测会话补记（1.4.154，Approve for me 关着）：读 `kiro-hooks/hooks-2`，返回内容的最后一行是 `refcov-call: c-15`。日志新增第 15 行（read `c-15`）和第 16 行（session `c-15` → `sess_d1255b02-…`，就是本会话），`verify_chain` 结果 `ok=True, lines=16`，没有 errors.log。PostToolUse 钩子在新版本上照常补记。能写进 session 行，说明钩子收到的工具名仍匹配 `^mcp_refcov_`。按用户决定，工具名本身没用试验钩子复测。
+  EN: D, session attach recheck (1.4.154, Approve for me off): reading kiro-hooks/hooks-2 returned a last line of refcov-call: c-15; the log gained line 15 (read c-15) and line 16 (session c-15 for this session sess_d1255b02-…); verify_chain ok with 16 lines; no errors.log. The PostToolUse hook still attaches sessions on the new version, so the tool name still matches ^mcp_refcov_; per the user, the name itself was not rechecked with the probe hook.
+- D，复测状态行（1.4.154，Approve for me 关着）：用户发了下一条消息，agent 在上下文里看到 Kiro 附带的 HOOK_INSTRUCTION，原文是：`RefCov 严格模式：单元 本会话 1/46，历史 9/46；还差 37 个：kiro-hooks/What-you-can-do-with-hooks、kiro-hooks/Choose-a-trigger、kiro-hooks/Field-reference、kiro-hooks/File-naming-and-location、kiro-hooks/Setting-up-hooks、…。参考材料要用 RefCov 的 MCP 工具读，直接读文件不算看过。` 和 agent 预计的"本会话 1/46，历史 9/46，还差 37 个"一致。`hooks-2` 不再出现在还差的列表里。UserPromptSubmit 钩子在新版本上照常工作。
+  EN: D, status line recheck (1.4.154, Approve for me off): on the user's next message the agent saw Kiro's HOOK_INSTRUCTION reading this session 1/46, history 9/46, 37 missing (starting at kiro-hooks/What-you-can-do-with-hooks) plus the hint, matching the agent's prediction; hooks-2 has left the missing list. The UserPromptSubmit hook still works on the new version.
+- **同批发出的疏忽，共 6 次**：
+  EN: Dependent operations sent in one batch, 6 times:
+  - commit `b623f1c` 和 `git push` 同一批发出。
+    EN: commit b623f1c and git push in one batch.
+  - push 失败后的两次重试同一批发出。
+    EN: the two push retries in one batch.
+  - 改 `server.py` 和测试文件，与跑全量测试同一批发出。那次的 236 通过不算数，单独重跑后仍是 236 通过。
+    EN: editing server.py and the test, together with the full test run; that 236-pass result was discarded and a separate rerun also passed 236.
+  - commit `b654f23` 和 `git push` 同一批发出，而且 push 排在前面。推送记录 `b623f1c..b654f23` 说明 commit 碰巧先完成了；之后 `git fetch` 核实远端和本地是同一个提交、内容完整。
+    EN: commit b654f23 and git push in one batch with the push listed first; the push range b623f1c..b654f23 shows the commit happened to finish first, and git fetch confirmed the remote matched.
+  - 用户加了下面那条规矩以后又出了 1 次：`read_unit` 和查日志同一批发出。查日志的命令开头等了 3 秒，看到的是这次读取写下的两行，数据可信。
+    EN: after the rule below was added, once more: read_unit and the log check in one batch; the check waited 3 s and saw the two lines from this read, so the data stands.
+  - 写这一节时又出了 1 次：给 tasks.md 任务 8 打勾和 `git diff` 同一批发出。diff 里已经有打勾的改动，结果可信。
+    EN: while writing this section, once more: ticking task 8 in tasks.md and git diff in one batch; the diff already showed the tick, so the result stands.
+  - 另外，agent 在 CI 出结果之前就把会话状态写成了"三个作业全绿"。结果出来正好是绿的。
+    EN: Also, the agent set the session status to "all three jobs green" before the CI result was in; it turned out green.
+- 因为同批发出出了 4 次，用户让在 `.kiro/steering/tech.md` 加一节"agent 操作顺序"：有先后的操作必须分开发出，一次只发一个，等上一个的结果回来再发下一个，包括改文件 → 跑测试、`git commit` → `git push`、push 重试。英文摘要同步加了一句。同时按事实更正了 tech.md 正文和英文摘要里"CI 只在 Linux 上跑"的说法，改成 Linux 和 Windows。
+  EN: Because of those 4 slips, the user had a new "agent operation order" section added to .kiro/steering/tech.md: dependent operations (edit then test, commit then push, push retries) are sent one at a time, each after the previous result; the English summary gained a matching sentence. tech.md's "CI runs on Linux" was also corrected to Linux and Windows in both languages.
+- 用户要求：以后要对比旧版本，用 `git show HEAD:<文件>` 输出到临时目录，不用 `git stash`。这次 agent 用的是 `git stash push -- refcov_mcp/server.py` 暂时换回旧版、比完再 `pop`，改动没丢，但不该这样做。
+  EN: Per the user, compare against an old version with git show HEAD:<file> into a temp dir, not git stash. This time the agent stashed and popped refcov_mcp/server.py; nothing was lost, but it should not be done that way.
+- 补记：`f324750` 的 CI（run 43046766098）success。
+  EN: Catch-up: CI for f324750 (run 43046766098) succeeded.
+- 属性测试：这次没写，任务 8 不涉及需求 16 的性质。
+  EN: No property tests; task 8 touches none of the requirement 16 properties.
+- RefCov 拦了自己几次：还没有关卡，0 次。本会话经 MCP 读了 1/46 个单元，历史 9/46。
+  EN: RefCov blocks on its own development: no gates exist yet, so 0. This session read 1/46 units via MCP; history 9/46.
+- 用到的 Kiro 功能：MCP（用户在 MCP 面板重连后，新加的 `report` 工具能加载了；`tool_load`、`tool_call`）、钩子（PostToolUse 和 UserPromptSubmit 在 1.4.154 上复测）、引导文档（tech.md 新规矩）、多会话（检查点前几步在上一个 IDE 会话里做）。
+  EN: Kiro features used: MCP (after the user's reconnect in the MCP panel the new report tool loaded; tool_load, tool_call), hooks (PostToolUse and UserPromptSubmit rechecked on 1.4.154), steering (the new tech.md rule), multiple sessions (the first checkpoint steps ran in the previous IDE session).
+- 任务 8 的最细通路检查点走完：登记、重复登记、读取、会话补记、报告（终端和 MCP）、状态行、新克隆照 README 安装都过了，有问题的地方已经修好并在 CI 上验证过。tasks.md 任务 8 打勾。
+  EN: Task 8 checkpoint complete: registration, re-registration, reads, session attach, report (CLI and MCP), the status line and a fresh clone set up per the README all passed, with the problems found fixed and verified on CI. Task 8 ticked in tasks.md.
