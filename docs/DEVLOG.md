@@ -910,3 +910,54 @@
   EN: Kiro features used: hooks (the UserPromptSubmit status line followed each registration: 0/46, 0/70, 0/68, 0/114), steering (the tech.md ordering rule, still broken twice this session). No RefCov MCP tool was called this session.
 - 任务 9 的登记部分完成。tasks.md 任务 9 打勾。
   EN: Task 9 registration complete; task 9 ticked in tasks.md.
+
+## 2026-11-12（任务 10：解析需求文档和 tasks.md）
+
+- 补记任务 9 提交 `56bf82a` 的推送：第 1 次 `git push origin main` 报 `TLS connect error: error:00000000:lib(0)::reason(0)`，退出码 128；等 5 秒单独重试，第 2 次成功（`c3c43ff..56bf82a`）。普通推送。
+  EN: Catch-up on pushing 56bf82a (task 9): the first git push origin main failed with the TLS connect error (exit 128); a separate retry after 5 s succeeded (c3c43ff..56bf82a). Plain push.
+- 补记 `56bf82a` 的 CI：run 43169527462 success，`test (3.11)`、`test (3.12)`、`test-windows` 三个作业都是 success。数据取自公开的 runs 和 jobs API，看不到测试个数。
+  EN: Catch-up on CI for 56bf82a: run 43169527462 succeeded on all three jobs, read from the public runs and jobs API; test counts not visible.
+- 补记：任务 9 那一节写的"停下没回复 8 轮"到任务 9 收尾时累计是 10 轮（推送失败后 1 轮、查 CI 前 1 轮）。
+  EN: Catch-up: the "8 turns with no reply" in the task 9 section had reached 10 by the end of task 9 (one after the failed push, one before the CI query).
+- 环境：Kiro IDE 1.4.154，Approve for me 关着。主 agent 在聊天里直接做，没有点 Start task。
+  EN: Environment: Kiro IDE 1.4.154, Approve for me off. Done by the main agent from chat, not via Start task.
+- 写代码前先回答了用户三个问题：设计 7 第 6 条怎么理解、样例放哪和放哪些坑、带特殊字符的单元 ID 能不能被正则认出来。用户同意后按"样例 → 测试 → 代码"的顺序做。
+  EN: Before coding, the agent answered three questions from the user (its reading of design 7 rule 6, where the samples go and which traps they contain, whether IDs with special characters match the regex); after the user agreed, the work went samples, then tests, then code.
+- 正则核对：把 `sources.json` 里 114 个真实单元 ID 逐个写成 `出处：[ref:<源>/<单元>] 尾巴`，用 `citation.md` 原样的正则提取，114 个都完整取出，0 个失败。其中 28 个带弯引号、`&`、`#`、直引号、中文标点或 `·`。两个引用紧挨着、引用后跟中文句号也都正确。手打直引号的 `15.-Entrant's-Personal-Information` 不在清单里，会成为无效引用。
+  EN: Regex check: all 114 real unit IDs from sources.json, each embedded as a reference in a source line, were extracted intact by the citation.md regex (0 failures), including 28 with curly or straight quotes, &, #, CJK punctuation or ·. Adjacent references and a trailing Chinese full stop also worked. A hand-typed straight quote gives an ID that is not in the manifest, so it becomes an invalid reference.
+- 用户定的两条：未转换只看 `出处：` 开头的那一行，块里有有效引用时出处行剩下的文字不再报；代码块里的 `[ref:…]` 照算，不加跳过规则。
+  EN: Two decisions by the user: "unconverted" looks only at the line starting with the source label, and is not reported when the block already has a valid reference; references inside code blocks still count.
+- 新增 `tests/data/sample-requirements.md`（12 条需求）和 `tests/data/sample-tasks.md`（4 个任务），内容是编的。需求样例里放了：出处行有效引用、只有行内引用、没有出处、单元不存在、参考源不存在、一有效一无效、纯文字出处、特殊字符、手打直引号、参考源 ID 大写、无效引用加文字、出处行以外的"出处："；另有简介里的引用和插在中间的 `### 其他说明`。任务样例里有 `[ ]`、`[~]`、`[x]`、`[ ]*` 各一个，`_需求：6.1、6.5_`，以及不存在的需求编号 99。
+  EN: Added tests/data/sample-requirements.md (12 made-up requirements) and tests/data/sample-tasks.md (4 tasks). The requirement sample covers a valid source-line reference, inline-only, no source, unknown unit, unknown source, valid plus invalid, text-only source, special characters, a hand-typed straight quote, an upper-case source ID, invalid plus text, and a source label outside the source line, plus a reference in the preamble and a non-requirement ### heading. The task sample has one each of [ ], [~], [x] and [ ]*, a _需求：6.1、6.5_ list, and a missing requirement number 99.
+- 新增 `tests/test_citations.py`，25 个测试，预期条数写死：幻影需求 3、4、5、9、10、12；无效引用 5 条；未转换 7、11；被引用的单元 5 个。另有一个测试检查正则和 `citation.md` 一字不差。
+  EN: Added tests/test_citations.py with 25 tests and fixed expected results (phantom 3, 4, 5, 9, 10, 12; 5 invalid references; unconverted 7 and 11; 5 cited units), plus one test that the regex equals the citation.md one verbatim.
+- 新增 `refcov/citations.py`（只用标准库）：`parse_requirements`、`check_requirements`、`known_units`、`parse_tasks`、`find_task`、`task_refs`。只列举，不判断达标（任务 11）。搜过，里面没有 Kiro 的工具名、事件名和 `.kiro` 路径。`refcov/cli.py` 加了 `refcov check-spec <需求文档>`，只读。
+  EN: Added refcov/citations.py (standard library only): parse_requirements, check_requirements, known_units, parse_tasks, find_task, task_refs. It only lists findings and does not decide pass/fail (task 11). A search found no Kiro tool names, event names or .kiro paths in it. refcov/cli.py gained the read-only refcov check-spec <doc>.
+- **测试抓到的问题**：第一次跑 3 个失败，都是需求 10（`出处：[ref:Demo/Hooks]`，参考源 ID 大写）。正则只认小写参考源 ID，没认出这个引用；程序再看出处行去掉引用后还剩什么，把整个 `[ref:Demo/Hooks]` 当成了文字出处，报成"未转换"。写代码前 agent 说过它应算幻影需求，用户也同意了。
+  EN: Test finding: the first run had 3 failures, all on requirement 10 (a reference with an upper-case source ID). The regex does not match it, so the leftover-text check treated the whole bracket as a text source and reported "unconverted", while the agreed expectation was a phantom requirement.
+- 改法（用户同意）：判断出处行还剩没剩文字时，先把所有长得像 `[ref:…]` 的去掉（另一个正则 `\[ref:[^\]]*\]`，只用于这一步），提取引用仍只用 `citation.md` 的正则。原因：写错的引用是想引用单元、只是写错了，不是文字出处；按未转换算，严格模式下它就不会被当成问题（未转换不算幻影需求）。代价：写错的引用不进无效引用，只按幻影需求报，报告里看不到具体写错的是哪一处。改完 25 个通过。
+  EN: Fix (agreed by the user): before checking for leftover text, anything shaped like a reference is removed with a second regex used only for that step; extraction still uses only the citation.md regex. Reason: a malformed reference is a failed attempt to cite a unit, not a text source, and counting it as unconverted would let it pass in strict mode. Cost: malformed references are not listed as invalid, only as phantom requirements, so the report does not show which reference was wrong. 25 tests passed after the fix.
+- 用真实的 `requirements.md` 试跑 `refcov check-spec`（只读）：17 条需求，幻影 0、无效 0、未转换 17、被引用 0。符合预期，出处到任务 11 最后一步才换成 `[ref:…]`。
+  EN: A read-only refcov check-spec on the real requirements.md: 17 requirements, 0 phantom, 0 invalid, 17 unconverted, 0 cited, as expected until task 11 converts the sources.
+- 全量测试 261 个通过（原来 236 个，加了 25 个）。
+  EN: Full suite: 261 passed (236 before, plus 25).
+- **已知局限**：原文在工作区外的需求（例如出处是"交接说明"，那份文件在试验目录 kirohe 里，不进公开仓库，没法登记）会一直是未转换。未转换不算幻影需求，严格模式也不会因此不达标，所以这类需求拦不住。按用户决定不改，只记在这里。另外代码块里的引用照算、代码块里的 `### ` 行也会切块，写在 `citations.py` 开头的说明里。
+  EN: Known limitation: requirements whose original source is outside the workspace (e.g. the handoff notes in the kirohe trial directory, never published and not registrable) will stay unconverted forever; unconverted is not phantom, so strict mode does not fail on them and cannot block them. Left as is per the user. Also, references inside code blocks count and ### lines inside code blocks split blocks; noted in the citations.py docstring.
+- **本次的疏忽**：
+  EN: Slips this time:
+  - 同批发出 1 次：改 `citations.py` 的两处和跑测试同一批发出。之后单独重跑仍是 25 个通过，全量测试也是单独跑的。
+    EN: one batched dependent operation: two citations.py edits sent together with the test run; a separate rerun passed 25, and the full suite ran on its own.
+  - 给 `cli.py` 加子命令的一次修改没返回结果就被中断了；之后用 `Select-String` 查过，修改已经生效。
+    EN: one cli.py edit (adding the subcommand) was interrupted before reporting a result; Select-String showed afterwards that it had taken effect.
+  - 有两次 `python` 命令的首字母被吞，报"ython 不会被识别"。命令前加 `; &` 后正常。原因没查。
+    EN: twice the first letter of a python command was dropped ("ython" not recognized); prefixing "; &" worked. The cause was not investigated.
+  - 停下没回复：从写样例起又有 6 轮只调了工具、没回复用户，用户发"继续"才接着做；本会话累计 16 轮。
+    EN: six more turns, from writing the samples on, ended after tool calls with no reply until the user sent "continue"; 16 in this session.
+- 属性测试：这次没写。出处解析的性质不在需求 16 的 6 条里；性质 3（引用了没读的单元一定不达标）要等任务 11 的达标判断。
+  EN: No property tests: citation parsing is not one of the six requirement 16 properties; property 3 needs task 11's pass/fail logic.
+- RefCov 拦了自己几次：还没有关卡，0 次。本会话经 MCP 读了 0/114 个单元，历史 9/114。没写钩子代码。
+  EN: RefCov blocks on its own development: no gates yet, 0. This session read 0/114 units via MCP; history 9/114. No hook code written.
+- 用到的 Kiro 功能：规格流程（按 tasks.md 任务 10 和 design.md 第 4、7 节做）、引导文档（citation.md 定正则和写法，testing.md 定测试写法）、钩子（UserPromptSubmit 状态行）。本会话没有调用 RefCov 的 MCP 工具。
+  EN: Kiro features used: the spec (task 10, design sections 4 and 7), steering (citation.md for the regex and format, testing.md for tests), hooks (the UserPromptSubmit status line). No RefCov MCP tool was called this session.
+- tasks.md 任务 10 打勾。
+  EN: Task 10 ticked in tasks.md.

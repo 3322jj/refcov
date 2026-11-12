@@ -75,7 +75,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
 
 ## 出处检查和达标（设计 10 第 6 步）
 
-- [ ] 10. 解析需求文档和 tasks.md
+- [x] 10. 解析需求文档和 tasks.md
   - `refcov/citations.py`：按 `### 需求 N：` 切块；用 `citation.md` 的正则提取引用；识别 `出处：` 行里的文字出处（报"未转换"）；列出幻影需求、无效引用、被引用的单元
   - 解析 tasks.md：按设计 7 第 6 条找任务（去掉状态标记和首尾空白），收集任务和子项里的引用、`_需求：…_` 指向的需求块里的引用
   - 命令行 `refcov check-spec <需求文档>`

@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from refcov import __version__, api
+from refcov import __version__, api, citations
 from refcov.sources import RegisterError, register
 from refcov.store import Store, StoreError
 
@@ -76,6 +76,29 @@ def _add(args) -> int:
     return 0
 
 
+def _check_spec(args) -> int:
+    root = _repo_root()
+    if root is None:
+        print(f"检查失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
+        return 1
+    try:
+        text = (root / args.doc).read_text(encoding="utf-8-sig")
+        result = citations.check_requirements(text, citations.known_units(Store(root).read_sources()))
+    except (StoreError, OSError, UnicodeDecodeError, ValueError) as e:
+        print(f"检查失败：{e}", file=sys.stderr)
+        return 1
+    print(f"出处检查：{args.doc}，{len(result.requirements)} 条需求")
+    print(f"幻影需求 {len(result.phantom)} 条：{'、'.join(result.phantom) or '无'}")
+    print(f"无效引用 {len(result.invalid)} 条" + ("：" if result.invalid else "：无"))
+    for req, ref in result.invalid:
+        print(f"  需求 {req}：{ref}")
+    print(f"未转换 {len(result.unconverted)} 条：{'、'.join(result.unconverted) or '无'}")
+    print(f"被引用的单元 {len(result.cited)} 个" + ("：" if result.cited else "：无"))
+    for ref in result.cited:
+        print(f"  {ref}")
+    return 0
+
+
 def main(argv=None) -> int:
     _match_console_encoding()
     parser = argparse.ArgumentParser(prog="refcov", description="Coverage for reference material.")
@@ -87,10 +110,14 @@ def main(argv=None) -> int:
     rep = sub.add_parser("report", help="覆盖率报告（只读，不写任何文件）")
     rep.add_argument("--json", action="store_true", help="输出 JSON")
     rep.add_argument("--session", help="会话 ID；不给时本会话一栏为“不可用”")
+    chk = sub.add_parser("check-spec", help="出处检查：列出幻影需求、无效引用、未转换、被引用的单元（只读）")
+    chk.add_argument("doc", help="需求文档路径（相对仓库根目录）")
     args = parser.parse_args(argv)
     if args.command == "add":
         return _add(args)
     if args.command == "report":
         return _report(args)
+    if args.command == "check-spec":
+        return _check_spec(args)
     parser.print_help()
     return 0
