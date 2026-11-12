@@ -867,3 +867,46 @@
   EN: Kiro features used: MCP (after the user's reconnect in the MCP panel the new report tool loaded; tool_load, tool_call), hooks (PostToolUse and UserPromptSubmit rechecked on 1.4.154), steering (the new tech.md rule), multiple sessions (the first checkpoint steps ran in the previous IDE session).
 - 任务 8 的最细通路检查点走完：登记、重复登记、读取、会话补记、报告（终端和 MCP）、状态行、新克隆照 README 安装都过了，有问题的地方已经修好并在 CI 上验证过。tasks.md 任务 8 打勾。
   EN: Task 8 checkpoint complete: registration, re-registration, reads, session attach, report (CLI and MCP), the status line and a fresh clone set up per the README all passed, with the problems found fixed and verified on CI. Task 8 ticked in tasks.md.
+
+## 2026-11-12（任务 9：登记开发要读的材料）
+
+- 补记 `c3c43ff` 的推送（用户转述）：一共推了 3 次。第 1 次直接推，第 2 次等 5 秒，两次都失败，退出码 1，报错相同：`fatal: unable to access 'https://github.com/3322jj/refcov.git/': TLS connect error: error:00000000:lib(0)::reason(0)`。第 3 次等 10 秒，成功（`b654f23..c3c43ff`）。都是普通推送。
+  EN: Catch-up on pushing c3c43ff (relayed by the user): 3 attempts; the first (immediate) and second (after 5 s) failed with exit code 1 and the same TLS connect error; the third (after 10 s) succeeded (b654f23..c3c43ff). Plain pushes only.
+- 补记 `c3c43ff` 的 CI：run 43165548993 success，`test (3.11)`、`test (3.12)`、`test-windows` 三个作业都是 success。数据取自公开的 runs 和 jobs API；日志要登录才能看，所以没看到测试个数。第一次查 API 报 TLS 断开，单独重查后成功。
+  EN: Catch-up on CI for c3c43ff: run 43165548993 succeeded on all three jobs (test 3.11, test 3.12, test-windows), read from the public runs and jobs API; logs need authentication, so test counts were not seen. The first API request failed with a TLS disconnect and a separate retry worked.
+- 环境：Kiro IDE 1.4.154，Approve for me 关着。登记命令都是用户在终端里跑的，主 agent 在聊天里给命令、核对结果，没有点 Start task。
+  EN: Environment: Kiro IDE 1.4.154, Approve for me off. The user ran every registration command in the terminal; the main agent gave the commands and checked the results from chat, not via Start task.
+- 比赛规则页：用户把正文存成 `.refcov/kiroween-rules.md` 并自己加了标题。`.gitignore` 加了一行 `.refcov/kiroween-rules.md`，理由和缓存不提交一样，原文可能有版权；`git check-ignore -v` 确认命中，`tests/test_gitignore.py` 3 个通过。
+  EN: Rules page: the user saved the text as .refcov/kiroween-rules.md with headings added. .gitignore gained .refcov/kiroween-rules.md (possible copyright, like the cache); git check-ignore -v confirmed it and tests/test_gitignore.py passed 3.
+- 第一次登记 `rules`（日志第 17 行）：24 个单元，其中 8 个是超长拆分出的段。第 4 节的 `@2`、`@4` 正好 4000 字，是找不到空行时的硬切；总标题单元只有 1 个字。agent 推测原因是第 4 节段落之间没有空行，没打开原文核实。用户选了改文件：段落之间加空行，总标题不再用 `#`。
+  EN: First registration of rules (log line 17): 24 units, 8 of them split parts; section 4's @2 and @4 were exactly 4000 characters (hard cuts with no blank line in range) and the title unit had 1 character. The agent presumed section 4 lacked blank lines between paragraphs, without opening the file. The user edited the file: blank lines between paragraphs, title no longer a # heading.
+- 重新登记 `rules`（日志第 18 行，`changed: true`）：22 个单元，最长 3901 字，没有正好 4000 字的段，也没有不到 50 字的单元。这些单元当时都没被读过，重拆没丢读取记录。第 17 行照常留在日志里。
+  EN: Re-registration of rules (log line 18, changed true): 22 units, longest 3901 characters, no exactly-4000 parts and no unit under 50 characters. None had been read, so no reads were lost; line 17 stays in the log.
+- 单元 ID 里有弯引号、`&`、`#` 和直引号，例如 `15.-Entrant’s-Personal-Information`、`6.-Judges-&-Criteria`、`分析-#1-当前会话文件由哪个钩子写`、`5-记进"以后再做"`。按设计 4 第 1 条都是允许的字符，`citation.md` 的正则也认。写 `[ref:…]` 时要原样复制，手打直引号对不上。
+  EN: Some unit IDs contain curly quotes, &, # and straight quotes (e.g. 15.-Entrant’s-Personal-Information, 6.-Judges-&-Criteria). They are allowed by design section 4 rule 1 and matched by the citation.md regex, but references must be copied exactly; typed straight quotes will not match.
+- `docs/decisions/` 下 5 个文件由用户登记（日志第 19–23 行）：`dec-analysis-answers` 13 个单元、`dec-commit-and-design` 6、`dec-design-review` 8、`dec-questions-reply` 7、`dec-review-reply` 12。参考源 ID 用 `dec-` 加去掉日期的文件名；以后不同日期出现同名文件时再加日期。
+  EN: The user registered the 5 files in docs/decisions/ (log lines 19–23): dec-analysis-answers 13 units, dec-commit-and-design 6, dec-design-review 8, dec-questions-reply 7, dec-review-reply 12. IDs are dec- plus the file name without the date; a date will be added if names collide later.
+- `2026-11-10-design-review.md`：当初 DEVLOG 写它"没审阅，先不提交"，后来在 `694d340` 里提交了，DEVLOG 没记用户审过。agent 登记前问了用户，用户照常登记了它，按"用户已过目"记。`refcov confirm`（可选的任务 18）还没做，所以报告里不会把没确认的 decisions 文件标红。
+  EN: 2026-11-10-design-review.md was noted as "not reviewed, not committed" but went into 694d340 without a recorded review. The agent asked before registration; the user registered it, recorded here as reviewed by the user. refcov confirm (optional task 18) does not exist yet, so the report does not flag unconfirmed decisions files.
+- 登记完：8 个参考源、114 个单元（13 + 33 + 22 + 46），日志 23 行，哈希链完整，没有 errors.log。状态行从"0/46"变成"0/114"，和清单对得上。tasks.md 里 kiro-hooks、kiro-permissions 是任务 8 之前登记的，这次没重登。
+  EN: After registration: 8 sources, 114 units (13 + 33 + 22 + 46), 23 log lines, chain intact, no errors.log. The status line went from 0/46 to 0/114, matching the manifest. kiro-hooks and kiro-permissions were registered before task 8 and not re-registered.
+- RefCov 拦了自己几次：还没有关卡，0 次。今天（11-12）这个会话经 MCP 读了 0/114 个单元，历史 9/114（kiro-hooks 7/13、kiro-permissions 2/33，其余 0）。这个会话没写钩子代码，所以"写钩子代码前读了哪些单元"今天没有数。从这一节起每天记这两个数。
+  EN: RefCov blocks on its own development: no gates yet, so 0. This session (11-12) read 0/114 units via MCP; history 9/114 (kiro-hooks 7/13, kiro-permissions 2/33, the rest 0). No hook code was written, so there is no "units read before writing hook code" figure today. Both figures are logged daily from here on.
+- **同批发出的疏忽，本会话 4 次**：
+  EN: Dependent operations sent in one batch, 4 times this session:
+  - 写这一节时又出了 1 次：改 DEVLOG 的两处和 `git status`、`git diff --stat` 同一批发出。那次的统计不算数。
+    EN: while writing this section, once more: two DEVLOG edits together with git status and git diff --stat; that output was discarded.
+  - 紧接着又出了 1 次：说要"单独重看"，实际上重看的 `git status`、`git diff --stat`、全量 pytest 又和两处 DEVLOG 修改同一批发出。pytest 236 个通过，DEVLOG 不影响测试，这个结果可信；diff 统计不算数，提交前单独再看一次。
+    EN: right after, once more: the "separate re-check" (git status, git diff --stat, full pytest) was again sent with two DEVLOG edits. pytest passed 236 and DEVLOG cannot affect tests, so that result stands; the diff stats were discarded and are re-checked alone before committing.
+  - 改 `.gitignore` 和 `git check-ignore`、`git diff` 同一批发出。diff 里已经有新加的两行，检查结果可信。
+    EN: editing .gitignore together with git check-ignore and git diff; the diff already showed the two new lines, so the check stands.
+  - 用 `git rev-parse` 取完整哈希和用这个哈希查 CI API 同一批发出。那次查询报 TLS 断开，没拿到数据；之后单独重查成功。
+    EN: git rev-parse for the full hash together with the CI API query using that hash; the query failed with a TLS disconnect and was retried alone.
+- 另外：用户只回答了推送几次，没明说同意 agent 去查 CI，agent 就查了（只读的公开 API）。本会话有 8 轮 agent 只调了工具、没给出回复就停了，用户发"继续"才接着做。
+  EN: Also, the agent queried CI (a read-only public API) after the user had answered only the push question, without explicit consent. Eight agent turns in this session ended after tool calls with no reply, until the user sent "continue".
+- 属性测试：这次没写，任务 9 只登记材料。
+  EN: No property tests; task 9 only registers material.
+- 用到的 Kiro 功能：钩子（UserPromptSubmit 钩子每次附带的状态行随登记变化：0/46 → 0/70 → 0/68 → 0/114）、引导文档（tech.md 的操作顺序规矩，本会话仍违反 2 次）。本会话没有调用 RefCov 的 MCP 工具。
+  EN: Kiro features used: hooks (the UserPromptSubmit status line followed each registration: 0/46, 0/70, 0/68, 0/114), steering (the tech.md ordering rule, still broken twice this session). No RefCov MCP tool was called this session.
+- 任务 9 的登记部分完成。tasks.md 任务 9 打勾。
+  EN: Task 9 registration complete; task 9 ticked in tasks.md.

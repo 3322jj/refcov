@@ -67,7 +67,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
 
 ## 用它管自己（设计 10 第 5 步）
 
-- [ ] 9. 登记开发要读的材料
+- [x] 9. 登记开发要读的材料
   - 由用户在终端登记：比赛规则页、`https://kiro.dev/docs/hooks.md`、`https://kiro.dev/docs/permissions.md`、`docs/decisions/` 下的文件
   - 比赛规则页是 HTML，文档适配器会拒绝（需求 3.4）：由用户把规则页正文存成本地 Markdown 文件，放在 `.refcov/` 下、`cache/` 旁边，再登记这个本地文件
   - 在 DEVLOG 开始记"RefCov 拦了自己几次"所需的数字：每天看了几分之几、写钩子代码前读了哪些单元

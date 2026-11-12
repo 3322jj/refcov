@@ -1,5 +1,7 @@
 # 参考材料原文的本地缓存（可能有版权，不进公开仓库）。清单 sources.json 和日志 log.jsonl 照常提交。
 .refcov/cache/
+# 用户手动存的比赛规则页正文（同样可能有版权）
+.refcov/kiroween-rules.md
 # 状态目录里只在本机有用的文件：报错堆栈（含本机路径）、日志锁、报告基准
 .refcov/errors.log
 .refcov/log.lock

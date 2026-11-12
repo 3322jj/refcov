@@ -342,6 +342,542 @@
           "chars": 447
         }
       ]
+    },
+    {
+      "id": "rules",
+      "origin": ".refcov/kiroween-rules.md",
+      "fetched": "2026-11-12T14:24:14+08:00",
+      "sha256": "d882e727b2bd62c74c275e8020a8871a0f49e95479dbebd64926642ba4f4405a",
+      "adapter": "markdown",
+      "registered_seq": 18,
+      "units": [
+        {
+          "id": "1.-Dates-and-Timing",
+          "title": "1. Dates and Timing",
+          "kind": "section",
+          "sha256": "b9ebe6d4075f41aa3ca8bb1d90fafcdd7afaf55cf07906680cf97d4bc95de93d",
+          "chars": 522
+        },
+        {
+          "id": "2.-Sponsor-and-Administrator-(“Promotional-Entities”)",
+          "title": "2. Sponsor and Administrator (“Promotional Entities”)",
+          "kind": "section",
+          "sha256": "93111639c74fbea920122791284c96e8a7c3cf9cbc89dd99b74fa36673c3cf63",
+          "chars": 175
+        },
+        {
+          "id": "3.-Eligibility",
+          "title": "3. Eligibility",
+          "kind": "section",
+          "sha256": "071d9dc738ca98daab9c63d5549cc723e9c838777dcf8ff9def900031c2dc4fb",
+          "chars": 3351
+        },
+        {
+          "id": "4.-How-To-Enter",
+          "title": "4. How To Enter",
+          "kind": "section",
+          "sha256": "54310af470dc49a9cae299034ea13c21ce214650afbb5e10eb29bf0a40aa6fab",
+          "chars": 3475
+        },
+        {
+          "id": "4.-How-To-Enter@2",
+          "title": "4. How To Enter (2)",
+          "kind": "section",
+          "sha256": "4c5562a5ad920f3be39a81b07148710880eefaecb0507af2bbd914469241fae9",
+          "chars": 3790
+        },
+        {
+          "id": "4.-How-To-Enter@3",
+          "title": "4. How To Enter (3)",
+          "kind": "section",
+          "sha256": "5a8e4c072d0c249285f83db8f1c6785d49af8136bc6741f7127124f3b97f39cd",
+          "chars": 3901
+        },
+        {
+          "id": "4.-How-To-Enter@4",
+          "title": "4. How To Enter (4)",
+          "kind": "section",
+          "sha256": "051e3f4bdac129868ee9134cb26b26a8df506695b77eb9274f3c9c91cefbb25e",
+          "chars": 3491
+        },
+        {
+          "id": "4.-How-To-Enter@5",
+          "title": "4. How To Enter (5)",
+          "kind": "section",
+          "sha256": "86aa304caba10ea68e1f1551674216e0f44c42492409d031fe45796eaaafb4b1",
+          "chars": 1710
+        },
+        {
+          "id": "5.-Submission-Modifications",
+          "title": "5. Submission Modifications",
+          "kind": "section",
+          "sha256": "f49eb95fb524ad3178def7cd736bcf52aa9843e8992ba101094b7b9dd43b9b7a",
+          "chars": 887
+        },
+        {
+          "id": "6.-Judges-&-Criteria",
+          "title": "6. Judges & Criteria",
+          "kind": "section",
+          "sha256": "095858ba3dbc8238e843fdf1f6be184bfd477a635c0dc3baa80b783337755cb3",
+          "chars": 2581
+        },
+        {
+          "id": "6.-Judges-&-Criteria@2",
+          "title": "6. Judges & Criteria (2)",
+          "kind": "section",
+          "sha256": "63888fb03bd154a816c75e06078b08df3df097b2e3f8b648efe19c78286df857",
+          "chars": 2635
+        },
+        {
+          "id": "7.-Intellectual-Property-Rights",
+          "title": "7. Intellectual Property Rights",
+          "kind": "section",
+          "sha256": "665b5a6f88b471dcf79f4252c4179ab0037ed4acd9250ea3f5b953aa09e7b4da",
+          "chars": 1284
+        },
+        {
+          "id": "8.-Prizes",
+          "title": "8. Prizes",
+          "kind": "section",
+          "sha256": "c2b6b6cfa8219f37cbe7cefec630854253406c6765aaf387c3c18e983d86edb6",
+          "chars": 2863
+        },
+        {
+          "id": "8.-Prizes@2",
+          "title": "8. Prizes (2)",
+          "kind": "section",
+          "sha256": "b222bd73d5c661426e31d5820577db44deae3e6e6bbf97a6ab16d5475f1321ad",
+          "chars": 3549
+        },
+        {
+          "id": "8.-Prizes@3",
+          "title": "8. Prizes (3)",
+          "kind": "section",
+          "sha256": "a1eb6acd828fed30564b110a1bc2a42a852590f05eb7619cf8e4925537ece064",
+          "chars": 1199
+        },
+        {
+          "id": "9.-Entry-Conditions-and-Release",
+          "title": "9. Entry Conditions and Release",
+          "kind": "section",
+          "sha256": "a4814ed885f4577d57a63b41bf200d0c6e2316daea10538f929f3be57025993f",
+          "chars": 3349
+        },
+        {
+          "id": "10.-Publicity",
+          "title": "10. Publicity",
+          "kind": "section",
+          "sha256": "a0cee15225f24734a5bd8252cb94794fe8fa51f1cebf22ac6d026f270ece77ff",
+          "chars": 663
+        },
+        {
+          "id": "11.-General-Conditions",
+          "title": "11. General Conditions",
+          "kind": "section",
+          "sha256": "a11c9e60c24d7048b9b314a1e7e41fafd68be83fd59b73f416d80e1747eefcb9",
+          "chars": 3708
+        },
+        {
+          "id": "12.-Limitations-of-Liability",
+          "title": "12. Limitations of Liability",
+          "kind": "section",
+          "sha256": "fae2eaf45268ea3966908b53d4e1872cf6984e666f55e3278897797e698c7d70",
+          "chars": 456
+        },
+        {
+          "id": "13.-Disputes",
+          "title": "13. Disputes",
+          "kind": "section",
+          "sha256": "839fadf939dc15481ea789cb99b8d9e4bfe5ef8b64d8b3a96801dbfd0b115100",
+          "chars": 1628
+        },
+        {
+          "id": "14.-Additional-Terms",
+          "title": "14. Additional Terms",
+          "kind": "section",
+          "sha256": "bfec68d884e1c1dc427f4dbb698dc8358f031e1b1328a53cd2f178bd5c82c02d",
+          "chars": 550
+        },
+        {
+          "id": "15.-Entrant’s-Personal-Information",
+          "title": "15. Entrant’s Personal Information",
+          "kind": "section",
+          "sha256": "83114af49341b3eaacaf871123d305a7f38a26ee8a4eb5b576877df812ede2d4",
+          "chars": 185
+        }
+      ]
+    },
+    {
+      "id": "dec-analysis-answers",
+      "origin": "docs/decisions/2026-11-10-analysis-answers.md",
+      "fetched": "2026-11-12T14:26:48+08:00",
+      "sha256": "702934b636eddd0dcf4dba9f3acdc8400ce81c8bd8a2a64de057491386d4a235",
+      "adapter": "markdown",
+      "registered_seq": 19,
+      "units": [
+        {
+          "id": "2026-11-10-Analyze-Requirements-的回答",
+          "title": "2026-11-10 Analyze Requirements 的回答",
+          "kind": "section",
+          "sha256": "7c37775dd9744d799153cf619e73bfdd49ddb78ce329179b5d7b285c9edc7895",
+          "chars": 148
+        },
+        {
+          "id": "分析-#1-当前会话文件由哪个钩子写",
+          "title": "分析 #1 当前会话文件由哪个钩子写",
+          "kind": "section",
+          "sha256": "1d99605b2288d3ab18405b415c8debbd22f483801d570004b8e4c83a96bd1534",
+          "chars": 48
+        },
+        {
+          "id": "分析-#2-用户手改不受保护影响",
+          "title": "分析 #2 用户手改不受保护影响",
+          "kind": "section",
+          "sha256": "963b7b807dea6ded7cfd6e6e59ce4efe8dc037e3ecf6abeff37885f2e09eafac",
+          "chars": 33
+        },
+        {
+          "id": "分析-#3-不支持的格式",
+          "title": "分析 #3 不支持的格式",
+          "kind": "section",
+          "sha256": "e4da66da2d07607cd8e0347ac2b706a07ad1c2b4b7522721360e6e59e4563636",
+          "chars": 40
+        },
+        {
+          "id": "分析-#4-严格模式下写需求文档",
+          "title": "分析 #4 严格模式下写需求文档",
+          "kind": "section",
+          "sha256": "99322896acffac0fbb387eceb20740e1f127b769ad7bfd43ee4edb98d038665d",
+          "chars": 26
+        },
+        {
+          "id": "分析-#4-附：默认豁免",
+          "title": "分析 #4 附：默认豁免",
+          "kind": "section",
+          "sha256": "a882f51e10386069d8892cc40c1f983da84eebd2440d0ce4e4102389bc4776cf",
+          "chars": 72
+        },
+        {
+          "id": "分析-#5-各关卡独立判断",
+          "title": "分析 #5 各关卡独立判断",
+          "kind": "section",
+          "sha256": "5dfda1c99117c1e2e3c16a572cbb0979057004a32fc5262094a86994f5a7471f",
+          "chars": 29
+        },
+        {
+          "id": "分析-#6-找不到任务",
+          "title": "分析 #6 找不到任务",
+          "kind": "section",
+          "sha256": "6c49f077ea8a20fb95899cf2a2c0dd4fa04fa286332fb6a56f4d516e87b5ac52",
+          "chars": 91
+        },
+        {
+          "id": "分析-#7-写入后判断不了是否达标",
+          "title": "分析 #7 写入后判断不了是否达标",
+          "kind": "section",
+          "sha256": "8a721bb9dfe513d572b0a743213272b2e38d5188ffa2cd13bd8c2516cdf3f8c0",
+          "chars": 9
+        },
+        {
+          "id": "分析-#8-hypothesis-的-import",
+          "title": "分析 #8 hypothesis 的 import",
+          "kind": "section",
+          "sha256": "e0ea573b913a9d149599cc40bd7cce244c83c90f394cda8ee1bef7e04d1688a3",
+          "chars": 41
+        },
+        {
+          "id": "分析-#9-报告覆盖的范围",
+          "title": "分析 #9 报告覆盖的范围",
+          "kind": "section",
+          "sha256": "1192182fbbecb750d546bc6dc4c921a5e8a8568348f5b57850eb90adfd0969f9",
+          "chars": 16
+        },
+        {
+          "id": "分析-#10-放宽项的方向",
+          "title": "分析 #10 放宽项的方向",
+          "kind": "section",
+          "sha256": "c506ccbe1d2d41c1a65e23bd56863ba05c1f79406ad34f403251aabf87594a7d",
+          "chars": 15
+        },
+        {
+          "id": "分析-#11-enforce-为-false",
+          "title": "分析 #11 enforce 为 false",
+          "kind": "section",
+          "sha256": "fc9dadbcf11384cb09d7c6a3b585f2cbcf40bffd02160c9252fcd623012fcc12",
+          "chars": 21
+        }
+      ]
+    },
+    {
+      "id": "dec-commit-and-design",
+      "origin": "docs/decisions/2026-11-10-commit-and-design.md",
+      "fetched": "2026-11-12T14:26:48+08:00",
+      "sha256": "121bde104c7d861c1e1fa7712573ac1cd1db9be71680c95072bea9a53d7cf3cd",
+      "adapter": "markdown",
+      "registered_seq": 20,
+      "units": [
+        {
+          "id": "2026-11-10-提交、历史和进入设计",
+          "title": "2026-11-10 提交、历史和进入设计",
+          "kind": "section",
+          "sha256": "b68dd2d7ae7d7f1afcb27b1b747ea6f7cb5d48f74ecd5d1ae74163f3a02e07a4",
+          "chars": 27
+        },
+        {
+          "id": "改写历史",
+          "title": "改写历史",
+          "kind": "section",
+          "sha256": "9826a1e676711506dd8a28f2986858a034aedd48d2a737d77796794ca4144775",
+          "chars": 57
+        },
+        {
+          "id": "提交哪些文件",
+          "title": "提交哪些文件",
+          "kind": "section",
+          "sha256": "667390da77506a9123d0752778c46a4eb59e9a6e06a16d591f8adcdb87f214c3",
+          "chars": 187
+        },
+        {
+          "id": "试验钩子",
+          "title": "试验钩子",
+          "kind": "section",
+          "sha256": "ef53ad1609c463e49a0c0cf7e63adc3c670f279205319a2a262ea2dcfbe21766",
+          "chars": 83
+        },
+        {
+          "id": "存-decisions",
+          "title": "存 decisions",
+          "kind": "section",
+          "sha256": "9d768270b4cdaf6b9f6239e55feb807dece84f567743e75c63e474db83d74a8b",
+          "chars": 58
+        },
+        {
+          "id": "需求冻结，开始设计",
+          "title": "需求冻结，开始设计",
+          "kind": "section",
+          "sha256": "3a6e88acde963d7949093f073a93e438b509c9d238f8392993a2ba40d7251a65",
+          "chars": 357
+        }
+      ]
+    },
+    {
+      "id": "dec-design-review",
+      "origin": "docs/decisions/2026-11-10-design-review.md",
+      "fetched": "2026-11-12T14:26:48+08:00",
+      "sha256": "49d92b514a152dbe4aa7d3fbb9f9cb9cb43e98dde521b266ed530722fc11f919",
+      "adapter": "markdown",
+      "registered_seq": 21,
+      "units": [
+        {
+          "id": "2026-11-10-对设计第一版的意见",
+          "title": "2026-11-10 对设计第一版的意见",
+          "kind": "section",
+          "sha256": "3b3e907859c974747f574a679370748bded21afca3d7a0af9eefc388c3b5f0e9",
+          "chars": 60
+        },
+        {
+          "id": "按-spec-auditor-的处理建议改设计",
+          "title": "按 spec-auditor 的处理建议改设计",
+          "kind": "section",
+          "sha256": "66df1dfd8afbe37413000996894a07b7d1231d6f17de1b2e4d8aa0ae7d37b729",
+          "chars": 45
+        },
+        {
+          "id": "1-shell-里拦-init，放行-add",
+          "title": "1 shell 里拦 init，放行 add",
+          "kind": "section",
+          "sha256": "9a73039b10b35d0b7e2194287d94a9ba2951b7231742cb4dcf913329a692d0a7",
+          "chars": 73
+        },
+        {
+          "id": "2-拆分后缀和重名后缀",
+          "title": "2 拆分后缀和重名后缀",
+          "kind": "section",
+          "sha256": "f8bb45c6f977883f40d386bcd02ac6dea6079bc54e9ddfb6ec4be075c0878a05",
+          "chars": 70
+        },
+        {
+          "id": "3-需求-1.3-的测试",
+          "title": "3 需求 1.3 的测试",
+          "kind": "section",
+          "sha256": "85eb2c369b3b3739a366bc86abfb288cdabb0aa7e9a69edaea78ee867aa2fddb",
+          "chars": 50
+        },
+        {
+          "id": "4-decisions-文件的校验值和确认",
+          "title": "4 decisions 文件的校验值和确认",
+          "kind": "section",
+          "sha256": "43258baf0bdbb4a92f1b758ae2faf6b410cac248904064c52fa3b9e5ce8ab615",
+          "chars": 156
+        },
+        {
+          "id": "5-记进\"以后再做\"",
+          "title": "5 记进\"以后再做\"",
+          "kind": "section",
+          "sha256": "219d885a71e550547b906a9e0fed599674797c9671c0b52395d31dddd0f8ce45",
+          "chars": 44
+        },
+        {
+          "id": "6-提交和下一步",
+          "title": "6 提交和下一步",
+          "kind": "section",
+          "sha256": "c664089dcebfd3011c8cd90752b96f6243f6a25b35a04bf1c2083349faaa084d",
+          "chars": 83
+        }
+      ]
+    },
+    {
+      "id": "dec-questions-reply",
+      "origin": "docs/decisions/2026-11-10-questions-reply.md",
+      "fetched": "2026-11-12T14:26:49+08:00",
+      "sha256": "e89fd38c8df361e4ca70d7cebb4be44455342fbd5087b0c1b304e9d87151c294",
+      "adapter": "markdown",
+      "registered_seq": 22,
+      "units": [
+        {
+          "id": "2026-11-10-对-agent-6-个疑问的回复",
+          "title": "2026-11-10 对 agent 6 个疑问的回复",
+          "kind": "section",
+          "sha256": "9894c2a7f5d8a4982b07fd11e50e1e511258e136db3ba132023ceb753ca28775",
+          "chars": 69
+        },
+        {
+          "id": "疑问-1-钩子配置不加进需求-14",
+          "title": "疑问 1 钩子配置不加进需求 14",
+          "kind": "section",
+          "sha256": "f2cb8b4f30dc378858afa48e4130bf72251e46b877f0ee6938fbda3fa0440a7f",
+          "chars": 146
+        },
+        {
+          "id": "疑问-2-单元-ID-保留中日韩文字",
+          "title": "疑问 2 单元 ID 保留中日韩文字",
+          "kind": "section",
+          "sha256": "2dd0b61179c8eeff36abd257fcec07c03c0b42117824563bc5a98439310186e2",
+          "chars": 41
+        },
+        {
+          "id": "疑问-3-哈希链的说法",
+          "title": "疑问 3 哈希链的说法",
+          "kind": "section",
+          "sha256": "b08f13115eb84b3ec5d96ec69011f8170843d69eade5d7fb8ce85c16f2af5239",
+          "chars": 31
+        },
+        {
+          "id": "疑问-4-超长章节拆分",
+          "title": "疑问 4 超长章节拆分",
+          "kind": "section",
+          "sha256": "424b8dab7b7bebdff964c0713686c9dcb22cd40a38ab5ec3ed1f70fe760114a5",
+          "chars": 59
+        },
+        {
+          "id": "疑问-5-Analyze-Requirements",
+          "title": "疑问 5 Analyze Requirements",
+          "kind": "section",
+          "sha256": "7909d686b078bc2b0de3ae685def915e33424d01706c530558575e7ff7813b5e",
+          "chars": 36
+        },
+        {
+          "id": "疑问-6-PostToolUse-实测方法",
+          "title": "疑问 6 PostToolUse 实测方法",
+          "kind": "section",
+          "sha256": "3903eda82919d072512b501de714210787bfed1f835e2ddb1403f722786121b3",
+          "chars": 14
+        }
+      ]
+    },
+    {
+      "id": "dec-review-reply",
+      "origin": "docs/decisions/2026-11-10-review-reply.md",
+      "fetched": "2026-11-12T14:26:49+08:00",
+      "sha256": "09b02bda33bd2736745d52b9132a8c929b2411c01603c94207b4263e3670cda4",
+      "adapter": "markdown",
+      "registered_seq": 23,
+      "units": [
+        {
+          "id": "2026-11-10-对外部审阅的处理意见",
+          "title": "2026-11-10 对外部审阅的处理意见",
+          "kind": "section",
+          "sha256": "84ea8096e1ff35e741f448330a669d847522735abb7d62762ec899ff376f3bbe",
+          "chars": 104
+        },
+        {
+          "id": "一·1-删掉-DEVLOG-里的邮箱",
+          "title": "一·1 删掉 DEVLOG 里的邮箱",
+          "kind": "section",
+          "sha256": "d84cfcce341f6e4d36f36f1770a59a5b2985ed904afe63658abdd3958f613fb6",
+          "chars": 40
+        },
+        {
+          "id": "一·2-英文-README-和双语规矩",
+          "title": "一·2 英文 README 和双语规矩",
+          "kind": "section",
+          "sha256": "a2f0b01f928c9f88d44585b240bcb01a7010c3d5f821103f6a42365c17868372",
+          "chars": 72
+        },
+        {
+          "id": "一·3-跑-Analyze-Requirements",
+          "title": "一·3 跑 Analyze Requirements",
+          "kind": "section",
+          "sha256": "3da8bc73cc7213ba765faf796b4a95113ba2b6c8b952ac4b9b1aa883723c026e",
+          "chars": 79
+        },
+        {
+          "id": "二·1-取消第三次自动放行",
+          "title": "二·1 取消第三次自动放行",
+          "kind": "section",
+          "sha256": "9bd276055b0df52d0bcf4fa6d6b0b258f4632a346927a9702e25cd414c2b1e3a",
+          "chars": 101
+        },
+        {
+          "id": "二·2-幻影需求和无效引用影响达标；聊天要求怎么当出处",
+          "title": "二·2 幻影需求和无效引用影响达标；聊天要求怎么当出处",
+          "kind": "section",
+          "sha256": "868967919f587387609125e20c93aca1ce236b40c2edb7403b6a90d96969dd94",
+          "chars": 151
+        },
+        {
+          "id": "二·3-本会话和历史两个数",
+          "title": "二·3 本会话和历史两个数",
+          "kind": "section",
+          "sha256": "f733cc13c0b3ac09542b17ee8ed715938a3d4ec8b69f335d5c1632c0acc36e6d",
+          "chars": 62
+        },
+        {
+          "id": "二·4-轻量模式的范围",
+          "title": "二·4 轻量模式的范围",
+          "kind": "section",
+          "sha256": "a4ed249080b511635f48d8a1f5ce9aaab2f75c6c37e9e0c130ff64336a60b077",
+          "chars": 65
+        },
+        {
+          "id": "二·5-钩子写入时现算是否达标",
+          "title": "二·5 钩子写入时现算是否达标",
+          "kind": "section",
+          "sha256": "858fc1fec4d1465480a79f706c9e203dc3f92cf04562f45156ff27a59519752f",
+          "chars": 64
+        },
+        {
+          "id": "三-照改的审阅条目",
+          "title": "三 照改的审阅条目",
+          "kind": "section",
+          "sha256": "f204247d59f6038c2db45d2bfe72c4a8a49049538bff07c09094452d0fc95ecb",
+          "chars": 159
+        },
+        {
+          "id": "四-实测-MCP-工具的-PostToolUse",
+          "title": "四 实测 MCP 工具的 PostToolUse",
+          "kind": "section",
+          "sha256": "573f0f946cce190487832a0d0888630471a5bcd68613edae27bfdabe20fb4d3f",
+          "chars": 138
+        },
+        {
+          "id": "五-改法和停止点",
+          "title": "五 改法和停止点",
+          "kind": "section",
+          "sha256": "0c5909986ebfbfec48a1da1ae24c257e282661d8ab62287a87b34a13c06c1b33",
+          "chars": 71
+        }
+      ]
     }
   ]
 }
