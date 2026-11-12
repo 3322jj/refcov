@@ -118,7 +118,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 完成标志：没读完时写 `integrations/kiro/**` 被拦，读完后放行
   - _需求：9.1、11.2、17.1、17.2_
 
-- [ ] 16. 任务开工关卡
+- [x] 16. 任务开工关卡
   - `api.check_task`；`refcov-pretask.json`；拦截时提醒任务会停在"进行中"；找不到任务时放行并追加 `task_not_found`
   - 完成标志：用户在 IDE 里点一个引用了没读单元的任务，被拦；读完后放行
   - _需求：9.6、9.7_
@@ -150,4 +150,5 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
 - [ ] 20. 文档
   - README 的状态、目录和局限按实际情况更新；局限照需求 11.4 逐条写
   - `citation.md` 去掉"草案"字样（如果实现和设计 4 一致）
+  - 提交材料要符合比赛规则 [ref:rules/4.-How-To-Enter]
   - _需求：11.4_

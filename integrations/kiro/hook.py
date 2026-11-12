@@ -254,10 +254,52 @@ def prompt(data: dict) -> str | None:
 HANDLERS = {"post-mcp": post_mcp, "prompt": prompt}
 
 
+def pretask_main(event: str) -> int:
+    """PreTaskExec 任务开工关卡（任务 16，需求 9.6、9.7）。
+
+    spec_name 是 tasks.md 的完整路径，task_name 是任务那一行（docs/验证结果.md 第 5 项）。
+    找不到任务时核心层放行并追加 task_not_found；找得到但出任何错都放行，原因写 errors.log（用户 2026-11-12 定）。
+    不达标时原因写 stderr、退出码 2。
+    """
+    try:
+        raw = sys.stdin.buffer.read()
+        payload = raw.decode("utf-8", errors="replace")
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+        data = json.loads(payload)
+        if not isinstance(data, dict):
+            raise TypeError("钩子输入不是 JSON 对象")
+        if data.get("hook_event_name") != "PreTaskExec":
+            return 0
+        spec, task = data["spec_name"], data["task_name"]
+        if not isinstance(spec, str) or not isinstance(task, str):
+            raise TypeError("spec_name 或 task_name 不是字符串")
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        from refcov import api
+        from refcov.store import Store
+
+        session = data.get("session_id") if isinstance(data.get("session_id"), str) and data.get("session_id") else None
+        res = api.check_task(Store(ROOT), spec, task, session)
+    except Exception as e:
+        log_error(event, "任务开工关卡出错，放行", e)
+        return 0
+    if res["allow"]:
+        return 0
+    try:
+        sys.stderr.write(res["reason"] + "\n")
+        sys.stderr.flush()
+    except Exception:
+        pass
+    return 2
+
+
 def main() -> int:
     event = sys.argv[1] if len(sys.argv) > 1 else ""
     if event in ("pre-write", "pre-shell"):
         return protect_main(event)  # 出错一律拦，和下面"出错放行"相反（需求 14.5）
+    if event == "pretask":
+        return pretask_main(event)  # 出错放行
     try:
         raw = sys.stdin.buffer.read()
         payload = raw.decode("utf-8", errors="replace")

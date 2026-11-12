@@ -441,6 +441,130 @@ def check_write(store: Store, path, session: str | None) -> dict:
     return out
 
 
+# ---- 任务开工关卡（任务 16，需求 9.6、9.7，设计 7 第 6 条）----
+
+@dataclass
+class TaskNeeds:
+    """一个任务要读什么（只读解析，不写任何记录）。"""
+
+    tasks_file: str  # 相对仓库根目录
+    task: object  # citations.Task；找不到任务时为 None
+    refs: list  # 要读的 (参考源, 单元)：任务自己的引用 + 所列需求块里的引用
+    unknown_requirements: list  # 任务列了、但需求文档里找不到的需求编号
+    requirement_doc: str | None  # 用到的需求文档；没有可用的为 None
+    requirement_doc_note: str | None  # 为什么没有可用的需求文档
+
+
+def task_needs(store: Store, tasks_file, task_name: str, inp: Inputs | None = None) -> TaskNeeds:
+    """找任务、算它要读的单元（设计 7 第 6 条）。只读，不追加记录。
+
+    - tasks.md 必须在仓库里、文件名是 tasks.md（不分大小写），否则抛 CheckError（不算找不到任务）。
+    - 需求块只从同一文件夹的 requirements.md 找，而且它必须命中配置的 `requirements`（偏离设计原文，补充）。
+      找不到可用的需求文档时，任务列的需求编号全算"找不到"。
+    - tasks.md、requirements.md 读不了都抛 CheckError。
+    """
+    import posixpath
+
+    from refcov import citations
+
+    rel = store.rel(tasks_file)
+    if rel == ".." or rel.startswith("../") or os.path.isabs(rel) or re.match(r"^[A-Za-z]:", rel):
+        raise CheckError(f"tasks.md 不在仓库里：{tasks_file}")
+    if posixpath.basename(rel).lower() != "tasks.md":
+        raise CheckError(f"不是 tasks.md：{rel}")
+    try:
+        text = (store.root / rel).read_text(encoding="utf-8-sig")
+    except (OSError, UnicodeDecodeError) as e:
+        raise CheckError(f"tasks.md 读不了：{rel}：{e}") from e
+    task = citations.find_task(citations.parse_tasks(text), task_name)
+    if task is None:
+        return TaskNeeds(rel, None, [], [], None, None)
+    inp = inp or gather(store)
+    req_rel = posixpath.join(posixpath.dirname(rel), "requirements.md")
+    reqs, doc, note = [], None, None
+    if not (store.root / req_rel).is_file():
+        note = f"同一文件夹里没有 {req_rel}"
+    elif req_rel.lower() not in {d.lower() for d in inp.docs}:
+        note = f"{req_rel} 不在配置的 requirements 里"
+    else:
+        try:
+            reqs = citations.parse_requirements((store.root / req_rel).read_text(encoding="utf-8-sig"))
+        except (OSError, UnicodeDecodeError) as e:
+            raise CheckError(f"需求文档读不了：{req_rel}：{e}") from e
+        doc = req_rel
+    refs, unknown = citations.task_refs(task, reqs)
+    return TaskNeeds(rel, task, refs, unknown, doc, note)
+
+
+def check_task(store: Store, tasks_file, task_name: str, session: str | None) -> dict:
+    """任务开工前判断（需求 9.6、9.7，设计 7 第 6 条）：任务要读的单元都要有效读取过；严格模式下出处检查要通过，
+    任务列的需求编号也都要在需求文档里找得到（需求 6.4、6.6 同一处理）。不分会话（需求 5.7）。
+
+    - 找不到任务：放行，追加 `task_not_found`（需求 9.7），报告的 tasks_not_found 里列出。
+    - `enforce = false`：放行（需求 17.1）。
+    - 不达标：追加 `block`（gate 是 task，target 是 "<tasks.md>#<任务标题>"）。
+    - 只读 tasks.md 和需求文档，不改它们。路径不对、文件读不了时抛 CheckError（钩子放行并记 errors.log）。
+    """
+    from refcov import citations
+
+    inp = gather(store)
+    needs = task_needs(store, tasks_file, task_name, inp)
+    task, rel = needs.task, needs.tasks_file
+    out = {"allow": True, "found": task is not None, "reason": None, "missing": [], "count": 0,
+           "tasks_file": rel, "task": task.title if task else task_name,
+           "unknown_requirements": list(needs.unknown_requirements), "requirement_doc": needs.requirement_doc}
+    if task is None:
+        try:
+            store.append("task_not_found", session, tasks_file=rel, task=str(task_name)[:300])
+        except (LockTimeout, StoreError, OSError):
+            pass
+        return out
+    out["missing"] = [citations.ref_str(r) for r in needs.refs if r not in inp.valid]
+    cites = []
+    if inp.cfg["mode"] == "strict":
+        if needs.unknown_requirements:
+            where = needs.requirement_doc or needs.requirement_doc_note
+            cites.append("、".join(f"任务列了需求 {n}，需求文档里没有" for n in needs.unknown_requirements)
+                         + f"（{where}）")
+        if inp.phantom:
+            cites.append("幻影需求：" + "、".join(f"{d} 需求 {n}" for d, n in inp.phantom))
+        if inp.invalid:
+            cites.append("无效引用：" + "、".join(f"{d} 需求 {n}：{ref}" for d, n, ref in inp.invalid))
+        if inp.empty_docs:
+            cites.append(_empty_docs_text(inp.empty_docs))
+    if not inp.cfg["enforce"] or (not out["missing"] and not cites):
+        return out
+    target = f"{rel}#{task.title}"
+
+    def earlier(records) -> int:
+        return sum(1 for r in records if r.get("type") == "block" and r.get("gate") == "task"
+                   and r.get("session") == session and r.get("target") == target)
+
+    recorded = True
+    try:
+        with store.locked():
+            count = earlier(store.records()) + 1
+            store.append_locked("block", session, gate="task", target=target, count=count, missing=out["missing"])
+    except (LockTimeout, StoreError, OSError):
+        recorded = False
+        count = earlier(store.records()) + 1
+    parts = [f"RefCov 任务开工关卡：任务“{task.title}”还不能开工。"]
+    if out["missing"]:
+        shown = out["missing"][:GATE_FIRST]
+        more = f"（只列前 {len(shown)} 个）" if len(shown) < len(out["missing"]) else ""
+        parts.append(f"要读的单元还差 {len(out['missing'])} 个{more}：" + "、".join(shown) + "。")
+    if cites:
+        parts.append("严格模式下出处检查不通过（" + "；".join(cites) + "）。")
+    parts.append("用 RefCov 的 MCP 工具 read_unit 读完再开工。这个任务会停在“进行中”（[~]），"
+                 "读完再点 Start task 前，可能要用户手动把它改回 [ ]。RefCov 不改 tasks.md。")
+    if count >= 2:
+        parts.append(f"这是本会话第 {count} 次在这个任务上被拦：停下来，向用户说明情况。")
+    if not recorded:
+        parts.append("（这次拦截没能记进日志。）")
+    out.update(allow=False, count=count, reason="".join(parts))
+    return out
+
+
 # ---- 报告（任务 7、11，设计 3.5，需求 9.8、12.1–12.4）----
 # 报告和状态行都只读：不拿锁、不写任何文件、不写日志记录。
 
@@ -482,6 +606,9 @@ def report(store: Store, session: str | None = None) -> dict:
             "exempt": list(cfg["exempt"] or []), "config_mtime": store.config_mtime(),
             "requirement_docs": inp.docs, "requirement_patterns": list(cfg["requirements"] or []),
             "empty_requirement_docs": list(inp.empty_docs), "config_problems": _config_problems(inp),
+            "tasks_not_found": [{"seq": r.get("seq"), "time": r.get("time"), "session": r.get("session"),
+                                 "tasks_file": r.get("tasks_file"), "task": r.get("task")}
+                                for r in inp.records if r.get("type") == "task_not_found"],
             "chain": chain}
 
 
@@ -557,6 +684,9 @@ def report_text(rep: dict) -> str:
     if rep["config_problems"]:
         lines.append(_config_problems_text(rep["config_problems"]) + "。")
     lines.append(f"配置文件：{'没有 refcov.toml，用默认值' if rep['config_mtime'] is None else '修改于 ' + rep['config_mtime']}")
+    tnf = rep["tasks_not_found"]
+    lines.append(f"任务未找到，未检查：{len(tnf)} 次" +
+                 ("：" + _join(f"{t['tasks_file']} 的“{t['task']}”" for t in tnf[-5:]) if tnf else ""))
     lines.append(f"会话未知的读取：{rep['unknown_session_calls']} 次")
     known = [b for b in rep["by_session"] if b["session"] != "unknown"][-5:]
     unknown = [b for b in rep["by_session"] if b["session"] == "unknown"]
