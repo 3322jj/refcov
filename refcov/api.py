@@ -307,7 +307,8 @@ def check(store: Store, path=None) -> dict:
 def _config_problems(inp: Inputs) -> list:
     from refcov import coverage
 
-    return list(coverage.config_problems(inp.sources, inp.cfg["scope"] or [], inp.cfg["relax"]))
+    return list(coverage.config_problems(inp.sources, inp.cfg["scope"] or [], inp.cfg["relax"],
+                                         inp.cfg.get("string_lists") or ()))
 
 
 def _config_problems_text(problems) -> str:
@@ -429,16 +430,32 @@ def check_write(store: Store, path, session: str | None) -> dict:
         return sum(1 for r in records if r.get("type") == "block" and r.get("gate") == "write"
                    and r.get("session") == session and str(r.get("target", "")).lower() == target.lower())
 
-    recorded = True
+    count, recorded = _record_block(store, earlier, session, gate="write", target=target, missing=missing)
+    out.update(allow=False, count=count, reason=_gate_reason(res, count, recorded))
+    return out
+
+
+def _record_block(store: Store, earlier, session: str | None, gate: str, target: str,
+                  missing: list) -> tuple[int, bool]:
+    """结论已经是不达标时追加 block 记录，返回 (第几次被拦, 记没记上)。
+
+    这一步出任何异常都照样拦，只是原因里写"没能记进日志"（外部审计 2026-11-12：会话 ID 含孤立代理字符时
+    UTF-8 编码失败，原先这个异常逃出去，被钩子当成关卡出错放行）。降级时再数一次次数，也数不出就按第 1 次算。
+    """
+    count = None
     try:
         with store.locked():
             count = earlier(store.records()) + 1
-            store.append_locked("block", session, gate="write", target=target, count=count, missing=missing)
-    except (LockTimeout, StoreError, OSError):
-        recorded = False
-        count = earlier(store.records()) + 1
-    out.update(allow=False, count=count, reason=_gate_reason(res, count, recorded))
-    return out
+            store.append_locked("block", session, gate=gate, target=target, count=count, missing=missing)
+        return count, True
+    except Exception:
+        pass
+    if count is None:
+        try:
+            count = earlier(store.records()) + 1
+        except Exception:
+            count = 1
+    return count, False
 
 
 # ---- 任务开工关卡（任务 16，需求 9.6、9.7，设计 7 第 6 条）----
@@ -540,14 +557,7 @@ def check_task(store: Store, tasks_file, task_name: str, session: str | None) ->
         return sum(1 for r in records if r.get("type") == "block" and r.get("gate") == "task"
                    and r.get("session") == session and r.get("target") == target)
 
-    recorded = True
-    try:
-        with store.locked():
-            count = earlier(store.records()) + 1
-            store.append_locked("block", session, gate="task", target=target, count=count, missing=out["missing"])
-    except (LockTimeout, StoreError, OSError):
-        recorded = False
-        count = earlier(store.records()) + 1
+    count, recorded = _record_block(store, earlier, session, gate="task", target=target, missing=out["missing"])
     parts = [f"RefCov 任务开工关卡：任务“{task.title}”还不能开工。"]
     if out["missing"]:
         shown = out["missing"][:GATE_FIRST]

@@ -99,7 +99,42 @@ def rel_path(root: Path, path: str | os.PathLike) -> str:
 def path_matches(rel: str, patterns) -> bool:
     """路径和模式都转小写，用 fnmatchcase 匹配（Windows 和 Linux 结果一致）。`*` 能跨 `/`。"""
     r = rel.replace("\\", "/").lower()
+    if isinstance(patterns, str):  # 字符串当成一个模式，不逐字符拆开（外部审计 2026-11-12）
+        patterns = [patterns]
     return any(fnmatch.fnmatchcase(r, str(p).replace("\\", "/").lower()) for p in patterns)
+
+
+LIST_KEYS = ("requirements", "spec_files", "watch", "confirm", "exempt")
+RELAX_KEYS = ("sources", "kinds", "units")
+SCOPE_KEYS = ("paths", "sources")
+
+
+def _string_lists_to_lists(cfg: dict) -> list[dict]:
+    """把写成字符串的列表项换成只有这一项的列表（就地改 cfg），返回写错的位置 [{where, value}]，按配置顺序。
+
+    只处理字符串；别的类型（数字、表、`scope = 7`）不动，保持原来的行为。
+    """
+    out = []
+    for key in LIST_KEYS:
+        if isinstance(cfg.get(key), str):
+            out.append({"where": key, "value": cfg[key]})
+            cfg[key] = [cfg[key]]
+    scopes = cfg.get("scope")
+    if isinstance(scopes, list):
+        for i, sc in enumerate(scopes, start=1):
+            if not isinstance(sc, dict):
+                continue
+            for key in SCOPE_KEYS:
+                if isinstance(sc.get(key), str):
+                    out.append({"where": f"scope 第 {i} 条 {key}", "value": sc[key]})
+                    sc[key] = [sc[key]]
+    relax = cfg.get("relax")
+    if isinstance(relax, dict):
+        for key in RELAX_KEYS:
+            if isinstance(relax.get(key), str):
+                out.append({"where": f"relax.{key}", "value": relax[key]})
+                relax[key] = [relax[key]]
+    return out
 
 
 class Store:
@@ -129,8 +164,14 @@ class Store:
     # ---- 配置（只读） ----
 
     def load_config(self) -> dict:
-        """读 refcov.toml；不存在时用默认值。文件里写了的项覆盖默认值。"""
+        """读 refcov.toml；不存在时用默认值。文件里写了的项覆盖默认值。
+
+        列表项写成字符串时当成只有这一项的列表，写错的位置记在 `string_lists` 里，报告的"配置写错"列出
+        （外部审计 2026-11-12：`exempt = "docs/*.md"` 原先被逐字符当成模式，`*` 豁免了全仓库）。不抛 ConfigError，
+        抛了会走关卡出错放行。别的类型错误（例如 `scope = 7`）保持原样。偏离需求原文（需求没写这条）。
+        """
         cfg = copy.deepcopy(DEFAULT_CONFIG)
+        cfg["string_lists"] = []
         if not self.config_path.exists():
             return cfg
         try:
@@ -143,6 +184,7 @@ class Store:
                 cfg["relax"].update(value)
             else:
                 cfg[key] = value
+        cfg["string_lists"] = _string_lists_to_lists(cfg)
         if cfg["mode"] not in ("strict", "light"):
             raise ConfigError(f"mode 只能是 strict 或 light，现在是 {cfg['mode']!r}")
         if not isinstance(cfg["enforce"], bool):

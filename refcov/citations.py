@@ -24,8 +24,11 @@ _PUNCT = " \t；;，,。.、"  # 出处行去掉引用后，只剩这些字符�
 # 只用来判断"还剩没剩文字"：写错的引用（例如参考源 ID 大写）也去掉，不当成文字出处。提取引用仍只用 REF。
 _REF_LIKE = re.compile(r"\[ref:[^\]]*\]")
 
-_TASK = re.compile(r"^- \[[ ~x]\]\*?\s+(.*?)\s*$")
-_MARK = re.compile(r"^- \[[ ~x]\]")
+# 状态标记认方括号里的任意单个字符（外部审计 2026-11-12；偏离需求 9.6 原文，原文只列 [ ]、[~]、[x]）。
+# _TASK 用在去掉行首缩进之后的文字上。
+_TASK = re.compile(r"^- \[.\]\*?\s+(.*?)\s*$")
+_MARK = re.compile(r"^- \[.\]")
+TAB_WIDTH = 4  # 行首制表符按 4 格算（用户 2026-11-12 定）
 _NUMBER = re.compile(r"^\d+(?:\.\d+)*\.\s*")
 _REQ_LIST = re.compile(r"_(?:需求|(?i:requirements?))\s*[:：]([^_]*)_")  # `_需求：1.1_`、`_Requirements: 1.1, 2.3_`
 _REQ_NO = re.compile(r"\d+(?:\.\d+)?")
@@ -129,27 +132,52 @@ def _short(title: str) -> str:
     return _NUMBER.sub("", title, count=1).strip()
 
 
+def _indent(line: str) -> tuple[int, str]:
+    """行首缩进的格数（制表符按 TAB_WIDTH 格）和去掉缩进后的文字。"""
+    body = line.lstrip(" \t")
+    return len(line[: len(line) - len(body)].expandtabs(TAB_WIDTH)), body
+
+
 def parse_tasks(text: str) -> list[Task]:
-    """任务行是 `- [ ]`、`- [~]`、`- [x]`（可带 `*`）开头的行；子项是它后面缩进的行和空行，
-    到下一个任务行或不缩进的行为止。"""
-    tasks, cur, reqs = [], None, []
+    """任务行是行首可以有缩进、接着 `- [<任意单个字符>]`（可带 `*`）的行，按缩进深度分层（外部审计 2026-11-12）。
+
+    - 一条任务从它的任务行开始，到下一条缩进不比它深的任务行、缩进不比它深的非任务行或顶格的非任务行为止。
+      顶格的非任务行结束所有任务（原有行为）。空行不结束任务。
+    - 一行里的引用和 `_需求：…_` 记给它所属的任务，也记给这条任务的全部上级任务：子任务只有它自己这一行和
+      它自己的子项，父任务是自己的加上全部子任务的（宁可多要求；设计 7 第 6 条"任务行和子项"）。
+    - 任务行本身只取 `[ref:…]`，不取 `_需求：…_`（原有行为）。
+    """
+    tasks: list[Task] = []
+    stack: list[tuple[int, Task, list[str]]] = []  # 还没结束的任务：(缩进, 任务, 需求编号)，从外到内
+
+    def add(refs: list[Ref], nos: list[str]) -> None:
+        for _, t, reqs in stack:
+            t.refs.extend(refs)
+            if nos:
+                reqs.extend(nos)
+                t.requirements = _unique(reqs)
+
     for line in _lines(text):
-        m = _TASK.match(line)
+        depth, body = _indent(line)
+        m = _TASK.match(body)
         if m:
+            while stack and stack[-1][0] >= depth:
+                stack.pop()
             title = m.group(1)
-            cur = Task(title, _short(title), _refs(title))
-            reqs = []
-            tasks.append(cur)
+            task = Task(title, _short(title))
+            tasks.append(task)
+            stack.append((depth, task, []))
+            add(_refs(title), [])
             continue
-        if cur is None:
+        if not stack or not body:
             continue
-        if line and not line[0].isspace():
-            cur = None
+        if depth == 0:
+            stack.clear()
             continue
-        cur.refs.extend(_refs(line))
-        for lst in _REQ_LIST.findall(line):
-            reqs.extend(n.split(".")[0] for n in _REQ_NO.findall(lst))
-        cur.requirements = _unique(reqs)
+        while stack and stack[-1][0] >= depth:
+            stack.pop()
+        nos = [n.split(".")[0] for lst in _REQ_LIST.findall(line) for n in _REQ_NO.findall(lst)]
+        add(_refs(line), nos)
     return tasks
 
 
@@ -159,23 +187,33 @@ def _normalize(name: str) -> str:
 
 
 def find_task(tasks: list[Task], name: str) -> Task | None:
-    """按任务名找任务：忽略状态标记、* 和首尾空白；和完整标题或去掉编号的标题相同就算找到。"""
+    """按任务名找任务：忽略状态标记、* 和首尾空白。先在全部任务里按完整标题找，找不到再按去掉编号的标题找，
+    免得前面同名的短标题抢先命中（有子任务以后，不同父任务下的同名子任务会变多）。"""
     key = _normalize(name)
     if not key:
         return None
     for t in tasks:
-        if key in (t.title, t.short_title):
+        if key == t.title:
+            return t
+    for t in tasks:
+        if key == t.short_title:
             return t
     return None
 
 
 def task_refs(task: Task, requirements: list[Requirement]) -> tuple[list[Ref], list[str]]:
-    """任务要读的单元（任务自己的引用 + 所列需求块里的全部引用，不重复），以及需求文档里找不到的需求编号。"""
-    by_no = {r.number: r for r in requirements}
+    """任务要读的单元（任务自己的引用 + 所列需求块里的全部引用，不重复），以及需求文档里找不到的需求编号。
+
+    同一个编号有几块需求时，几块的引用都算（外部审计 2026-11-12：原先后一块覆盖前一块）。不抛异常。
+    """
+    by_no: dict[str, list[Requirement]] = {}
+    for r in requirements:
+        by_no.setdefault(r.number, []).append(r)
     refs, unknown = list(task.refs), []
     for n in task.requirements:
         if n in by_no:
-            refs.extend(by_no[n].refs)
+            for r in by_no[n]:
+                refs.extend(r.refs)
         else:
             unknown.append(n)
     return _unique(refs), unknown

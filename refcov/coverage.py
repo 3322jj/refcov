@@ -111,15 +111,17 @@ def required_for_path(required: Required, cited, rel: str | None, scopes: list[d
     return frozenset(u for u in required.units if u[0] in srcs) | (frozenset(cited) & required.units)
 
 
-def config_problems(sources: list[dict], scopes: list[dict], relax: dict) -> tuple:
+def config_problems(sources: list[dict], scopes: list[dict], relax: dict, string_lists=()) -> tuple:
     """配置里 scope 和 relax 写了清单里没有的东西（外部审阅 2026-11-12）。每项 {where, value, note}，按配置顺序。
 
     scope 写错按全部参考源处理（见 `scope_sources`）；relax 写错本来不会变宽松，只提示，不改判断。
+    `string_lists` 是读配置时把字符串换成列表的位置（`store.load_config`，外部审计 2026-11-12），排在最前面。
     """
     ids = {s["id"] for s in sources}
     units = {f"{s['id']}/{u['id']}" for s in sources for u in s.get("units", [])}
     kinds = {u.get("kind") for s in sources for u in s.get("units", [])}
-    out = []
+    out = [{"where": p["where"], "value": f'"{p["value"]}"',
+            "note": f'写成了字符串，按只有这一项的列表处理；应写成 ["{p["value"]}"]'} for p in string_lists]
     for i, sc in enumerate(scopes or [], start=1):
         where = f"scope 第 {i} 条 sources"
         srcs = list(sc.get("sources") or [])
