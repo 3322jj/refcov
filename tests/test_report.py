@@ -39,10 +39,17 @@ def read_as(store, unit, session):
 
 
 def test_report_fields_follow_design_3_5(store):
-    """这一步只填头部和 sources、missing、unknown_session_calls、by_session、chain，字段名按设计 3.5。"""
+    """任务 11 起补齐到这些字段，字段名按设计 3.5；另加 requirement_docs。tokens、blocks、writes、
+    tasks_not_found、protected、files 在后面的任务里加。"""
     rep = api.report(store, "sess_a")
-    assert set(rep) == {"version", "generated", "session", "session_available", "mode",
-                        "sources", "missing", "unknown_session_calls", "by_session", "chain"}
+    assert set(rep) == {"version", "generated", "session", "session_available", "mode", "enforce", "pass",
+                        "sources", "missing", "ghost_units", "not_required_units", "ignored_units",
+                        "phantom_requirements", "invalid_refs", "unconverted_requirements", "relaxed", "exempt",
+                        "config_mtime", "requirement_docs", "unknown_session_calls", "by_session", "chain"}
+    assert rep["relaxed"] == {"sources": [], "kinds": [], "units": [], "cited_but_relaxed": []}
+    assert rep["exempt"] == ["DEVLOG.md", "**/DEVLOG.md", "docs/decisions/**"]
+    assert rep["config_mtime"] is None and rep["requirement_docs"] == []
+    assert rep["enforce"] is True and rep["pass"] is False
     assert rep["version"] == 1 and rep["session"] == "sess_a" and rep["session_available"] is True
     (src,) = rep["sources"]
     assert set(src) == {"id", "units", "read_history", "read_session", "required",
@@ -89,7 +96,8 @@ def test_without_session_read_session_is_null(store):
 def test_mode_comes_from_config(store):
     (store.root / "refcov.toml").write_text('mode = "light"\n', encoding="utf-8")
     assert api.report(store, None)["mode"] == "light"
-    assert api.status_line(store, "s").startswith("RefCov 轻量模式：")
+    # 轻量模式：markdown 没有关键类型、也没有需求文档，必看集合为空，达标
+    assert api.status_line(store, "s").startswith("RefCov 轻量模式 达标：必看单元 本会话 0/0，历史 0/0")
 
 
 def test_report_and_status_line_write_nothing(store):
@@ -164,9 +172,12 @@ def test_text_is_generated_from_json(store):
     read_as(store, "Hooks", "sess_a")
     read_as(store, "退出码", None)
     text = api.report_text(api.report(store, "sess_a"))
-    assert text.splitlines()[0].startswith("RefCov 严格模式")
-    assert "sample：单元 本会话 1/5，历史 2/5" in text
-    assert "还差 3 个：sample/sample-hooks、sample/匹配-工具名、sample/退出码-2" in text
+    assert text.splitlines()[0] == "RefCov 严格模式 未达标"
+    assert "sample：必看 本会话 1/5，历史 2/5（共 5 个单元，历史看过 2 个）" in text
+    assert "还差 3 个（幽灵单元：必看但没看过）：sample/sample-hooks、sample/匹配-工具名、sample/退出码-2" in text
+    assert "被忽略单元（看过但没被需求引用）2 个：sample/Hooks、sample/退出码" in text
+    assert "出处检查：未配置需求文档（不影响达标）。" in text
+    assert "配置文件：没有 refcov.toml，用默认值" in text
     assert "会话未知的读取：1 次" in text
     assert "哈希链：链完整（4 行）" in text  # register、read、session、read
     assert text.endswith(api.HINT)
@@ -178,9 +189,8 @@ def test_status_line_content(store):
     read_as(store, "Hooks", "sess_a")
     line = api.status_line(store, "sess_a")
     assert "\n" not in line
-    assert line == ("RefCov 严格模式：单元 本会话 1/5，历史 1/5；还差 4 个："
+    assert line == ("RefCov 严格模式 未达标：必看单元 本会话 1/5，历史 1/5；还差 4 个："
                     "sample/sample-hooks、sample/退出码、sample/匹配-工具名、sample/退出码-2。" + api.HINT)
-    assert "达标" not in line  # 这一步还没有达标判断
 
 
 def test_status_line_lists_first_five_then_ellipsis(store, tmp_path):

@@ -2,7 +2,7 @@
 
 启动：`python -m refcov_mcp --root <仓库根目录>`。Kiro 起服务时工作目录不一定是仓库根目录
 （docs/验证结果.md 第 6 项），所以根目录必须由参数给出。stdout 只走协议消息，其他输出都写 stderr。
-现在有 list_units、read_unit、report 三个工具；check、request_token 在后面的任务里加。
+现在有 list_units、read_unit、check、report 四个工具；request_token 在任务 19（可选）里加。
 """
 
 from __future__ import annotations
@@ -18,7 +18,8 @@ from mcp.server.fastmcp.exceptions import ToolError
 from refcov import api
 from refcov.store import Store
 
-NAME = "refcov"  # Kiro 里的工具名是 mcp_refcov_<工具名>，接入层钩子按 ^mcp_refcov_ 匹配
+NAME = "refcov"
+CHECK_FIRST = 20  # check 只列前 20 个还差的单元，另写总数（设计 5）
 
 
 def build(root: Path) -> FastMCP:
@@ -45,6 +46,16 @@ def build(root: Path) -> FastMCP:
             return api.read(store, source, unit).text()
         except api.ReadError as e:
             raise ToolError(str(e)) from e
+
+    @mcp.tool(structured_output=False)
+    def check(path: str | None = None) -> str:
+        """是否达标：还差的必看单元（前 20 个和总数），以及幻影需求和无效引用。path 是目标文件路径
+        （相对仓库根目录），不填时按全部参考源。达标不分会话，按历史上所有有效读取算。"""
+        try:
+            res = api.check(store, path)
+        except Exception as e:  # 配置文件坏了、需求文档读不了等
+            raise ToolError(f"检查失败：{e}") from e
+        return api.check_text(res, limit=CHECK_FIRST)
 
     @mcp.tool(structured_output=False)
     def report(format: str = "text") -> str:

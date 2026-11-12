@@ -1,4 +1,4 @@
-"""命令行 `refcov`。现在有 `add`（任务 4）和 `report`（任务 7）；check：任务 10、11。
+"""命令行 `refcov`：`add`（任务 4）、`report`（任务 7）、`check-spec`（任务 10）、`check`（任务 11）。
 
 仓库根目录取当前目录，要在仓库根目录下运行：当前目录下没有 `.git` 时报错，什么都不写。
 """
@@ -45,7 +45,7 @@ def _report(args) -> int:
         return 1
     try:
         rep = api.report(Store(root), args.session)
-    except (StoreError, OSError, ValueError, api.ReadError) as e:
+    except (StoreError, OSError, ValueError, api.ReadError, api.CheckError) as e:
         print(f"报告失败：{e}", file=sys.stderr)
         return 1
     print(json.dumps(rep, ensure_ascii=False, indent=2) if args.json else api.report_text(rep))
@@ -74,6 +74,21 @@ def _add(args) -> int:
         title = "" if u["title"] == u["id"] else f"  标题：{u['title']}"
         print(f"  {u['id']}  {u['chars']} 字{title}")
     return 0
+
+
+def _check(args) -> int:
+    """退出码：达标 0，不达标 1，出错 2（用户 2026-11-12 定）。豁免路径算达标。"""
+    root = _repo_root()
+    if root is None:
+        print(f"检查失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
+        return 2
+    try:
+        res = api.check(Store(root), args.path)
+    except (StoreError, OSError, ValueError, api.ReadError, api.CheckError) as e:
+        print(f"检查失败：{e}", file=sys.stderr)
+        return 2
+    print(api.check_text(res))
+    return 0 if res["pass"] else 1
 
 
 def _check_spec(args) -> int:
@@ -110,6 +125,8 @@ def main(argv=None) -> int:
     rep = sub.add_parser("report", help="覆盖率报告（只读，不写任何文件）")
     rep.add_argument("--json", action="store_true", help="输出 JSON")
     rep.add_argument("--session", help="会话 ID；不给时本会话一栏为“不可用”")
+    ck = sub.add_parser("check", help="是否达标：还差的必看单元、幻影需求和无效引用（只读）。退出码 0 达标、1 不达标、2 出错")
+    ck.add_argument("path", nargs="?", help="目标路径（相对仓库根目录）；不给时按全部参考源")
     chk = sub.add_parser("check-spec", help="出处检查：列出幻影需求、无效引用、未转换、被引用的单元（只读）")
     chk.add_argument("doc", help="需求文档路径（相对仓库根目录）")
     args = parser.parse_args(argv)
@@ -117,6 +134,8 @@ def main(argv=None) -> int:
         return _add(args)
     if args.command == "report":
         return _report(args)
+    if args.command == "check":
+        return _check(args)
     if args.command == "check-spec":
         return _check_spec(args)
     parser.print_help()

@@ -50,11 +50,20 @@ def test_sdk_client_list_and_read_over_stdio(repo):
                 missing = await session.call_tool("read_unit", {"source": "sample", "unit": "退出"})
                 rep_text = await session.call_tool("report", {})
                 rep_json = await session.call_tool("report", {"format": "json"})
-                return init, tools, listed, got, missing, rep_text, rep_json
+                chk_all = await session.call_tool("check", {})
+                chk_path = await session.call_tool("check", {"path": "DEVLOG.md"})
+                return init, tools, listed, got, missing, rep_text, rep_json, chk_all, chk_path
 
-    init, tools, listed, got, missing, rep_text, rep_json = asyncio.run(asyncio.wait_for(run(), 60))
+    init, tools, listed, got, missing, rep_text, rep_json, chk_all, chk_path = asyncio.run(
+        asyncio.wait_for(run(), 60))
     assert init.serverInfo.name == "refcov"
-    assert {t.name for t in tools.tools} == {"list_units", "read_unit", "report"}
+    assert {t.name for t in tools.tools} == {"list_units", "read_unit", "check", "report"}
+    # check：只有一个文字块，没有调用编号；读了 1 个单元，还差 4 个
+    assert not chk_all.isError and len(chk_all.content) == 1
+    chk_text = chk_all.content[0].text
+    assert "全部参考源：未达标" in chk_text and "必看 5 个，还差 4 个" in chk_text
+    assert chk_text.endswith(api.HINT) and api.call_from_text(chk_text) is None
+    assert "豁免路径" in chk_path.content[0].text
     # report：本会话一栏"不可用"，只有一个文字块，最后一行不是 refcov-call（钩子会静默跳过）
     assert not rep_text.isError and len(rep_text.content) == 1
     assert "本会话 不可用" in rep_text.content[0].text

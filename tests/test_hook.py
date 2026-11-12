@@ -277,7 +277,7 @@ def test_prompt_writes_one_status_line(repo):
     assert out.count("\n") == 1 and out.endswith("\n")
     assert "本会话 1/5，历史 2/5" in out
     assert "直接读文件不算看过" in out
-    assert out.startswith("RefCov 严格模式：")
+    assert out.startswith("RefCov 严格模式 未达标：")  # 任务 11 起写是否达标
     after = {p: p.read_bytes() for p in (repo / ".refcov").rglob("*") if p.is_file()}
     assert after == before  # 只读，不写任何文件
 

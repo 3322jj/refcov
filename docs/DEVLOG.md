@@ -32,6 +32,15 @@
 - 任务 14 做完后，开着 Approve for me 把任务 8 从登记到报告重走一遍，看自动审批下 AI 用 shell 挪钩子、跑 `refcov add` 会不会被拦。
   现在不做：任务 14 的 shell 保护检查还没做，现在开着它重走，只会再确认一遍 shell 能绕过钩子（2026-11-12 要紧发现），得不到新结论。
 
+## 待定
+
+已经在规格里、但要到某个任务时才定怎么做的事。定了以后在这里写结论和日期。
+
+- 任务 18、19（都是可选）先保留，到任务 14 再定。砍任务 19 影响小：需求 7.5 写明关卡不看凭证；代价是需求 6.5 的三个入口只剩两个，报告里凭证一栏为空。砍任务 18 影响中等：需求 12.2 要求钩子文件校验值变了标红，这是防"AI 挪走钩子"的第二道防线。任务 14 如果选"命令里出现 `.kiro/hooks` 就拦"，任务 18 可以砍；如果选"报告标红"，只做任务 18 里钩子校验值那一小块。不改冻结的需求文档。
+  EN: Optional tasks 18 and 19 stay for now; decide at task 14. Dropping 19 costs little (requirement 7.5 says gates ignore tokens; requirement 6.5's three entry points become two and the report's token list stays empty). Dropping 18 costs more (requirement 12.2 flags changed hook-file checksums, the second defence against the AI moving hooks away). If task 14 blocks shell commands mentioning .kiro/hooks, 18 can go; if it relies on report flags, only the hook-checksum part of 18 is built. The frozen requirements are not changed.
+- 按示例配置 `integrations/kiro/refcov.example.toml`，只有 `integrations/kiro/**` 有 scope（对应 `kiro-hooks`），其他路径一条 scope 都不命中，按需求 8.2 要求读完全部参考源（现在 114 个单元）。任务 15 建 `refcov.toml` 时要定：其他路径（例如 `refcov/**`、`tests/**`、`.kiro/specs/**`）各对应哪些参考源，或者放宽哪些。（2026-11-12，任务 11 动手前，用户提出）
+  EN: With the example config, only integrations/kiro/** has a scope (kiro-hooks); every other path matches no scope and, per requirement 8.2, requires all sources (114 units now). When task 15 creates refcov.toml, decide which sources other paths (e.g. refcov/**, tests/**, .kiro/specs/**) map to, or what to relax. (Raised by the user on 2026-11-12 before task 11 coding.)
+
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
 - 环境：Kiro IDE 1.4.121，Windows。
@@ -961,3 +970,56 @@
   EN: Kiro features used: the spec (task 10, design sections 4 and 7), steering (citation.md for the regex and format, testing.md for tests), hooks (the UserPromptSubmit status line). No RefCov MCP tool was called this session.
 - tasks.md 任务 10 打勾。
   EN: Task 10 ticked in tasks.md.
+
+## 2026-11-12（任务 11 代码部分：必看集合和达标判断）
+
+- 补记任务 10 提交 `841abf4` 的推送：`git push origin main` 推一次就成功。普通推送。
+  EN: Catch-up on pushing 841abf4 (task 10): git push origin main succeeded on the first attempt. Plain push.
+- 补记 `841abf4` 的 CI：run 43171798968 success，`test (3.11)`、`test (3.12)`、`test-windows` 三个作业都是 success。数据取自公开的 runs 和 jobs API，看不到测试个数。
+  EN: Catch-up on CI for 841abf4: run 43171798968 succeeded on all three jobs, read from the public runs and jobs API; test counts not visible.
+- 环境：Kiro IDE 1.4.154，Approve for me 关着。主 agent 在聊天里直接做，没有点 Start task。
+  EN: Environment: Kiro IDE 1.4.154, Approve for me off. Done by the main agent from chat, not via Start task.
+- 写代码前先回答了用户 5 个问题：达标按历史算（设计 7 第 5 条、需求 5.7）；写 `integrations/kiro/hook.py` 时必看集合怎么算；规格文件例外拦什么、不拦什么；没有 `refcov.toml` 时必看 114 个；怎么拆成 7 步。用户同意了拆法，并定了 4 件小事：`refcov check` 退出码 0 达标、1 不达标、2 出错；需求文档在 `api.py` 里按配置模式找；清单里的类型在适配器声明里找不到时按严格必看处理；被忽略单元现在 9 个是预期结果。
+  EN: Before coding, the agent answered five questions from the user (pass/fail uses history per design 7 rule 5 and requirement 5.7; the required set for integrations/kiro/hook.py; what the spec-file exception skips; 114 required units without refcov.toml; a 7-step plan). The user approved the plan and four details: refcov check exits 0 pass / 1 fail / 2 error; requirement docs are located in api.py from the config patterns; unknown unit kinds count as strictly required; 9 ignored units for now is expected.
+- 做了 7 步，每步改完单独跑测试：
+  EN: Seven steps, each tested on its own after the edit:
+  - `coverage.py` 加纯函数：`required_set`（必看集合 = 基础集合 − 放宽项 + 被引用单元）、`scope_sources`、`required_for_path`、`is_exempt`、`is_spec_file`、`judge`（达标）、`unit_lists`（幽灵、被忽略、本模式未要求的单元）。新测试 `test_required.py` 10 个、`test_scope.py` 7 个、`test_judge.py` 9 个，都是手写数据，没用 Hypothesis。
+    EN: coverage.py gained pure functions required_set, scope_sources, required_for_path, is_exempt, is_spec_file, judge and unit_lists; new hand-written tests: test_required.py 10, test_scope.py 7, test_judge.py 9 (no Hypothesis).
+  - `api.py`：`gather` 读配置、清单、日志和需求文档（只读），新增 `check(store, path)`、`check_text`；报告补齐 `ghost_units`、`not_required_units`、`ignored_units`、`phantom_requirements`、`invalid_refs`、`unconverted_requirements`、`relaxed`、`exempt`、`config_mtime`，另加 `enforce`、`pass`；`sources[].required*` 和 `missing` 改按必看集合算；文字报告和状态行第一行写达标或未达标，`enforce = false` 时写"关卡已关闭"。新测试 `test_check.py` 15 个（含 3 个命令行）。
+    EN: api.py: gather reads config, manifest, log and requirement docs (read-only); new check and check_text; the report gained the nine fields plus enforce and pass; required counts and missing now follow the required set; the first line of the text report and status line states pass/fail, or "gates off" when enforce is false. New test_check.py with 15 tests (3 for the CLI).
+  - 命令行 `refcov check [路径]`；MCP 工具 `check(path?)`，只列前 20 个还差的单元和总数。
+    EN: CLI refcov check [path]; MCP tool check(path?), listing the first 20 missing units and the total.
+- 旧测试改了 5 个（`test_report.py` 4 个、`test_hook.py` 1 个），都是写死了"这一步还没有达标判断"的字段和措辞。全量测试 302 个通过（原来 261 个，新增 41 个）。
+  EN: Five old tests were updated (4 in test_report.py, 1 in test_hook.py); they had hard-coded the pre-task-11 fields and wording. Full suite: 302 passed (261 before, 41 added).
+- **偏离设计 3.5 的两处**（用户已知道）：
+  EN: Two deviations from design section 3.5 (the user was told):
+  - `phantom_requirements` 和 `unconverted_requirements` 每项写成 `{"doc", "requirement"}`，和 `invalid_refs` 一样带文档路径。设计例子里 `unconverted_requirements` 是 `["1", "2"]`。原因：配置的 `requirements` 可以命中多份需求文档，只写编号分不清是哪一份。
+    EN: phantom_requirements and unconverted_requirements items are {"doc", "requirement"}, carrying the document path like invalid_refs; the design example had ["1", "2"]. Reason: the requirements patterns can match several documents and a bare number does not say which one.
+  - 多了一个字段 `requirement_docs`：找到的需求文档列表。原因：文字报告只能从 JSON 生成（需求 12.3），要写"未配置需求文档"，JSON 里就得有这个信息。
+    EN: An extra field requirement_docs lists the requirement documents found. Reason: the text report is generated only from the JSON (requirement 12.3) and must be able to say "no requirement docs configured".
+- **豁免路径的结论是"达标"**，还差的单元照样列出（需求 8.3：豁免 = 写这个文件不检查是否达标）。任务 12 写性质 16.3（引用了没读的单元一定不达标）时，要把豁免路径排除在外，否则性质和需求 8.3 冲突。
+  EN: Exempt paths pass, while missing units are still listed (requirement 8.3). When task 12 writes property 16.3 (citing an unread unit always fails), exempt paths must be excluded, or the property conflicts with requirement 8.3.
+- **测试抓到 agent 自己的错**：把 `_verdict` 改成返回 (结论, 按路径的必看集合) 两个值后，`report` 里还按一个值用，报 `AttributeError`。钩子脚本按规矩出错放行，状态行变成空的，原因写进了临时仓库的 `errors.log`；`test_hook.py` 的状态行测试因此失败。改成取第一个值后通过。
+  EN: Test finding (the agent's own bug): after _verdict started returning two values, report still used it as one and raised AttributeError; the hook allowed as designed, the status line came out empty, the reason went to errors.log, and the test_hook.py status-line test failed. Fixed by unpacking.
+- 另一个测试失败：命令行测试按 UTF-8 解码子进程输出，报 `UnicodeDecodeError`。原因是 `cli.py` 在 Windows 上输出被捕获时故意改用控制台代码页（936）。照 `test_register.py` 已有的办法按同样的编码解码后通过。
+  EN: Another failure: the CLI test decoded subprocess output as UTF-8 and got UnicodeDecodeError, because cli.py deliberately switches to the console code page (936) when output is captured on Windows. Decoding the same way as test_register.py fixed it.
+- 在真实仓库里只读跑 `refcov check integrations/kiro/hook.py`：必看 114 个，还差 105 个，和动手前的回答一致（没有 `refcov.toml`，没有 scope，全部参考源都要读）。第一次把输出接给 `Select-Object -First 3`，显示退出码 0；这是管道被提前截断后读错了，去掉管道单独重跑，退出码是 1。
+  EN: A read-only refcov check integrations/kiro/hook.py on the real repo: 114 required, 105 missing, matching the answer given before coding (no refcov.toml, no scope, all sources required). Piping into Select-Object -First 3 first showed exit code 0, a misreading caused by the truncated pipeline; rerun without the pipe, the exit code was 1.
+- 用户在 MCP 面板重连 refcov 后，agent 在 Kiro 里调了一次 `check`（路径 `integrations/kiro/hook.py`）：未达标，必看 114 个，还差 105 个，列出前 20 个，出处检查报"未配置需求文档"。和命令行结果一致。
+  EN: After the user reconnected refcov in the MCP panel, the agent called check once from Kiro (path integrations/kiro/hook.py): not passed, 114 required, 105 missing, first 20 listed, "no requirement docs configured"; same as the CLI.
+- 搜了 `refcov/`、`refcov_mcp/` 里的 Kiro 工具名、事件名、`.kiro` 路径和 `hypothesis`：只有 `server.py` 说明里一句"Kiro 起服务时工作目录不一定是仓库根目录"（任务 5 就有，不是工具名或路径）。原来那行注释里的 `mcp_refcov_` 是 Kiro 工具名，这次删了。
+  EN: A search of refcov/ and refcov_mcp/ for Kiro tool names, event names, .kiro paths and hypothesis found only a server.py docstring sentence about how Kiro starts the server (present since task 5; not a tool name or path). A comment mentioning the Kiro tool-name prefix was removed.
+- **本次的疏忽**：
+  EN: Slips this time:
+  - 同批发出 2 次：一次是修 `_verdict` 和跑全量测试同一批发出，那次 5 个失败里状态行那个到底是没修上还是措辞不对，分不清，结果作废；之后单独重跑 299 个通过。另一次是改命令行测试的解码和跑 `test_check.py` 同一批发出，结果 15 个通过，说明修改恰好先生效，但不该这样发。
+    EN: two batched dependent operations: the _verdict fix sent together with the full test run (the status-line failure among the 5 could not be attributed, so that result was discarded; a separate rerun passed 299), and the decoding fix sent with the test_check.py run (15 passed, so the edit happened to land first, but it should not have been batched).
+  - 停下没回复：本会话有 4 轮只调了工具、没有回复就停了（开头读完 DEVLOG 后、调完 MCP `check` 后、追加这一节 DEVLOG 后、改这一条的轮数后），用户发"继续"才接着做。agent 当时以为是自己停下，每次把累计数加 1（写到过 23）。之后用户说明：每次其实都是网络中断。所以这 4 轮不算 agent 的疏忽，累计数不往上加；前面各节记的 19 轮是不是也是网络中断，没有核实。
+    EN: Four turns this session ended after tool calls with no reply (after reading DEVLOG, after the MCP check call, after appending this section, after correcting the count) until the user sent "continue". The agent assumed it had stopped on its own and kept raising the total (up to 23); the user then explained that each time was a network interruption, so these four are not counted as agent slips. Whether the 19 counted in earlier sections were also network drops was not checked.
+- 属性测试：这次没写，按计划在任务 12 做。必看集合和达标判断都写成了纯函数，属性测试可以直接喂数据。
+  EN: No property tests; they are planned for task 12. The required set and pass/fail logic are pure functions, so property tests can feed data directly.
+- RefCov 拦了自己几次：还没有关卡，0 次。本会话经 MCP 读了 0/114 个单元，历史 9/114。写的是核心层代码，没写钩子代码。
+  EN: RefCov blocks on its own development: no gates yet, 0. This session read 0/114 units via MCP; history 9/114. Core code was written, no hook code.
+- 用到的 Kiro 功能：规格流程（按 tasks.md 任务 11 和 design.md 第 3.5、5、7 节做）、引导文档（tech.md 的操作顺序规矩，本会话仍违反 2 次；testing.md 的测试写法）、钩子（UserPromptSubmit 状态行，任务 11 起开头写"未达标"）、MCP（新工具 `check`，用户重连后在 Kiro 里调了 1 次）。
+  EN: Kiro features used: the spec (task 11; design sections 3.5, 5, 7), steering (the tech.md ordering rule, still broken twice; testing.md), hooks (the UserPromptSubmit status line now starts with pass/fail), MCP (the new check tool, called once from Kiro after the user reconnected).
+- 任务 11 的代码部分完成；最后一步（把 `requirements.md` 的文字出处换成 `[ref:…]`）还没做，要用户参与，所以 tasks.md 任务 11 没打勾。
+  EN: Task 11 code part done; the last step (converting requirements.md text sources to references) needs the user and is not done, so task 11 stays unticked.
