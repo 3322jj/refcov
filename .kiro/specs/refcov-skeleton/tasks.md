@@ -111,7 +111,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 测试：`refcov add x --id y`、`python -m refcov confirm x`、`Add-Content .refcov/log.jsonl x`、`python integrations/kiro/hook.py PreToolUse` 被拦；`refcov report`、`git add integrations/kiro/hook.py`、`pytest tests/test_refcov_mcp.py` 放行
   - _需求：14.1、14.2、14.3、14.4、14.5、14.6_
 
-- [ ] 15. 写文件关卡和拦截次数提示
+- [x] 15. 写文件关卡和拦截次数提示
   - 开始前：用户先从 `integrations/kiro/refcov.example.toml` 手动建好 `refcov.toml`，里面有覆盖 `integrations/kiro/**` 的 `[[scope]]`（配置只有用户能改）
   - `api.check_write(path, session)`；拦截原因写清还差的单元、幻影需求、无效引用；同一会话同一目标第 2 次起加"停下来，向用户说明情况"；追加 `block`
   - `enforce = false` 时放行，保护检查照常；文字报告第一行写"关卡已关闭"

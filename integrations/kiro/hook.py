@@ -136,13 +136,40 @@ def protect_main(event: str) -> int:
                   "保护立即停用。")
         log_error(event, "保护检查认不出输入", e)
     if reason is None:
-        return 0  # 写文件关卡（check_write）在任务 15 接在这里
+        return gate_write(data, event) if event == "pre-write" else 0
     try:
         sys.stderr.write(reason + "\n")
         sys.stderr.flush()
     except Exception:
         pass
     _record_protect(data, reason)
+    return 2
+
+
+def gate_write(data: dict, event: str) -> int:
+    """写文件关卡（任务 15，需求 9.1、11.2、17.1）：保护检查放行之后才做。只按 tool_input.path 判断。
+
+    和保护检查相反，这一步出任何错都放行（需求 11.1）：退出码 0，原因写 errors.log，stdout、stderr 不写。
+    不达标时由核心层追加 block 记录，这里把原因写 stderr、退出码 2。enforce = false 时核心层直接放行。
+    """
+    try:
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        from refcov import api
+        from refcov.store import Store
+
+        session = data.get("session_id") if isinstance(data.get("session_id"), str) and data.get("session_id") else None
+        res = api.check_write(Store(ROOT), data["tool_input"]["path"], session)
+    except Exception as e:
+        log_error(event, "写文件关卡出错，放行", e, tool_name=data.get("tool_name"))
+        return 0
+    if res["allow"]:
+        return 0
+    try:
+        sys.stderr.write(res["reason"] + "\n")
+        sys.stderr.flush()
+    except Exception:
+        pass
     return 2
 
 

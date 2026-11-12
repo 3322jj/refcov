@@ -4,7 +4,7 @@
     {
       "name": "RefCov：写文件前的保护检查",
       "trigger": "PreToolUse",
-      "description": "写文件工具的目标在 .refcov/ 下或是 refcov.toml 时用退出码 2 拦下（需求 14.1、14.2）。脚本出错也拦（需求 14.5）。出问题时把这个文件移出 .kiro/hooks/ 立即停用。",
+      "description": "先做保护检查：写文件工具的目标在 .refcov/ 下或是 refcov.toml 时用退出码 2 拦下（需求 14.1、14.2），脚本出错也拦（需求 14.5）。再做写文件关卡：没看完目标路径要求的单元时用退出码 2 拦下（需求 9.1），关卡出错放行（需求 11.1）。出问题时把这个文件移出 .kiro/hooks/ 立即停用。",
       "matcher": "^(fs_write|str_replace|fs_append)$",
       "action": {
         "type": "command",

@@ -373,6 +373,74 @@ def check_text(res: dict, limit: int | None = None) -> str:
     return "\n".join(lines)
 
 
+# ---- 写文件关卡（任务 15，需求 9.1、11.2、17.1）----
+
+GATE_FIRST = 20  # 拦截原因里列出还差的前几个单元
+
+
+def _gate_reason(res: dict, count: int, recorded: bool) -> str:
+    """拦截原因：还差的单元（前 20 个和总数）、严格模式下的出处问题、配置写错的地方；第 2 次起要求停下。"""
+    miss = res["missing"]
+    parts = [f"RefCov 写文件关卡：写 {res['path']} 之前要看完 {res['required']} 个必看单元"]
+    if miss:
+        shown = miss[:GATE_FIRST]
+        more = f"（只列前 {len(shown)} 个）" if len(shown) < len(miss) else ""
+        parts.append(f"，还差 {len(miss)} 个{more}：" + "、".join(f"{m['source']}/{m['unit']}" for m in shown) + "。")
+    else:
+        parts.append("，单元都看过了。")
+    if res["citations_checked"]:
+        cites = []
+        if res["phantom_requirements"]:
+            cites.append("幻影需求：" + "、".join(f"{p['doc']} 需求 {p['requirement']}"
+                                              for p in res["phantom_requirements"]))
+        if res["invalid_refs"]:
+            cites.append("无效引用：" + "、".join(f"{i['doc']} 需求 {i['requirement']}：{i['ref']}"
+                                              for i in res["invalid_refs"]))
+        if res["empty_requirement_docs"]:
+            cites.append(_empty_docs_text(res["empty_requirement_docs"]))
+        if cites:
+            parts.append("严格模式下出处检查不通过（" + "；".join(cites) + "）。")
+    if res["config_problems"]:
+        parts.append(_config_problems_text(res["config_problems"]) + "。")
+    parts.append("用 RefCov 的 MCP 工具 read_unit 读完还差的单元再写；不要换别的工具或 shell 绕过。")
+    if count >= 2:
+        parts.append(f"这是本会话第 {count} 次在这个文件上被拦：停下来，向用户说明情况。")
+    if not recorded:
+        parts.append("（这次拦截没能记进日志。）")
+    return "".join(parts)
+
+
+def check_write(store: Store, path, session: str | None) -> dict:
+    """写文件关卡（需求 9.1）：只按目标路径判断（需求 8.5），没有正文参数。
+
+    放行：`enforce = false`（需求 17.1）、豁免路径、达标。放行时什么都不写。
+    拦截：追加一条 `block` 记录（gate、target、count、missing），返回原因。`count` 是同一会话在同一目标上
+    第几次被拦（路径不分大小写比较），第 2 次起原因里要求停下来向用户说明（需求 11.2）。
+    拿不到日志锁时照样拦，只是不记录。
+    """
+    res = check(store, path)
+    out = {"allow": True, "reason": None, "count": 0, "enforce": res["enforce"], "path": res["path"]}
+    if not res["enforce"] or res["pass"]:
+        return out
+    target = res["path"]
+    missing = [f"{m['source']}/{m['unit']}" for m in res["missing"]]
+
+    def earlier(records) -> int:
+        return sum(1 for r in records if r.get("type") == "block" and r.get("gate") == "write"
+                   and r.get("session") == session and str(r.get("target", "")).lower() == target.lower())
+
+    recorded = True
+    try:
+        with store.locked():
+            count = earlier(store.records()) + 1
+            store.append_locked("block", session, gate="write", target=target, count=count, missing=missing)
+    except (LockTimeout, StoreError, OSError):
+        recorded = False
+        count = earlier(store.records()) + 1
+    out.update(allow=False, count=count, reason=_gate_reason(res, count, recorded))
+    return out
+
+
 # ---- 报告（任务 7、11，设计 3.5，需求 9.8、12.1–12.4）----
 # 报告和状态行都只读：不拿锁、不写任何文件、不写日志记录。
 
