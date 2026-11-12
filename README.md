@@ -18,6 +18,24 @@ Kiro already checks whether requirements contradict each other. RefCov covers th
 - It proves a unit was fetched, not that it was understood.
 - It does not stop an AI that deliberately forges records. The AI has a shell and can write any file on disk. RefCov targets skipped reading and overstated reading, and makes casual edits to the read log visible (hash-chained records).
 
+## Related work
+
+The closest implementation we found is a pull request to Hermes Agent, [NousResearch/hermes-agent#125313](https://github.com/NousResearch/hermes-agent/pull/125313) ("gate whole-folder synthesis on verified full reads"). It was opened on 2026-09-27 and closed by its author on 2026-10-10 without being merged. The issue it answered, [#124875](https://github.com/NousResearch/hermes-agent/issues/124875), is still open (checked 2026-11-12).
+
+The issue reports the same problem RefCov targets: asked to read every file in a folder, the agent reads some, says it read all, and answers. The reporter notes that instructions to read everything were present in the system prompt and in project files and were ignored, and concludes the problem is mechanical, not instructional.
+
+The pull request shares one idea with RefCov: a read only counts while the file is still the version that was read, and the gate consults recorded reads, not the agent's claims. The rest differs:
+
+| | Hermes #125313 | RefCov |
+| --- | --- | --- |
+| What turns the gate on | Pattern matching on the user's message ("read all files", "read everything") | Sources the user registered with `refcov add`, and rules in `refcov.toml` |
+| What is blocked | The final answer of the turn | File writes and spec task starts |
+| Granularity | Whole files in a folder, all or nothing | Units (a section, a shot, a layer property), with a required set per target path and per mode |
+| Requirements | Not covered | Each requirement cites its unit; requirements with no citation are listed |
+| Repeated blocks | Review comments on the PR found the refusal could renew itself every turn, and "stop" or "never mind" did not cancel it | From the second block on the same target, the AI is told to stop and ask the user; the user can set `enforce = false` |
+
+A commenter on that pull request describes an incident with a local implementation of the same design: a message asking to recheck a few edited files matched the "read everything" pattern, the gate demanded an inventory of the whole working directory, and the session used up its remaining API budget before the user interrupted. RefCov does not infer scope from what the user types, which avoids this class of false trigger. It has the opposite cost: nothing is required until the user registers sources and writes rules.
+
 ## Layout
 
 | Path | Contents |
