@@ -9,6 +9,10 @@ import sys
 from pathlib import Path
 
 from refcov import __version__, api, citations
+
+# 只能由用户在终端跑的子命令（设计 6）：会往日志追加记录、写配置、建立或清空日志的子命令都放进来。
+# 接入层的保护检查不能 import 核心层，integrations/kiro/hook.py 里抄了一份，tests/test_protect.py 检查两份一致。
+USER_ONLY = ("add", "confirm")
 from refcov.sources import RegisterError, register
 from refcov.store import Store, StoreError
 

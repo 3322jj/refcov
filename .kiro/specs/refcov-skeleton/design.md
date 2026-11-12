@@ -339,8 +339,8 @@ shell 工具名：`execute_pwsh` 在 `docs/验证结果.md` 第 2 项里实测�
 1. 按字节读 stdin，UTF-8 解码，stdout、stderr 改成 UTF-8。按自己的文件位置算出仓库根目录（第 2 节），不依赖当前目录。
 2. 事件是 PreToolUse 时做保护检查，命中就退出码 2，这一步的任何异常也退出码 2，这一步不 import 核心层：
    - 写文件：`tool_input.path` 在 `.refcov/` 下或是 `refcov.toml`。
-   - shell，出现就拦：`tool_input.command` 里出现 `.refcov` 或 `refcov.toml`。
-   - shell，只在被执行时拦：用 Python 运行钩子脚本，正则 `(^|[\s;&|(])python3?(\.exe)?\s[^;&|\n]*hook\.py\b`；运行 MCP 服务，正则 `-m\s+refcov_mcp\b`。只是在命令里提到 `integrations/kiro` 或 `refcov_mcp` 不拦，所以 `git add integrations/kiro/hook.py`、`git diff integrations/kiro/…`、`pytest tests/test_refcov_mcp.py` 都能跑。
+   - shell，出现就拦：`tool_input.command` 里出现 `.refcov`、`refcov.toml` 或 `.kiro/hooks`（正反斜杠都算）。`command` 为 `null`（`control_pwsh_process` 的 `stop`，`docs/验证结果.md` 第 7 项）当空字符串。`.kiro/hooks` 是用户 2026-11-12 定的，比需求 11.4 多保护一处（**偏离需求原文**）：挪走、删掉、查看钩子目录都由用户做，钩子文件由用户提交，AI 看这个目录用读文件的工具。任务 18 里钩子校验值那一块因此不做。
+   - shell，只在被执行时拦：用 Python 运行钩子脚本，正则 `(^|[\s;&|(])python3?(\.exe)?(\s+-(?!m\b|c\b)\S+)*\s+["']?(\S*[/\\])?hook\.py\b`；运行 MCP 服务，正则 `-m\s+refcov_mcp\b`。钩子脚本那条比第一版收紧了（任务 14）：第一版的 `[^;&|\n]*hook\.py` 会把 `python -m pytest tests/test_hook.py` 也拦住；现在 `python` 后面紧跟 `-m`、`-c` 不算，文件名也必须正好是 `hook.py`。只是在命令里提到 `integrations/kiro` 或 `refcov_mcp` 不拦，所以 `git add integrations/kiro/hook.py`、`git diff integrations/kiro/…`、`pytest tests/test_refcov_mcp.py` 都能跑。
    - shell，只能用户跑的子命令：正则 `(^|[\s;&|(])(refcov(\.exe)?|python3?(\.exe)?\s+-m\s+refcov)\s+(add|confirm)\b`（`add`、`confirm` 来自 `USER_ONLY`）。
    - 以上都不分大小写。
 3. import 核心层，调用入口。任何异常都写 `.refcov/errors.log`（`json.dumps(..., ensure_ascii=True)`）并退出码 0。

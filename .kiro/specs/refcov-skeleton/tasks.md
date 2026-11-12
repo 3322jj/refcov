@@ -101,7 +101,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 用试验钩子确认 PreToolUse 能按这个工具名匹配上，`tool_input` 里有没有 `command`；结果记进 `docs/验证结果.md` 和 DEVLOG
   - _需求：14.4_
 
-- [ ] 14. 保护检查
+- [x] 14. 保护检查
   - `hook.py` 第 2 步：写文件路径在 `.refcov/` 下或是 `refcov.toml` 就拦；shell 命令文本按设计 8 第 2 步匹配（`.refcov`、`refcov.toml` 出现就拦；钩子脚本和 `refcov_mcp` 只在被执行时拦；`USER_ONLY` 里的子命令）；任何异常都退出码 2；不 import 核心层
   - shell 钩子匹配 `^(execute_pwsh|control_pwsh_process|execute_bash)$`
   - `USER_ONLY = ("add", "confirm")` 在核心层和 `hook.py` 各一份，`tests/test_user_only.py` 检查一致

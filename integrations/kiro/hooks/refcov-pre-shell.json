@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "RefCov：shell 命令的保护检查",
+      "trigger": "PreToolUse",
+      "description": "命令文本里出现 .refcov、refcov.toml、.kiro/hooks，或在运行钩子脚本、MCP 服务、refcov add/confirm 时用退出码 2 拦下（需求 14.4）。文本匹配，换写法能绕过。脚本出错也拦（需求 14.5）。出问题时把这个文件移出 .kiro/hooks/ 立即停用。",
+      "matcher": "^(execute_pwsh|control_pwsh_process|execute_bash)$",
+      "action": {
+        "type": "command",
+        "command": "python integrations/kiro/hook.py pre-shell",
+        "timeout": 10
+      }
+    }
+  ]
+}

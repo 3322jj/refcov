@@ -84,6 +84,10 @@ Python 3.11+. The core library uses only the standard library. The MCP server mo
 
    Then open the MCP panel in Kiro and check that `refcov` is connected. After pulling changes that add MCP tools, reconnect `refcov` there; a server process started earlier keeps the old tool list.
 4. Hooks need no setup. `.kiro/hooks/refcov-post-mcp.json` and `.kiro/hooks/refcov-prompt.json` are committed and take effect as soon as the clone is open in Kiro. Open the repo root itself as the workspace: the hook commands run `python integrations/kiro/hook.py ...` with a relative path. To disable a hook, move its file out of `.kiro/hooks/`.
+
+   **Protection hooks and the escape hatch.** `integrations/kiro/hooks/refcov-pre-write.json` and `refcov-pre-shell.json` are copied into `.kiro/hooks/` by the user. They block (exit code 2) any Kiro write-tool call targeting `.refcov/` or `refcov.toml`, and any shell command whose text mentions `.refcov`, `refcov.toml` or `.kiro/hooks`, runs the hook script or the MCP server, or runs `refcov add` / `refcov confirm`. If the hook script itself fails, these two hooks block too, so a bug could block every write and shell command and the AI cannot undo it. Escape hatch: move `.kiro/hooks/refcov-pre-write.json` and `.kiro/hooks/refcov-pre-shell.json` out of `.kiro/hooks/` (in Explorer or a terminal outside Kiro); protection stops at once. Setting `enforce = false` does not turn protection off.
+
+   Because of these hooks, the AI cannot `git add` files under `.refcov/` or `.kiro/hooks/`, and cannot mention those names in a commit message. The user commits them, or stages them with `git add -u` / `git add -A`. This is text matching on the command line: a rewritten command (string concatenation, `py` instead of `python`) gets through.
 5. Register at least one piece of reference material from the repo root (`refcov` refuses to run in a directory without `.git`). Only the user runs this; an AI must not (the hook that blocks it comes in task 14):
 
    ```
