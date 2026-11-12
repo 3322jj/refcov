@@ -10,6 +10,8 @@
   现在不做：行为不变，只是写法；用户选了保留现在的写法。
 - 需求文档的标题改成 Kiro 规格工具认的英文结构（`### Requirement N`），出处检查的切分规则同步改。
   现在不做：只有 Analyze Requirements 碰到了这个限制，已用临时副本绕过；设计、任务阶段的 Kiro 功能如果也要求英文结构再改。
+  2026-11-12 更新：出处检查已经同时认 `### Requirement N:`（外部审阅发现英文文档解析出 0 条）。本仓库的 requirements.md 仍用中文标题，这一条剩下的只是"要不要改我们自己的标题"。
+  EN: 2026-11-12 update: the citation checker now also accepts ### Requirement N: (an external review found English docs parsed as 0 requirements). Our own requirements.md keeps Chinese headings; only that part of this idea remains.
 - 需求 12.1、12.2 要求经 MCP 的报告也给"本会话"数，但 MCP 服务拿不到会话 ID（实测），做不到。改成"经 MCP 的报告只给历史数"或"本会话一栏标不可用"。
   现在不做：需求已冻结；设计里先标"不可用"。
 - 需求 8.3 只写了文件名 `DEVLOG.md`，没写路径，豁免哪个位置的文件有歧义。
@@ -1055,3 +1057,44 @@
   EN: Kiro features used: the spec (task 11 last step), steering (citation.md format and regex), hooks (the UserPromptSubmit status line). No RefCov MCP tool was called in this part.
 - tasks.md 任务 11 打勾。
   EN: Task 11 ticked in tasks.md.
+
+## 2026-11-12（修两处无声失效：英文需求文档、scope 写错）
+
+- 补记 `422171d`（任务 11 打勾）的推送：一共推了 3 次。第 1 次直接推、第 2 次等 10 秒，都报 `TLS connect error`，退出码 128；第 3 次等 20 秒，成功（`aa748f5..422171d`）。普通推送。CI run 43179118595 的 `test (3.11)`、`test (3.12)`、`test-windows` 都是 success（公开 API，看不到测试个数）；这次直接用完整哈希查，没有失败。
+  EN: Catch-up on pushing 422171d: 3 attempts; the first (immediate) and second (after 10 s) failed with the TLS connect error (exit 128), the third (after 20 s) succeeded. CI run 43179118595 succeeded on all three jobs (public API, no test counts); queried with the full hash, no failures.
+- 外部审阅实测任务 9–11，报了两处无声失效（用户转述）：
+  EN: An external review that exercised tasks 9–11 reported two silent failures (relayed by the user):
+  - 英文需求文档（Kiro 默认的 `### Requirement 1: ...`）解析出 0 条需求，幻影需求 0 条，严格模式下出处检查直接通过。`citations.py` 只认 `### 需求 N：`。
+    EN: an English requirements doc (Kiro's default ### Requirement 1: ...) parsed as 0 requirements and 0 phantoms, so strict mode passed the citation check; citations.py only knew ### 需求 N：.
+  - `[[scope]]` 的 `sources` 写成不存在的 `kiro-hoooks`，那条规则几乎不要求读任何单元，反而变宽松，没有任何提示。
+    EN: a [[scope]] listing a non-existent source (kiro-hoooks) required almost nothing, i.e. became looser, with no warning.
+- 动手前 agent 说明了改法和与冻结需求的关系，问了 6 个问题，用户的答案：认 `Source:` 和 `Sources:`；轻量模式下 0 条需求只列出；配置了 `requirements` 但没匹配到文件只改提示文字；英文 tasks.md 的 `_Requirements: …_` 也认；scope 的 `sources = []` 保持现状、只提示；relax 的 `kinds` 写错只提示。需求文档不动。
+  EN: Before coding, the agent described the plan and its relation to the frozen requirements and asked six questions. Answers: accept Source: and Sources:; in light mode an empty doc is only listed; requirements patterns matching no file only get a clearer message; English _Requirements: …_ in tasks.md is accepted too; scope sources = [] stays as is with a warning; unknown relax kinds only warn. The requirements document is not changed.
+- 按"样例 → 测试 → 代码"做了 3 步，每步单独跑测试：
+  EN: Three steps, samples then tests then code, each tested on its own:
+  - 第 1 步（优先）：新样例 `tests/data/sample-requirements-unparsed.md`（标题只有两个 `#`，加了英文写法后也认不出）。`coverage.judge` 多收 `empty_docs`：严格模式不达标、轻量模式只列出、规格文件不因此不达标。报告和 `check` 加 `empty_requirement_docs`、`requirement_patterns`；报告、`check`、状态行都写"x 没解析出任何需求（标题格式不对？）"；配置了模式但没找到文件时写"配置了 X，但没找到文件"，达标不变。新测试 6 个（`test_judge.py` 3、`test_check.py` 3），50 个相关测试通过。
+    EN: Step 1 (first): new sample sample-requirements-unparsed.md (two-# headings, still unrecognised after the English support). judge takes empty_docs: fail in strict, list only in light, no fail for spec files. Report and check gained empty_requirement_docs and requirement_patterns; report, check and status line say the doc yielded no requirements; patterns matching no file now say so, pass/fail unchanged. 6 new tests; 50 related tests passed.
+  - 第 2 步：新样例 `tests/data/sample-requirements-en.md`（7 条需求，含小写 `requirement`、全角冒号、冒号前有空格、半角冒号的 `### 需求 5:`、`####` 不切块、没编号的 `### Requirements` 结束上一块、行中间的 `Source:` 不算出处行）和 `tests/data/sample-tasks-en.md`。`citations.py` 三个正则改成中英文都认、冒号全角半角都认：需求标题、出处行（`出处`、`Source`、`Sources`）、`_需求：…_`/`_Requirements: …_`。引用正则不变。新测试 3 个，`test_citations.py` 28 个通过。
+    EN: Step 2: new samples sample-requirements-en.md (7 requirements covering lower-case word, full-width colon, space before colon, half-width colon in Chinese, #### not splitting, unnumbered ### Requirements ending a block, mid-line Source: ignored) and sample-tasks-en.md. Three regexes in citations.py now accept Chinese and English and both colon widths: headings, source lines (出处/Source/Sources), requirement lists in tasks. The reference regex is unchanged. 3 new tests; test_citations.py passed 28.
+  - 第 3 步：`coverage.scope_sources`、`required_for_path` 多收清单里的参考源 ID，命中的规则里有不存在的参考源就按全部参考源；新纯函数 `config_problems` 列出 scope 和 relax 里每一处写错（不存在的参考源、单元类型、单元，scope 的空 `sources`）。报告和 `check` 加 `config_problems`，报告、`check`、状态行都写"配置有 N 处写错（…）"。新测试 6 个（`test_scope.py` 4、`test_check.py` 2），51 个相关测试通过。
+    EN: Step 3: scope_sources and required_for_path take the manifest's source IDs and treat a matched rule with an unknown source as "all sources"; a new pure function config_problems lists every mistake in scope and relax (unknown sources, kinds, units, empty scope sources). Report and check gained config_problems, shown in report, check and status line. 6 new tests; 51 related tests passed.
+- 全量测试 317 个通过（原来 302 个，新增 15 个）。真实 `requirements.md` 的 `check-spec` 结果不变：17 条、幻影 0、无效 0、未转换 2、被引用 22。动手前搜过，仓库里的需求文档和原有样例没有以英文 `Requirement`、`Source` 开头的行，所以加英文写法不改变原有结果。
+  EN: Full suite: 317 passed (302 before, 15 added). check-spec on the real requirements.md is unchanged (17, 0 phantom, 0 invalid, 2 unconverted, 22 cited). A prior search found no lines starting with English Requirement or Source in our docs or old samples, so the English support changes no earlier result.
+- 文档改动（直接改对应句子，不出第三版）：
+  EN: Document edits (sentences changed in place, no third design version):
+  - `citation.md`："写法"加英文出处行的例子；"检查程序怎么认"加英文标题、出处行、`_Requirements: …_` 和"解析出 0 条"四句；EN summary 同步改。
+    EN: citation.md: an English source-line example; four sentences on English headings, source lines, requirement lists and empty docs; the EN summary updated in the same edit.
+  - `design.md` 3.4：scope 写错按全部参考源（往需求 8.2 同方向扩展）、`config_problems`、"配置了 X 但没找到文件"、解析出 0 条怎么处理（标"偏离需求原文"：需求 6.6 只列了幻影需求和无效引用）；3.5 例子：`unconverted_requirements` 改成带 `doc` 的写法（任务 11 已这样实现），加 `requirement_docs`、`requirement_patterns`、`empty_requirement_docs`、`config_problems`；第 4 节第 7 条和第 7 节第 4、6 条加英文写法和新的不达标条件。
+    EN: design.md 3.4: unknown scope sources mean all sources (same direction as requirement 8.2), config_problems, the no-file message, and empty docs (marked as deviating from requirement 6.6, which only names phantoms and invalid references); 3.5 example: unconverted_requirements with doc (as implemented in task 11) plus the four new fields; section 4 rule 7 and section 7 rules 4 and 6 mention the English forms and the new fail condition.
+  - "以后再做"里"需求标题改成英文结构"那条下注明：程序已经认英文标题，剩下的只是要不要改本仓库的标题。
+    EN: The "later" item about English requirement headings now notes that the checker accepts them; only renaming our own headings remains.
+- 偏离需求原文 1 处（解析出 0 条按不达标），往需求原文同方向扩展 1 处（scope 写错按全部参考源），都写在设计 3.4 里，需求文档没改。
+  EN: One deviation from the requirement text (empty docs fail strict mode) and one extension in the same direction (unknown scope sources mean all sources), both written in design 3.4; the requirements document was not changed.
+- **本次的疏忽**：给 `check_text` 加"配置写错"那句时，替换用的原文对不上（那一处前面接的是无效引用那一行），替换失败；之后先搜位置再改。另外有 6 轮工具调用后没回复就停了，用户发"继续"才接着做；用户说明这些基本都是网络中断，不算 agent 的疏忽，不计入累计数。
+  EN: Slips: one replacement in check_text failed because the old text did not match (that spot followed the invalid-references line); the location was searched before retrying. Six turns ended after tool calls with no reply until the user sent "continue"; the user said these were basically network interruptions, so they are not counted as agent slips.
+- 属性测试：这次没写，任务 12 做。任务 12 写性质 16.4–16.6 时要把新的 `empty_docs` 和 scope 写错也随机生成进去。
+  EN: No property tests; task 12 should also generate empty_docs and unknown scope sources for properties 16.4–16.6.
+- RefCov 拦了自己几次：还没有关卡，0 次。本会话经 MCP 读了 0/114 个单元，历史 9/114。
+  EN: RefCov blocks on its own development: no gates yet, 0. This session read 0/114 units via MCP; history 9/114.
+- 用到的 Kiro 功能：规格流程（设计 3.4、3.5、4、7 节）、引导文档（citation.md 改写法，testing.md 测试写法，language.md 的同步改英文规矩）、钩子（UserPromptSubmit 状态行）。本会话这一段没有调用 RefCov 的 MCP 工具。
+  EN: Kiro features used: the spec (design 3.4, 3.5, 4, 7), steering (citation.md updated, testing.md, language.md's same-edit English rule), hooks (the status line). No RefCov MCP tool was called in this part.

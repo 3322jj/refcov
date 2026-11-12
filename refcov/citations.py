@@ -4,10 +4,10 @@
 是否达标（必看集合、严格/轻量模式）在 `coverage.py`（任务 11），这里不判断。
 
 写法见引导文档里的出处约定：
-- 一条需求 = 从 `### 需求 N：` 到下一个 `### ` 或文件结尾。
+- 一条需求 = 从 `### 需求 N：`（或 `### Requirement N:`，冒号全角半角都认）到下一个 `### ` 或文件结尾。
 - 引用 `[ref:<参考源ID>/<单元ID>]`，正则照抄约定，不另改。
-- 块里有一个有效引用就不是幻影需求；没有有效引用、但 `出处：` 行去掉引用后还剩文字的，算"未转换"，
-  不算幻影需求。只看以 `出处：` 开头的行。
+- 块里有一个有效引用就不是幻影需求；没有有效引用、但出处行去掉引用后还剩文字的，算"未转换"，
+  不算幻影需求。只看行首是 `出处`、`Source`、`Sources` 加冒号的行。
 
 已知局限：代码块里的引用照样算；代码块里的 `### ` 行也会切块。
 """
@@ -16,8 +16,10 @@ import re
 from dataclasses import dataclass, field
 
 REF = re.compile(r"\[ref:([a-z0-9-]+)/([^\]\s]+)\]")
-_REQ_HEADING = re.compile(r"^### 需求 (\d+)：(.*)$")
-_SOURCE_LINE = "出处："
+# 中文 `### 需求 N：` 和英文 `### Requirement N:` 都认；英文词不分大小写，冒号全角半角都认（外部审阅 2026-11-12）
+_REQ_HEADING = re.compile(r"^### (?:需求|(?i:requirement)) (\d+)\s*[:：](.*)$")
+# 出处行：行首是 `出处`、`Source` 或 `Sources`（英文不分大小写），接全角或半角冒号
+_SOURCE_LINE = re.compile(r"^(?:出处|(?i:sources?))\s*[:：]")
 _PUNCT = " \t；;，,。.、"  # 出处行去掉引用后，只剩这些字符就算没有文字出处
 # 只用来判断"还剩没剩文字"：写错的引用（例如参考源 ID 大写）也去掉，不当成文字出处。提取引用仍只用 REF。
 _REF_LIKE = re.compile(r"\[ref:[^\]]*\]")
@@ -25,7 +27,7 @@ _REF_LIKE = re.compile(r"\[ref:[^\]]*\]")
 _TASK = re.compile(r"^- \[[ ~x]\]\*?\s+(.*?)\s*$")
 _MARK = re.compile(r"^- \[[ ~x]\]")
 _NUMBER = re.compile(r"^\d+(?:\.\d+)*\.\s*")
-_REQ_LIST = re.compile(r"_需求：([^_]*)_")
+_REQ_LIST = re.compile(r"_(?:需求|(?i:requirements?))\s*[:：]([^_]*)_")  # `_需求：1.1_`、`_Requirements: 1.1, 2.3_`
 _REQ_NO = re.compile(r"\d+(?:\.\d+)?")
 
 Ref = tuple[str, str]
@@ -87,8 +89,9 @@ def parse_requirements(text: str) -> list[Requirement]:
             continue
         cur.refs.extend(_refs(line))
         stripped = line.strip()
-        if stripped.startswith(_SOURCE_LINE):
-            rest = _REF_LIKE.sub("", stripped[len(_SOURCE_LINE):]).strip(_PUNCT)
+        label = _SOURCE_LINE.match(stripped)
+        if label:
+            rest = _REF_LIKE.sub("", stripped[label.end():]).strip(_PUNCT)
             if rest:
                 cur.source_text = True
     return reqs

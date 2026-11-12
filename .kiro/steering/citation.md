@@ -5,7 +5,7 @@ fileMatchPattern: ".kiro/specs/**"
 
 # 需求出处写法（草案）
 
-EN summary: Draft citation format for requirements. Requirements cite units as `[ref:<source-id>/<unit-id>]`, usually on a `出处：` (source) line; a requirement block with no valid reference anywhere is a phantom requirement, and a reference to a missing source or unit is an invalid reference; in strict mode either one fails the check. Unit IDs come from headings: CJK kept, runs of whitespace, square brackets and `@` become one hyphen, `-2`, `-3` for duplicate headings (compared case-insensitively, skipping every heading's own ID; a unit named after the file gets its ID last), `@2`, `@3` for parts of an over-long section. User instructions given in chat are saved under `docs/decisions/` and cited like any other unit.
+EN summary: Draft citation format for requirements. Requirements cite units as `[ref:<source-id>/<unit-id>]`, usually on a `出处：` (source) line; English headings `### Requirement N:`, `Source:`/`Sources:` lines and `_Requirements: …_` are accepted too, and a matched requirement doc that yields no requirement fails strict mode; a requirement block with no valid reference anywhere is a phantom requirement, and a reference to a missing source or unit is an invalid reference; in strict mode either one fails the check. Unit IDs come from headings: CJK kept, runs of whitespace, square brackets and `@` become one hyphen, `-2`, `-3` for duplicate headings (compared case-insensitively, skipping every heading's own ID; a unit named after the file gets its ID last), `@2`, `@3` for parts of an over-long section. User instructions given in chat are saved under `docs/decisions/` and cited like any other unit.
 
 > 状态：**草案**。格式按设计文档 `.kiro/specs/refcov-skeleton/design.md` 第 4 节定下，实现时如有改动同步改这里。对应需求 6.1。
 
@@ -18,6 +18,7 @@ EN summary: Draft citation format for requirements. Requirements cite units as `
 ```
 
 - 一个引用写成 `[ref:<参考源ID>/<单元ID>]`，多个引用用空格隔开。
+- 英文需求文档写 `Source: [ref:kiro-hooks/exit-codes]`（`Sources:` 也认）。
 - 参考源 ID 是登记参考源时起的短名（小写字母、数字、短横线）。
 - 单条验收标准有专门出处时，可以在该条末尾直接写引用，例如 `… SHALL 用退出码 2 拦截。[ref:kiro-hooks/exit-codes]`。
 - 出处标到需求级就够：一条需求块里任何位置有一个有效引用，就不是幻影需求。
@@ -43,9 +44,11 @@ EN summary: Draft citation format for requirements. Requirements cite units as `
 
 ## 检查程序怎么认
 
-- "一条需求"= 以 `### 需求 N：` 开头，到下一个 `### ` 或文件结尾为止。
+- "一条需求"= 以 `### 需求 N：` 开头，到下一个 `### ` 或文件结尾为止。英文写法 `### Requirement N:`（Kiro 规格的默认格式）也认：英文词不分大小写，冒号全角半角都认，冒号前可以有空格。
+- 出处行：行首是 `出处`、`Source` 或 `Sources` 加冒号（英文不分大小写，冒号全角半角都认）。中文 `出处：` 是本仓库的写法，英文是给英文需求文档用的。
 - 引用用正则 `\[ref:([a-z0-9-]+)/([^\]\s]+)\]` 提取。单元 ID 部分 `[^\]\s]+` 能匹配 `@`，拆分出的 `退出码@2` 照样认。
-- tasks.md 里任务的子项也用同样写法引用单元；`_需求：1.1_` 照旧写需求编号。
+- tasks.md 里任务的子项也用同样写法引用单元；`_需求：1.1_` 照旧写需求编号，英文的 `_Requirements: 1.1, 2.3_` 也认。
+- 配置命中的需求文档一条需求都没解析出来（例如标题只有两个 `#`），报告和状态行会写明；严格模式下按不达标处理，写规格文件时不因此被拦。
 
 ## 过渡期
 

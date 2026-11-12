@@ -96,3 +96,30 @@ def test_unit_lists():
 def test_bad_mode():
     with pytest.raises(ValueError):
         judge(SOURCES, set(), set(), "loose")
+
+
+# ---- 需求文档一条需求都没解析出来（外部审阅 2026-11-12 发现的无声失效）----
+
+EMPTY = ("specs/y/requirements.md",)
+
+
+def test_strict_empty_requirement_doc_fails():
+    """严格模式下，命中配置的需求文档解析出 0 条需求，按不达标处理（偏离需求原文：6.6 只列了幻影需求和无效引用）。"""
+    req = _path_req("strict", set(), "integrations/kiro/hook.py")
+    v = judge(SOURCES, req, HOOKS, "strict", empty_docs=EMPTY)
+    assert not v.passed and v.citations_fail and v.empty_docs == EMPTY
+    assert judge(SOURCES, req, HOOKS, "strict").passed
+
+
+def test_light_empty_requirement_doc_only_listed():
+    """轻量模式只列出，不影响达标（同需求 6.6 对幻影需求的处理）。"""
+    v = judge(SOURCES, _path_req("light", set(), None), {("roads", "CRS")}, "light", empty_docs=EMPTY)
+    assert v.passed and v.empty_docs == EMPTY
+
+
+def test_spec_file_not_blocked_by_empty_requirement_doc():
+    """需求 6.7：写规格文件时不因此不达标。"""
+    everything = {(s["id"], u["id"]) for s in SOURCES for u in s["units"]}
+    req = _path_req("strict", set(), EMPTY[0])
+    v = judge(SOURCES, req, everything, "strict", empty_docs=EMPTY, spec_file=True)
+    assert v.passed and v.empty_docs == EMPTY

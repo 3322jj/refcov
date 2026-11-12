@@ -45,7 +45,9 @@ def test_report_fields_follow_design_3_5(store):
     assert set(rep) == {"version", "generated", "session", "session_available", "mode", "enforce", "pass",
                         "sources", "missing", "ghost_units", "not_required_units", "ignored_units",
                         "phantom_requirements", "invalid_refs", "unconverted_requirements", "relaxed", "exempt",
-                        "config_mtime", "requirement_docs", "unknown_session_calls", "by_session", "chain"}
+                        "config_mtime", "requirement_docs", "requirement_patterns", "empty_requirement_docs",
+                        "config_problems",
+                        "unknown_session_calls", "by_session", "chain"}
     assert rep["relaxed"] == {"sources": [], "kinds": [], "units": [], "cited_but_relaxed": []}
     assert rep["exempt"] == ["DEVLOG.md", "**/DEVLOG.md", "docs/decisions/**"]
     assert rep["config_mtime"] is None and rep["requirement_docs"] == []

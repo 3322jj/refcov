@@ -212,3 +212,35 @@ def test_cli_check_spec_needs_repo_root(repo, monkeypatch, capsys):
     monkeypatch.chdir(repo / "docs")
     assert cli.main(["check-spec", "req.md"]) == 1
     assert "请在仓库根目录运行 refcov" in capsys.readouterr().err
+
+
+# ---- 英文写法（外部审阅 2026-11-12：英文需求文档解析出 0 条）----
+
+EN_TEXT = (DATA / "sample-requirements-en.md").read_text(encoding="utf-8")
+EN_TASKS = (DATA / "sample-tasks-en.md").read_text(encoding="utf-8")
+
+
+def test_english_headings_split():
+    """`### Requirement N:` 也切块：英文词不分大小写，冒号全角半角都认，冒号前可有空格；
+    `### 需求 N:`（半角冒号）也认；`####` 不切；没有编号的 `### Requirements` 结束上一块。"""
+    reqs = citations.parse_requirements(EN_TEXT)
+    assert [r.number for r in reqs] == ["1", "2", "3", "4", "5", "6", "8"]
+    assert reqs[0].title == "Valid reference on the source line"
+    assert {r.number: r for r in reqs}["8"].refs == [("demo", "nope")]  # "### Requirements" 里的引用不归需求 6
+
+
+def test_english_source_lines():
+    """出处行认 `出处`、`Source`、`Sources`，不分大小写，冒号全角半角都认；只看行首。"""
+    res = citations.check_requirements(EN_TEXT, KNOWN)
+    assert res.phantom == ["2", "6", "8"]
+    assert res.unconverted == ["4", "5"]
+    assert res.invalid == [("8", "demo/nope")]
+    assert res.cited == ["demo/Hooks", "demo/退出码@2"]
+
+
+def test_english_task_requirement_lists():
+    """tasks.md 里 `_Requirements: 1.1, 3.2_`、`_Requirement：4_` 和 `_需求：5.1_` 都认，取整数部分。"""
+    tasks = citations.parse_tasks(EN_TASKS)
+    assert [t.short_title for t in tasks] == ["Set up the project", "Second task"]
+    assert tasks[0].requirements == ["1", "3"] and tasks[0].refs == [("demo", "Hooks")]
+    assert tasks[1].requirements == ["4", "5"]

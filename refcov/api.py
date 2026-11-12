@@ -228,6 +228,7 @@ class Inputs:
     invalid: tuple  # (文档, 需求编号, "参考源/单元")
     unconverted: tuple  # (文档, 需求编号)
     required: object  # coverage.Required
+    empty_docs: tuple = ()  # 命中配置、但一条需求都没解析出来的需求文档
 
 
 def gather(store: Store) -> Inputs:
@@ -241,20 +242,22 @@ def gather(store: Store) -> Inputs:
              if r.get("type") == "read" and coverage.is_valid(r, current)}
     known = set(current)
     docs = requirement_docs(store, cfg["requirements"])
-    cited, phantom, invalid, unconverted = set(), [], [], []
+    cited, phantom, invalid, unconverted, empty = set(), [], [], [], []
     for d in docs:
         try:
             text = (store.root / d).read_text(encoding="utf-8-sig")
         except (OSError, UnicodeDecodeError) as e:
             raise CheckError(f"需求文档读不了：{d}：{e}") from e
         res = citations.check_requirements(text, known)
+        if not res.requirements:
+            empty.append(d)
         cited.update(tuple(ref.split("/", 1)) for ref in res.cited)
         phantom.extend((d, n) for n in res.phantom)
         invalid.extend((d, n, ref) for n, ref in res.invalid)
         unconverted.extend((d, n) for n in res.unconverted)
     required = coverage.required_set(sources, _decls(), cfg["mode"], cfg["relax"], cited)
     return Inputs(cfg, sources, records, valid, docs, cited, tuple(phantom), tuple(invalid), tuple(unconverted),
-                  required)
+                  required, tuple(empty))
 
 
 def _titles(sources: list) -> dict:
@@ -266,9 +269,10 @@ def _verdict(inp: Inputs, rel: str | None):
     from refcov import coverage
 
     cfg = inp.cfg
-    path_req = coverage.required_for_path(inp.required, inp.cited, rel, cfg["scope"] or [])
+    path_req = coverage.required_for_path(inp.required, inp.cited, rel, cfg["scope"] or [],
+                                          {s["id"] for s in inp.sources})
     v = coverage.judge(inp.sources, path_req, inp.valid, cfg["mode"], inp.phantom, inp.invalid,
-                       spec_file=coverage.is_spec_file(rel, cfg["spec_files"]),
+                       empty_docs=inp.empty_docs, spec_file=coverage.is_spec_file(rel, cfg["spec_files"]),
                        exempt=coverage.is_exempt(rel, cfg["exempt"]))
     return v, path_req
 
@@ -296,12 +300,38 @@ def check(store: Store, path=None) -> dict:
             "required": len(path_req),
             "missing": [{"source": s, "unit": u, "title": titles.get((s, u), u)} for s, u in v.missing],
             "phantom_requirements": _phantom_json(v.phantom), "invalid_refs": _invalid_json(v.invalid),
-            "requirement_docs": inp.docs}
+            "requirement_docs": inp.docs, "requirement_patterns": list(inp.cfg["requirements"] or []),
+            "empty_requirement_docs": list(v.empty_docs), "config_problems": _config_problems(inp)}
+
+
+def _config_problems(inp: Inputs) -> list:
+    from refcov import coverage
+
+    return list(coverage.config_problems(inp.sources, inp.cfg["scope"] or [], inp.cfg["relax"]))
+
+
+def _config_problems_text(problems) -> str:
+    """一段文字：配置有几处写错，逐处写位置、值和后果。"""
+    items = "；".join(f"{p['where']} 的 {p['value']}：{p['note']}" for p in problems)
+    return f"配置有 {len(problems)} 处写错（{items}）"
+
+
+def _empty_docs_text(docs) -> str:
+    return f"{'、'.join(docs)} 没解析出任何需求（标题格式不对？）"
+
+
+def _no_docs_text(rep: dict) -> str:
+    """没有找到需求文档时的提示：配置了模式但没匹配到文件，和根本没配置，分开写。不影响达标。"""
+    if rep["requirement_patterns"]:
+        return f"出处检查：配置了 {'、'.join(rep['requirement_patterns'])}，但没找到文件（不影响达标）。"
+    return "出处检查：未配置需求文档（不影响达标）。"
 
 
 def _cited_problems(rep: dict) -> str:
     """严格模式下让出处检查不通过的东西，一段文字；没有时为空。"""
     parts = []
+    if rep["empty_requirement_docs"]:
+        parts.append(_empty_docs_text(rep["empty_requirement_docs"]))
     if rep["phantom_requirements"]:
         parts.append(f"幻影需求 {len(rep['phantom_requirements'])} 条")
     if rep["invalid_refs"]:
@@ -327,14 +357,18 @@ def check_text(res: dict, limit: int | None = None) -> str:
     else:
         lines.append(f"必看 {res['required']} 个，都看过了。")
     if not res["requirement_docs"]:
-        lines.append("出处检查：未配置需求文档（不影响达标）。")
+        lines.append(_no_docs_text(res))
     else:
         note = ("算进达标" if res["citations_checked"] else
                 "规格文件，不因此不达标" if res["spec_file"] else "轻量模式，只列出")
         lines.append(f"出处检查（{note}）：幻影需求 {len(res['phantom_requirements'])} 条，"
                      f"无效引用 {len(res['invalid_refs'])} 条")
+        if res["empty_requirement_docs"]:
+            lines.append(f"  {_empty_docs_text(res['empty_requirement_docs'])}")
         lines.extend(f"  幻影需求：{p['doc']} 需求 {p['requirement']}" for p in res["phantom_requirements"])
         lines.extend(f"  无效引用：{i['doc']} 需求 {i['requirement']}：{i['ref']}" for i in res["invalid_refs"])
+    if res["config_problems"]:
+        lines.append(_config_problems_text(res["config_problems"]) + "。")
     lines.append(HINT)
     return "\n".join(lines)
 
@@ -378,7 +412,9 @@ def report(store: Store, session: str | None = None) -> dict:
                         "units": list(relax.get("units") or []),
                         "cited_but_relaxed": list(inp.required.cited_but_relaxed)},
             "exempt": list(cfg["exempt"] or []), "config_mtime": store.config_mtime(),
-            "requirement_docs": inp.docs, "chain": chain}
+            "requirement_docs": inp.docs, "requirement_patterns": list(cfg["requirements"] or []),
+            "empty_requirement_docs": list(inp.empty_docs), "config_problems": _config_problems(inp),
+            "chain": chain}
 
 
 def _mode_name(rep: dict) -> str:
@@ -431,10 +467,12 @@ def report_text(rep: dict) -> str:
                  (f"：{_join(rep['ignored_units'])}" if rep["ignored_units"] else ""))
     lines.append(f"本模式未要求的单元 {len(rep['not_required_units'])} 个")
     if not rep["requirement_docs"]:
-        lines.append("出处检查：未配置需求文档（不影响达标）。")
+        lines.append(_no_docs_text(rep))
     else:
         effect = "算进达标" if rep["mode"] == "strict" else "轻量模式，只列出"
         lines.append(f"出处检查（{effect}）：{'、'.join(rep['requirement_docs'])}")
+        if rep["empty_requirement_docs"]:
+            lines.append(f"  {_empty_docs_text(rep['empty_requirement_docs'])}")
         lines.append(f"  幻影需求 {len(rep['phantom_requirements'])} 条" + (
             "：" + _join(f"{p['doc']} 需求 {p['requirement']}" for p in rep["phantom_requirements"])
             if rep["phantom_requirements"] else ""))
@@ -448,6 +486,8 @@ def report_text(rep: dict) -> str:
     if rx["cited_but_relaxed"]:
         lines.append(f"  在放宽范围内但被需求引用、仍然必看：{_join(rx['cited_but_relaxed'])}")
     lines.append(f"豁免：{_join(rep['exempt']) if rep['exempt'] else '无'}")
+    if rep["config_problems"]:
+        lines.append(_config_problems_text(rep["config_problems"]) + "。")
     lines.append(f"配置文件：{'没有 refcov.toml，用默认值' if rep['config_mtime'] is None else '修改于 ' + rep['config_mtime']}")
     lines.append(f"会话未知的读取：{rep['unknown_session_calls']} 次")
     known = [b for b in rep["by_session"] if b["session"] != "unknown"][-5:]
@@ -480,6 +520,8 @@ def status_line(store: Store, session: str | None) -> str:
     problems = _cited_problems(rep)
     if problems:
         text += f"{problems}（{'算进达标' if rep['mode'] == 'strict' else '轻量模式，只列出'}）。"
+    if rep["config_problems"]:
+        text += _config_problems_text(rep["config_problems"]) + "。"
     if not rep["chain"]["ok"]:
         text += f"日志哈希链{_chain_text(rep['chain'])}。"
     return text + HINT

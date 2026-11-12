@@ -74,3 +74,45 @@ def test_spec_file():
     assert not is_exempt(".kiro/specs/refcov-skeleton/requirements.md", EXEMPT)
     assert not is_spec_file(".kiro/specs/refcov-skeleton/requirements.md", [])
     assert not is_spec_file(None, spec)
+
+
+# ---- scope、relax 写了清单里没有的东西（外部审阅 2026-11-12）----
+
+from refcov.coverage import config_problems  # noqa: E402
+
+KNOWN_SOURCES = {s["id"] for s in SOURCES}
+
+
+def test_scope_with_unknown_source_means_all_sources():
+    """scope 里有不存在的参考源：那条规则按全部参考源处理，宁可多要求，不因写错变宽松。"""
+    scopes = [{"paths": ["integrations/kiro/**"], "sources": ["kiro-hoooks"]}]
+    assert scope_sources("integrations/kiro/hook.py", scopes, KNOWN_SOURCES) is None
+    assert required_for_path(_req(), set(), "integrations/kiro/hook.py", scopes, KNOWN_SOURCES) == ALL
+    mixed = [{"paths": ["integrations/kiro/**"], "sources": ["kiro-hooks", "kiro-hoooks"]}]
+    assert scope_sources("integrations/kiro/hook.py", mixed, KNOWN_SOURCES) is None
+    # 没命中的规则写错不影响别的路径
+    assert scope_sources("integrations/kiro/hook.py", SCOPES + [{"paths": ["docs/**"], "sources": ["x"]}],
+                         KNOWN_SOURCES) == {"kiro-hooks", "dec-x"}
+
+
+def test_empty_scope_sources_kept():
+    """scope 的 sources 为空列表：保持现状（只要求被引用的单元），只提示（用户 2026-11-12 定）。"""
+    scopes = [{"paths": ["integrations/kiro/**"], "sources": []}]
+    assert scope_sources("integrations/kiro/hook.py", scopes, KNOWN_SOURCES) == frozenset()
+
+
+def test_config_problems_lists_every_mistake():
+    scopes = [{"paths": ["a/**"], "sources": ["kiro-hooks", "kiro-hoooks"]}, {"paths": ["b/**"], "sources": []}]
+    relax = {"sources": ["rules", "rulez"], "kinds": ["section", "图表"],
+             "units": ["kiro-hooks/Hooks", "kiro-hooks/没有", "nope/x", "坏格式"]}
+    got = [(p["where"], p["value"]) for p in config_problems(SOURCES, scopes, relax)]
+    assert got == [("scope 第 1 条 sources", "kiro-hoooks"), ("scope 第 2 条 sources", "[]"),
+                   ("relax.sources", "rulez"), ("relax.kinds", "图表"),
+                   ("relax.units", "kiro-hooks/没有"), ("relax.units", "nope/x"), ("relax.units", "坏格式")]
+    notes = {p["value"]: p["note"] for p in config_problems(SOURCES, scopes, relax)}
+    assert "按全部参考源处理" in notes["kiro-hoooks"]
+    assert "只提示" in notes["rulez"]
+
+
+def test_no_problems():
+    assert config_problems(SOURCES, SCOPES[:1], {"sources": [], "kinds": [], "units": []}) == ()

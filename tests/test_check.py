@@ -239,3 +239,80 @@ def test_cli_check_needs_repo_root(store, monkeypatch, capsys):
     monkeypatch.chdir(store.root / "docs")
     assert cli.main(["check"]) == 2
     assert "请在仓库根目录运行 refcov" in capsys.readouterr().err
+
+
+# ---- 需求文档一条需求都没解析出来 / 模式没匹配到文件（外部审阅 2026-11-12）----
+
+UNPARSED = Path(__file__).parent / "data" / "sample-requirements-unparsed.md"
+EMPTY_DOC = "specs/y/requirements.md"
+
+
+def add_unparsed(store):
+    (store.root / "specs" / "y").mkdir(parents=True)
+    shutil.copyfile(UNPARSED, store.root / EMPTY_DOC)
+
+
+def test_empty_requirement_doc_strict(store):
+    """命中配置的需求文档解析出 0 条需求：报告、check、状态行都写明；严格模式不达标，写规格文件不因此被拦。"""
+    configure(store)
+    add_unparsed(store)
+    everything = [(u["source"], u["unit"]) for u in api.check(store)["missing"]]
+    read_all(store, everything)
+    (store.root / DOC).write_text("### 需求 1：有出处\n出处：[ref:sample/Hooks]\n", encoding="utf-8")
+    res = api.check(store, "integrations/kiro/hook.py")
+    assert res["missing"] == [] and res["phantom_requirements"] == [] and res["invalid_refs"] == []
+    assert res["empty_requirement_docs"] == [EMPTY_DOC] and not res["pass"]
+    assert f"{EMPTY_DOC} 没解析出任何需求" in api.check_text(res)
+    assert api.check(store, EMPTY_DOC)["pass"]  # 规格文件（需求 6.7）
+    rep = api.report(store, None)
+    assert rep["empty_requirement_docs"] == [EMPTY_DOC] and rep["pass"] is False
+    assert rep["requirement_docs"] == [DOC, EMPTY_DOC]
+    assert f"{EMPTY_DOC} 没解析出任何需求" in api.report_text(rep)
+    assert f"{EMPTY_DOC} 没解析出任何需求" in api.status_line(store, None)
+
+
+def test_empty_requirement_doc_light_only_listed(store):
+    configure(store, mode="light")
+    add_unparsed(store)
+    api.read(store, "sample", "Hooks")
+    res = api.check(store)
+    assert res["pass"] and res["empty_requirement_docs"] == [EMPTY_DOC]
+    assert "没解析出任何需求" in api.status_line(store, None)
+
+
+def test_requirement_patterns_match_no_file(store):
+    """配置了 requirements 但一个文件都没匹配到：只改提示文字，达标判断不变（用户 2026-11-12 定）。"""
+    (store.root / "refcov.toml").write_text('requirements = ["specs/*/needs.md"]\n', encoding="utf-8")
+    rep = api.report(store, None)
+    assert rep["requirement_docs"] == [] and rep["requirement_patterns"] == ["specs/*/needs.md"]
+    text = api.report_text(rep)
+    assert "配置了 specs/*/needs.md，但没找到文件" in text and "未配置需求文档" not in text
+    assert "配置了 specs/*/needs.md，但没找到文件" in api.check_text(api.check(store))
+    assert api.report(store.__class__(store.root), None)["empty_requirement_docs"] == []
+    (store.root / "refcov.toml").unlink()
+    assert "未配置需求文档" in api.report_text(api.report(store, None))
+
+
+# ---- scope、relax 写错（外部审阅 2026-11-12）----
+
+def test_scope_typo_requires_all_and_is_reported(store):
+    """scope 写错参考源 ID：那条规则按全部参考源处理；报告、check、状态行都标出来。relax 写错只提示。"""
+    (store.root / "refcov.toml").write_text(
+        '[relax]\nsources = ["sampel"]\n\n[[scope]]\npaths = ["integrations/kiro/**"]\nsources = ["othr"]\n',
+        encoding="utf-8")
+    res = api.check(store, "integrations/kiro/hook.py")
+    assert res["required"] == 7  # 不是 0：按全部参考源
+    assert [(p["where"], p["value"]) for p in res["config_problems"]] == [
+        ("scope 第 1 条 sources", "othr"), ("relax.sources", "sampel")]
+    assert "配置有 2 处写错" in api.check_text(res) and "othr" in api.check_text(res)
+    rep = api.report(store, None)
+    assert len(rep["config_problems"]) == 2
+    assert sum(s["required"] for s in rep["sources"]) == 7  # relax 写错：判断不变
+    assert "othr" in api.report_text(rep)
+    line = api.status_line(store, None)
+    assert "配置有 2 处写错" in line and "\n" not in line
+
+
+def test_no_config_problems_by_default(store):
+    assert api.report(store, None)["config_problems"] == []
+    assert "写错" not in api.status_line(store, None)

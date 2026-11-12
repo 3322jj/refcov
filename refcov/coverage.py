@@ -2,7 +2,8 @@
 
 - 有效读取、覆盖率（任务 7）。
 - 必看集合（设计 7 第 2 条，需求 5.1、5.3、15.2）：`required_set`。
-- 按路径（设计 7 第 3 条，需求 8.1–8.3、6.5）：`scope_sources`、`required_for_path`、`is_exempt`、`is_spec_file`。
+- 按路径（设计 7 第 3 条，需求 8.1–8.3、6.5）：`scope_sources`、`required_for_path`、`is_exempt`、`is_spec_file`；
+  配置写错的提示：`config_problems`。
 """
 
 from __future__ import annotations
@@ -84,25 +85,55 @@ def required_set(sources: list[dict], decls: dict, mode: str, relax: dict, cited
 
 # ---- 按路径（设计 7 第 3 条，需求 8.1–8.4、6.5、6.7）----
 
-def scope_sources(rel: str | None, scopes: list[dict]) -> frozenset | None:
+def scope_sources(rel: str | None, scopes: list[dict], known=None) -> frozenset | None:
     """路径命中的 `[[scope]]` 的参考源并集；一条都不命中（或不给路径）时返回 None，表示全部参考源（需求 8.2）。
 
     `rel` 是相对仓库根目录的路径。匹配规则和配置里其他路径一样：转小写、`/` 分隔、`fnmatchcase`。
+    `known` 是清单里的参考源 ID：给了时，命中的规则里只要有一个不存在的参考源，就按全部参考源处理
+    （宁可多要求，不因写错变宽松；外部审阅 2026-11-12）。`sources = []` 保持原样（用户 2026-11-12 定）。
     """
     if rel is None:
         return None
     hit = [sc for sc in scopes if path_matches(rel, sc.get("paths") or ())]
     if not hit:
         return None
-    return frozenset(src for sc in hit for src in (sc.get("sources") or ()))
+    srcs = frozenset(src for sc in hit for src in (sc.get("sources") or ()))
+    if known is not None and not srcs <= set(known):
+        return None
+    return srcs
 
 
-def required_for_path(required: Required, cited, rel: str | None, scopes: list[dict]) -> frozenset:
+def required_for_path(required: Required, cited, rel: str | None, scopes: list[dict], known=None) -> frozenset:
     """按路径的必看集合：必看集合限定在命中的 scope 参考源内，再并上全部被引用的单元（需求 6.5，不论在哪个参考源）。"""
-    srcs = scope_sources(rel, scopes)
+    srcs = scope_sources(rel, scopes, known)
     if srcs is None:
         return required.units
     return frozenset(u for u in required.units if u[0] in srcs) | (frozenset(cited) & required.units)
+
+
+def config_problems(sources: list[dict], scopes: list[dict], relax: dict) -> tuple:
+    """配置里 scope 和 relax 写了清单里没有的东西（外部审阅 2026-11-12）。每项 {where, value, note}，按配置顺序。
+
+    scope 写错按全部参考源处理（见 `scope_sources`）；relax 写错本来不会变宽松，只提示，不改判断。
+    """
+    ids = {s["id"] for s in sources}
+    units = {f"{s['id']}/{u['id']}" for s in sources for u in s.get("units", [])}
+    kinds = {u.get("kind") for s in sources for u in s.get("units", [])}
+    out = []
+    for i, sc in enumerate(scopes or [], start=1):
+        where = f"scope 第 {i} 条 sources"
+        srcs = list(sc.get("sources") or [])
+        for src in srcs:
+            if src not in ids:
+                out.append({"where": where, "value": src, "note": "清单里没有这个参考源，这条规则按全部参考源处理"})
+        if not srcs:
+            out.append({"where": where, "value": "[]", "note": "sources 为空，这条规则只要求被引用的单元"})
+    relax = relax or {}
+    for key, known, what in (("sources", ids, "参考源"), ("kinds", kinds, "单元类型"), ("units", units, "单元")):
+        for v in relax.get(key) or []:
+            if v not in known:
+                out.append({"where": f"relax.{key}", "value": str(v), "note": f"清单里没有这个{what}，只提示，不改判断"})
+    return tuple(out)
 
 
 def is_exempt(rel: str | None, exempt) -> bool:
@@ -213,6 +244,7 @@ class Verdict:
     citations_fail: bool  # 第 4 步不通过（只在 citations_checked 时可能为真）
     exempt: bool  # 目标在豁免路径里：不检查是否达标，passed 一律为真
     spec_file: bool
+    empty_docs: tuple = ()  # 命中配置、但一条需求都没解析出来的需求文档；两种模式都列出
 
 
 def _ordered(sources: list[dict], units) -> tuple:
@@ -221,24 +253,26 @@ def _ordered(sources: list[dict], units) -> tuple:
 
 
 def judge(sources: list[dict], required_path, valid, mode: str, phantom=(), invalid=(), *,
-          spec_file: bool = False, exempt: bool = False) -> Verdict:
+          empty_docs=(), spec_file: bool = False, exempt: bool = False) -> Verdict:
     """达标 = 按路径的必看集合 ⊆ 有效读取，且出处检查通过（设计 7 第 5 条）。不分会话（需求 5.7）。
 
     - `required_path`：`required_for_path` 的结果。被引用的单元都在里面，所以引用了没读的单元一定不达标（需求 6.5）。
     - `valid`：有效读取过的单元（历史上，所有会话）。
     - 出处检查（第 4 条，需求 6.6、6.7）：严格模式下有幻影需求或无效引用就不达标；轻量模式只列出；
       目标是规格文件时不因此不达标。"未转换"不在这里，它从不影响达标。
+    - `empty_docs`：命中配置、但一条需求都没解析出来的需求文档（标题格式不对时会这样）。和幻影需求同样处理：
+      严格模式不达标，轻量模式只列出，规格文件不因此不达标。这条比需求 6.6 原文多（偏离需求原文）。
     - 豁免路径（需求 8.3）：不检查是否达标，`passed` 为真；还差的单元照样列出，只作参考。
     只看单元、记录和配置，不看任何文字（需求 8.5、性质 16.4）。
     """
     if mode not in ("strict", "light"):
         raise ValueError(f"mode 只能是 strict 或 light，现在是 {mode!r}")
     missing = _ordered(sources, set(required_path) - set(valid))
-    phantom, invalid = tuple(phantom), tuple(invalid)
+    phantom, invalid, empty_docs = tuple(phantom), tuple(invalid), tuple(empty_docs)
     checked = mode == "strict" and not spec_file
-    cit_fail = checked and bool(phantom or invalid)
+    cit_fail = checked and bool(phantom or invalid or empty_docs)
     passed = exempt or (not missing and not cit_fail)
-    return Verdict(passed, missing, phantom, invalid, checked, cit_fail, exempt, spec_file)
+    return Verdict(passed, missing, phantom, invalid, checked, cit_fail, exempt, spec_file, empty_docs)
 
 
 @dataclass(frozen=True)
