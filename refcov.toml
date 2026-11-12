@@ -1,0 +1,57 @@
+# RefCov 配置（本仓库用）。由用户手动建在仓库根目录，文件名 refcov.toml。
+# 配置只能由用户修改；AI 经 Kiro 工具写这个文件会被拦（需求 14.2）。
+# 路径都相对仓库根目录、用 / 分隔，匹配时不分大小写；* 也能跨 /。
+
+mode = "strict"
+enforce = true
+
+# 需求文档和规格文件
+requirements = [".kiro/specs/*/requirements.md"]
+spec_files   = [".kiro/specs/**"]
+
+# 任务 18（可选）做完后才生效，先写上
+watch   = [".kiro/hooks/refcov-*.json", "integrations/kiro/**"]
+confirm = ["docs/decisions/**"]
+
+# 豁免：写这些文件不检查是否达标
+# 只写 docs/DEVLOG.md：匹配不分大小写，**/DEVLOG.md 会连 .kiro/steering/devlog.md 一起豁免
+exempt = ["docs/DEVLOG.md", "docs/decisions/**"]
+
+[relax]
+sources = []
+kinds   = []
+units   = []
+
+# ---- 关卡范围：写哪类文件之前要看完哪些参考源 ----
+# 一个路径命中多条规则时取并集；一条都不命中时要求全部参考源。
+# 被需求引用的单元（目前 22 个，都在 dec-* 里）不管写哪里都必看。
+
+# 核心代码和测试：看完我的全部决定
+[[scope]]
+paths   = ["refcov/**", "refcov_mcp/**", "tests/**", "pyproject.toml"]
+sources = ["dec-analysis-answers", "dec-commit-and-design", "dec-design-review",
+           "dec-questions-reply", "dec-review-reply"]
+
+# Kiro 接入层、钩子配置、钩子试验：再加上钩子文档和权限文档
+[[scope]]
+paths   = ["integrations/kiro/**", ".kiro/hooks/**", "experiments/**"]
+sources = ["kiro-hooks", "kiro-permissions",
+           "dec-analysis-answers", "dec-commit-and-design", "dec-design-review",
+           "dec-questions-reply", "dec-review-reply"]
+
+# 规格、引导文档、自定义 agent：看完我的全部决定
+# （.kiro/hooks/** 同时命中上一条，两条取并集）
+[[scope]]
+paths   = [".kiro/**"]
+sources = ["dec-analysis-answers", "dec-commit-and-design", "dec-design-review",
+           "dec-questions-reply", "dec-review-reply"]
+
+# 提交给比赛看的东西：再加上比赛规则
+[[scope]]
+paths   = ["README.md", "LICENSE", ".gitignore", ".gitattributes", ".github/**", "docs/**"]
+sources = ["rules",
+           "dec-analysis-answers", "dec-commit-and-design", "dec-design-review",
+           "dec-questions-reply", "dec-review-reply"]
+
+# 没列在上面的路径（例如以后的 apps/**）会要求全部参考源。
+# 做两个应用时，登记它们自己的参考材料后在这里各加一条规则。
