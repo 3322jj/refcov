@@ -1,0 +1,3 @@
+task 17: written by the fs_write tool (positive control)
+Add-Content 23:41:52
+fs_append after the shell writes (second positive control)

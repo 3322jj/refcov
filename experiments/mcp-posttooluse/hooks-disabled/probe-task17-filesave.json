@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "试验（任务 17）：文件保存事件记录",
+      "trigger": "PostFileSave",
+      "description": "任务 17 第一步实测：AI 用 shell 写文件时 PostFileSave 触不触发。只把输入记到 experiments/mcp-posttooluse/logs/hooks.jsonl，一律退出码 0。测完由用户移走。",
+      "action": {
+        "type": "command",
+        "command": "python experiments/mcp-posttooluse/hook_log.py task17-filesave",
+        "timeout": 10
+      }
+    }
+  ]
+}
