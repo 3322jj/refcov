@@ -89,7 +89,7 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 最后一步：把 `requirements.md` 的文字出处换成 `[ref:…]`（需求文档简介里已计划的事，不改需求内容）。出处里用到、任务 9 还没登记的文件由用户先登记；对不上单元的（例如原文在工作区外）保留文字出处。跑 `refcov check-spec` 和 `refcov report`，把幻影需求、被忽略单元、无效引用、未转换的结果记进 DEVLOG
   - _需求：5.1、5.2、5.3、5.6、6.1、6.5、6.6、6.7、8.1、8.2、8.3、8.4、8.5、15.1、15.2_
 
-- [ ] 12. 属性测试（需求 16）
+- [x] 12. 属性测试（需求 16）
   - 按设计 9 写数据生成器；16.1–16.6 每条至少一个 `@given` 测试，文档字符串写明是哪条性质
   - 再加一个普通测试：`refcov/`、`refcov_mcp/` 里不出现 Kiro 的工具名、事件名、`.kiro` 路径，也不 import `hypothesis`
   - 抓到的反例固定成回归测试，记进 DEVLOG
@@ -151,4 +151,6 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - README 的状态、目录和局限按实际情况更新；局限照需求 11.4 逐条写
   - `citation.md` 去掉"草案"字样（如果实现和设计 4 一致）
   - 提交材料要符合比赛规则 [ref:rules/4.-How-To-Enter]
+  - README 局限加一句：核心层加载不了时（例如正在改核心层、有语法错误），写文件关卡和任务开工关卡全部放行（errors.log 2026-11-12 22:12 两条、23:24:55 一条；用户 2026-11-12 定）
+  - README 开头的 Status 段还停在 2026-11-11，按实际情况更新（用户 2026-11-12 定）
   - _需求：11.4_

@@ -14,7 +14,8 @@ requires-python = ">=3.11"
 dependencies = ["mcp>=1.28,<2"]
 
 [project.optional-dependencies]
-dev = ["pytest<10", "hypothesis"]  # pytest 10 会删掉 anyio 插件还在用的 CallSpec2
+# pytest 10 会删掉 anyio 插件还在用的 CallSpec2；hypothesis 避开大版本改动（用户 2026-11-13 定，任务 12）
+dev = ["pytest<10", "hypothesis>=6.170,<7"]
 
 [project.scripts]
 refcov = "refcov.cli:main"
