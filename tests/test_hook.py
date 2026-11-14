@@ -122,6 +122,23 @@ def test_responses_with_images_still_attach_session(repo, shape):
     assert errors(repo) == []
 
 
+KEYFRAME_DUMP = REPO / "experiments" / "keyframe-probe" / "hook-dump-cli.jsonl"
+
+
+def test_real_cli_response_with_images_is_text_only(repo):
+    """真实样例（Kiro CLI 3.1.0，2026-11-14，read_unit 返回文字加关键帧）：钩子收到的 tool_response 是只含文字的字符串，
+    图片没有进钩子输入；最后一行是调用编号，现有分支不改就能补记会话。"""
+    rows = [json.loads(l) for l in KEYFRAME_DUMP.read_text(encoding="utf-8").splitlines()]
+    reads = [r for r in rows if r.get("tool_name") == "mcp_refcov_read_unit"]
+    assert len(reads) == 2 and all(r["tool_response_type"] == "str" for r in reads)
+    assert all(r["stdin_bytes"] < 1000 and r["tool_response_shape"]["last_line"].startswith("refcov-call: c-")
+               for r in reads)
+    r = api.read(Store(repo), "sample", "Hooks")
+    # 同样的形状：字符串，只有文字，没有图片数据
+    assert run_hook(repo, payload(repo, r.text())).returncode == 0
+    assert sessions(repo) == [(r.call, SESSION_A)] and errors(repo) == []
+
+
 def test_image_only_response_is_logged_without_the_image_data(repo):
     """认不出文字（只有图片块）：放行、写一条 errors.log，但日志里没有图片数据（需求 11.1：不写 tool_response 原文）。"""
     assert run_hook(repo, payload(repo, [IMG, IMG])).returncode == 0

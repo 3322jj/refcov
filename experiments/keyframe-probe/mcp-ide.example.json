@@ -1,0 +1,15 @@
+{
+  "_说明": "IDE 里测真实关键帧用。把 mcpServers 里的 keyframe-probe 这一项加进 .kiro/settings/mcp.json（只能用户加，AI 不能改配置）。测完删掉。试验服务建的工作仓库在仓库外的 D:\\agent\\kiro\\keyframe-probe\\repo-ide。",
+  "mcpServers": {
+    "keyframe-probe": {
+      "command": "D:\\pyth\\python.exe",
+      "args": [
+        "D:\\agent\\kiro\\refcov\\experiments\\keyframe-probe\\probe_server.py",
+        "--video", "D:\\agent\\kiro\\refcov-trial\\materials\\video-ep01\\reference.mp4",
+        "--workdir", "D:\\agent\\kiro\\keyframe-probe\\repo-ide",
+        "--shots", "0:3.84,6.59:11.71,21.06:25.29,56.8:59.95,174.01:185.72,309.69:312.0"
+      ],
+      "disabled": false
+    }
+  }
+}
