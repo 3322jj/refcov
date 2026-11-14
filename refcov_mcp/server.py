@@ -8,12 +8,14 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import sys
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
+from mcp.types import ImageContent, TextContent
 
 from refcov import api
 from refcov.store import Store
@@ -40,12 +42,20 @@ def build(root: Path) -> FastMCP:
         return f"{body}\n\n{api.HINT}"
 
     @mcp.tool(structured_output=False)
-    def read_unit(source: str, unit: str) -> str:
-        """读一个单元（source 是参考源 ID，unit 是单元 ID）。只有经这个工具读到的单元才算看过。"""
+    def read_unit(source: str, unit: str) -> str | list[TextContent | ImageContent]:
+        """读一个单元（source 是参考源 ID，unit 是单元 ID）。只有经这个工具读到的单元才算看过。
+        有图片的单元（例如视频镜头的关键帧）会在文字后面附上图片。"""
         try:
-            return api.read(store, source, unit).text()
+            res = api.read(store, source, unit)
         except api.ReadError as e:
             raise ToolError(str(e)) from e
+        if not res.images:
+            return res.text()  # 没有图片：和以前逐字相同，只有一个文字块
+        # 文字块在前，`refcov-call:` 是它的最后一行（钩子只认这一行，设计 5）；图片块在后
+        blocks: list[TextContent | ImageContent] = [TextContent(type="text", text=res.text())]
+        blocks.extend(ImageContent(type="image", data=base64.b64encode(im.data).decode("ascii"),
+                                   mimeType=im.mime) for im in res.images)
+        return blocks
 
     @mcp.tool(structured_output=False)
     def check(path: str | None = None) -> str:
