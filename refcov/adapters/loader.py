@@ -2,7 +2,7 @@
 
 - `markdown` 是内置的文档适配器，永远可用，不在配置里写。
 - 其他适配器在配置文件的 `[adapters]` 里声明：名字对**适配器文件的路径**（相对仓库根目录），例如
-  `shot = "apps/shot-coverage/adapter.py"`。路径写法而不是点路径：目录名可以带连字符，不能当包名导入。
+  `mine = "tools/my-adapter/adapter.py"`。路径写法而不是点路径：目录名可以带连字符，不能当包名导入。
 - 核心层在需要的时候才用 `importlib` 从这个文件加载，自己不 import 任何具体适配器。
 - 配置文件只由用户修改（需求 14.2），所以没有新增 AI 可写的入口。适配器文件本身是代码，和仓库里别的代码
   同样受写文件关卡管，也同样会在核心层的进程里运行：它是用户在配置里点名的文件，要按代码对待。
@@ -37,7 +37,7 @@ def adapter_file(store: Store, name: str) -> Path:
         raise AdapterError(f"配置读不了，找不到适配器 {name!r}：{e}") from e
     table = cfg.get("adapters")
     if not isinstance(table, dict):
-        raise AdapterError("配置里的 adapters 必须是一张表，例如 [adapters] 下写 shot = \"apps/shot-coverage/adapter.py\"")
+        raise AdapterError("配置里的 adapters 必须是一张表，例如 [adapters] 下写 mine = \"tools/my-adapter/adapter.py\"")
     if name not in table:
         known = "、".join(sorted(table)) or "（没有）"
         raise AdapterError(f"配置里没有适配器 {name!r}（现有：{known}）。要用户在配置文件的 [adapters] 里声明，"

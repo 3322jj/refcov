@@ -1,15 +1,13 @@
 # 在 Linux 和 Windows 上跑测试（需求 13.5）。换行和大小写这类只在一边暴露的问题早发现（任务 2）。
 # Windows 作业（任务 8）：GitHub 的 Windows 机器默认 core.autocrlf=true，checkout 出来的文本文件是 CRLF，
 # 和评委在 Windows 上新克隆的情况一样。
+# 两个作业都装 ffmpeg：镜头应用的测试要用它现场生成测试视频（镜头应用需求 7.3）；核心层不依赖它。
 name: ci
-
 on:
   push:
   pull_request:
-
 permissions:
   contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -26,9 +24,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Test
         run: python -m pytest
-
   test-windows:
     runs-on: windows-latest
     steps:
@@ -41,5 +40,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
+      - name: Install ffmpeg
+        run: choco install ffmpeg -y
       - name: Test
         run: python -m pytest

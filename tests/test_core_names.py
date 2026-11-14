@@ -20,6 +20,9 @@ KIRO_NAMES = (
     # 路径
     ".kiro",
 )
+# 应用和它们的依赖只出现在各自的应用里（需求 2.6、13.4；tech.md：ffmpeg 只在 apps/shot-coverage，
+# geopandas 只在 apps/layer-coverage）。核心层按配置里的路径加载适配器，源码里不写任何具体应用的名字。
+APP_NAMES = ("ffmpeg", "ffprobe", "geopandas", "shot-coverage", "shot_coverage", "layer-coverage", "layer_coverage")
 _HYPOTHESIS_IMPORT = re.compile(r"^\s*(import|from)\s+hypothesis\b", re.MULTILINE)
 
 
@@ -35,3 +38,12 @@ def test_no_kiro_names_and_no_hypothesis(path):
     found = [n for n in KIRO_NAMES if n.lower() in text.lower()]
     assert not found, f"{path.relative_to(REPO).as_posix()} 里出现了 Kiro 的名字：{found}"
     assert not _HYPOTHESIS_IMPORT.search(text), f"{path.relative_to(REPO).as_posix()} import 了 hypothesis"
+    apps = [n for n in APP_NAMES if n.lower() in text.lower()]
+    assert not apps, f"{path.relative_to(REPO).as_posix()} 里出现了应用或应用依赖的名字：{apps}"
+
+
+def test_the_app_name_check_catches_a_planted_name(tmp_path):
+    """性质 13.1：检查本身有效。往一份核心层源码的副本里放 `import ffmpeg` 或应用名，名字检查应当报出来。"""
+    for planted in ("import ffmpeg\n", "# see apps/shot-coverage/adapter.py\n", "import geopandas\n"):
+        text = (REPO / "refcov" / "sources.py").read_text(encoding="utf-8") + planted
+        assert [n for n in APP_NAMES if n.lower() in text.lower()], planted
