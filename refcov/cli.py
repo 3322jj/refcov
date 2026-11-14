@@ -62,7 +62,7 @@ def _add(args) -> int:
         print(f"登记失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
         return 1
     try:
-        result = register(Store(root), args.origin, args.source_id)
+        result = register(Store(root), args.origin, args.source_id, adapter=args.adapter)
     except (RegisterError, StoreError, OSError) as e:
         print(f"登记失败：{e}", file=sys.stderr)
         return 1
@@ -126,6 +126,8 @@ def main(argv=None) -> int:
     add = sub.add_parser("add", help="登记或重新登记一个参考源（本地 Markdown 文件或网址）。只能由用户运行")
     add.add_argument("origin", help="本地文件路径（相对当前目录，要在仓库里）或网址")
     add.add_argument("--id", required=True, dest="source_id", help="参考源 ID：小写字母、数字、短横线")
+    add.add_argument("--adapter", default="markdown",
+                     help="适配器名；默认 markdown（内置）。别的名字要先在配置的 [adapters] 里声明")
     rep = sub.add_parser("report", help="覆盖率报告（只读，不写任何文件）")
     rep.add_argument("--json", action="store_true", help="输出 JSON")
     rep.add_argument("--session", help="会话 ID；不给时本会话一栏为“不可用”")

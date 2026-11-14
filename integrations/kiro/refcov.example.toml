@@ -27,3 +27,10 @@ units   = []             # 例如 ["kiro-hooks/更新日志"]
 [[scope]]                # 关卡范围（需求 8.1）：写这些路径前要看完这些参考源
 paths   = ["integrations/kiro/**"]
 sources = ["kiro-hooks"]
+
+# 适配器（骨架需求 2.1）：markdown 是内置的文档适配器，不用写。别的适配器在这里声明：名字 = 适配器文件的路径
+# （相对仓库根目录，要在仓库里）。路径写法不是包名，所以目录名可以带连字符。声明后用
+#   refcov add <清单> --id <参考源ID> --adapter <名字>
+# 登记。适配器文件是代码，会在 RefCov 的进程里运行，只声明你信任的文件。
+# [adapters]
+# shot = "apps/shot-coverage/adapter.py"

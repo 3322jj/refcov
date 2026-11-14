@@ -28,7 +28,7 @@ class Adapter:
         return [f"镜头 {unit_id}", PNG, JPG]
 
 
-api._adapter = lambda name: Adapter()
+api._adapter = lambda store, name: Adapter()
 
 if __name__ == "__main__":
     raise SystemExit(main([a for a in sys.argv[1:] if a != "--error"]))

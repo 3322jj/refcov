@@ -91,6 +91,6 @@ if __name__ == "__main__":
     write_list(work / "docs" / "ep01.shots.md", shots)
     register(Store(work), "docs/ep01.shots.md", "ep01")
     adapter = make_adapter(Path(a.video), work / "frames.log", len(shots))
-    api._adapter = lambda name: adapter
+    api._adapter = lambda store, name: adapter
     sys.stderr.reconfigure(encoding="utf-8")
     raise SystemExit(main(["--root", str(work)]))

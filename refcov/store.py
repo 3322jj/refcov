@@ -40,6 +40,7 @@ DEFAULT_CONFIG = {
     "exempt": ["DEVLOG.md", "**/DEVLOG.md", "docs/decisions/**"],
     "relax": {"sources": [], "kinds": [], "units": []},
     "scope": [],
+    "adapters": {},  # 适配器名 → 适配器文件路径（相对仓库根目录），见 refcov/adapters/loader.py
 }
 
 

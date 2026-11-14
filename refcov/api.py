@@ -86,12 +86,15 @@ class ReadResult:
         return f"{body}\n{HINT}\n{CALL_PREFIX}{self.call}"
 
 
-def _adapter(name: str):
-    if name == "markdown":
-        from refcov.adapters import markdown
+def _adapter(store: Store, name: str):
+    """按清单里记的适配器名找适配器：`markdown` 内置，别的按配置的 `[adapters]` 加载（C4）。
+    配置里没有这个名字时报错，不退回文档适配器。"""
+    from refcov.adapters import loader
 
-        return markdown
-    raise ReadError(f"清单里的适配器 {name!r} 不认识")
+    try:
+        return loader.load(store, name)
+    except loader.AdapterError as e:
+        raise ReadError(f"清单里的适配器 {name!r} 用不了：{e}") from e
 
 
 def _nearest(word: str, choices: list[str]) -> str:
@@ -163,7 +166,7 @@ def read(store: Store, source: str, unit: str) -> ReadResult:
         ok = False
     if not ok:
         raise ReadError(f"缓存里 {source} 的原文和清单的校验值对不上。请用户在终端重新登记：refcov add {entry['origin']} --id {source}")
-    adapter = _adapter(entry.get("adapter", ""))
+    adapter = _adapter(store, entry.get("adapter", ""))
     try:
         found = next(u for u in adapter.split(data, file_name(entry["origin"], source)) if u.id == unit)
     except StopIteration:
@@ -202,11 +205,21 @@ class CheckError(Exception):
     """检查做不了（例如需求文档读不了）。消息就是原因。"""
 
 
-def _decls() -> dict:
-    """适配器名 → {单元类型 → 声明}（需求 2.2）。"""
-    from refcov.adapters import markdown
+def _decls(store: Store, sources: list) -> dict:
+    """适配器名 → {单元类型 → 声明}（需求 2.2）。只加载清单里用到的适配器。
 
-    return {markdown.name: markdown.kinds}
+    加载不了的适配器（配置里删了声明、文件坏了）不抛错，也不进结果：它的单元按"类型没声明"处理，
+    即严格必看（coverage.UNKNOWN_KIND，宁可多要求）。读取时会因为同一个原因报错。
+    """
+    from refcov.adapters import loader
+
+    out = {}
+    for name in sorted({s.get("adapter") for s in sources} - {None}):
+        try:
+            out[name] = loader.load(store, name).kinds
+        except loader.AdapterError:
+            pass
+    return out
 
 
 def requirement_docs(store: Store, patterns) -> list[str]:
@@ -264,7 +277,7 @@ def gather(store: Store) -> Inputs:
         phantom.extend((d, n) for n in res.phantom)
         invalid.extend((d, n, ref) for n, ref in res.invalid)
         unconverted.extend((d, n) for n in res.unconverted)
-    required = coverage.required_set(sources, _decls(), cfg["mode"], cfg["relax"], cited)
+    required = coverage.required_set(sources, _decls(store, sources), cfg["mode"], cfg["relax"], cited)
     return Inputs(cfg, sources, records, valid, docs, cited, tuple(phantom), tuple(invalid), tuple(unconverted),
                   required, tuple(empty))
 

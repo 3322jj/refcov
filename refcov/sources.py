@@ -274,8 +274,12 @@ def _load_file(store: Store, origin: str) -> tuple[bytes, str]:
 
 
 def register(store: Store, origin: str, source_id: str,
-             fetch: Callable[[str], tuple[bytes, str | None]] = fetch_url) -> Registered:
+             fetch: Callable[[str], tuple[bytes, str | None]] = fetch_url,
+             adapter: str = "markdown") -> Registered:
     """登记或重新登记一个参考源（本地 Markdown 文件或网址）。
+
+    `adapter` 是适配器名：默认 `markdown`（内置）；别的名字要用户先在配置的 `[adapters]` 里声明（C4）。
+    不管用哪个适配器，登记的文件都还是 UTF-8 的 Markdown 文本（拆单元由适配器负责）。
 
     抓取、解码、拆分在拿锁之前做完（抓网址最多 10 秒，锁超过 10 秒会被别的进程当残留删掉）。
     锁里只做：读清单、比对、写缓存、追加 `register`、替换清单。日志排在清单前面：中途出错时
@@ -283,7 +287,7 @@ def register(store: Store, origin: str, source_id: str,
     来源和校验值都没变时什么都不写。任何一步失败都抛 RegisterError 或 StoreError。
     本地相对路径按仓库根目录解释；清单里存相对仓库根目录、用 `/` 分隔的路径。
     """
-    from refcov.adapters import markdown  # 目前唯一的内置适配器
+    from refcov.adapters import loader
 
     if not SOURCE_ID.fullmatch(source_id):
         raise RegisterError(f"参考源 ID 只能用小写字母、数字和短横线：{source_id!r}")
@@ -297,7 +301,17 @@ def register(store: Store, origin: str, source_id: str,
     except UnicodeDecodeError as e:
         raise RegisterError(f"不是 UTF-8 编码：{origin}：{e}") from e
     sha = content_sha256(text)
-    units = markdown.split(data, name)
+    try:
+        ad = loader.load(store, adapter)
+    except loader.AdapterError as e:
+        raise RegisterError(str(e)) from e
+    try:
+        units = ad.split(data, name)
+    except Exception as e:  # 适配器自己的错误：不改清单、缓存、日志
+        raise RegisterError(f"适配器 {adapter} 拆分失败：{type(e).__name__}: {e}") from e
+    undeclared = sorted({u.kind for u in units} - set(ad.kinds))
+    if undeclared:
+        raise RegisterError(f"适配器 {adapter} 拆出的单元类型没有声明：{'、'.join(undeclared)}")
 
     with store.locked():
         try:
@@ -306,18 +320,19 @@ def register(store: Store, origin: str, source_id: str,
             raise RegisterError(f"清单读不了：{store.sources_path}：{e}") from e
         sources = manifest.setdefault("sources", [])
         old = next((s for s in sources if s.get("id") == source_id), None)
-        if old and old.get("origin") == stored and old.get("sha256") == sha:
+        if (old and old.get("origin") == stored and old.get("sha256") == sha
+                and old.get("adapter") == ad.name):
             return Registered(old, changed=False, written=False)
-        changed = old is None or old.get("sha256") != sha
+        changed = old is None or old.get("sha256") != sha or old.get("adapter") != ad.name
         store.cache_dir.mkdir(parents=True, exist_ok=True)
         cache = store.cache_dir / sha
         tmp = cache.with_name(sha + ".tmp")
         tmp.write_bytes(data)  # 缓存里存原始字节
         os.replace(tmp, cache)
         rec = store.append_locked("register", None, source=source_id, origin=stored, sha256=sha,
-                                  adapter=markdown.name, units=len(units), changed=changed)
+                                  adapter=ad.name, units=len(units), changed=changed)
         entry = {"id": source_id, "origin": stored, "fetched": now_iso(), "sha256": sha,
-                 "adapter": markdown.name, "registered_seq": rec["seq"],
+                 "adapter": ad.name, "registered_seq": rec["seq"],
                  "units": [u.manifest_entry() for u in units]}
         if old is None:
             sources.append(entry)

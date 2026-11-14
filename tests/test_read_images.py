@@ -52,7 +52,7 @@ def state(store):
 
 
 def use(monkeypatch, adapter):
-    monkeypatch.setattr(api, "_adapter", lambda name: adapter)
+    monkeypatch.setattr(api, "_adapter", lambda store, name: adapter)
     return adapter
 
 
