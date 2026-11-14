@@ -8,6 +8,7 @@ hook.py 按自己的位置算仓库根目录，所以测试把它复制到 <临�
 那份日志只存了 str(tool_response)[:300]，所以对象和列表两种形状是按 MCP 的返回格式构造的。
 """
 
+import base64
 import json
 import os
 import shutil
@@ -98,6 +99,36 @@ def test_object_and_list_responses(repo, shape):
     assert run_hook(repo, payload(repo, resp)).returncode == 0
     assert sessions(repo) == [(r.call, SESSION_A)]
     assert errors(repo) == []
+
+
+BIG_B64 = base64.b64encode(bytes(range(256)) * 40).decode("ascii")  # 约 14 KB 的假图片数据
+IMG = {"type": "image", "data": BIG_B64, "mimeType": "image/jpeg"}
+
+
+@pytest.mark.parametrize("shape", ["list-text-then-images", "content-object", "images-first", "mcp-result-dict"])
+def test_responses_with_images_still_attach_session(repo, shape):
+    """镜头应用 C3：tool_response 带图片块时，认文字块里的调用编号，补记会话；图片数据不进 errors.log。"""
+    r = api.read(Store(repo), "sample", "Hooks")
+    text_block = {"type": "text", "text": r.text()}
+    resp = {
+        "list-text-then-images": [text_block, IMG, IMG],
+        "content-object": {"content": [text_block, IMG], "isError": False},
+        "images-first": [IMG, text_block],
+        "mcp-result-dict": {"content": [text_block, IMG, IMG], "isError": False, "structuredContent": None},
+    }[shape]
+    proc = run_hook(repo, payload(repo, resp))
+    assert proc.returncode == 0 and proc.stdout == b""
+    assert sessions(repo) == [(r.call, SESSION_A)]
+    assert errors(repo) == []
+
+
+def test_image_only_response_is_logged_without_the_image_data(repo):
+    """认不出文字（只有图片块）：放行、写一条 errors.log，但日志里没有图片数据（需求 11.1：不写 tool_response 原文）。"""
+    assert run_hook(repo, payload(repo, [IMG, IMG])).returncode == 0
+    log = (repo / ".refcov" / "errors.log").read_text(encoding="utf-8")
+    assert len(errors(repo)) == 1 and "认不出文字" in errors(repo)[0]["reason"]
+    assert BIG_B64[:200] not in log and len(log) < 2000
+    assert sessions(repo) == []
 
 
 @pytest.mark.parametrize("sample", REAL, ids=lambda s: s["time"])
