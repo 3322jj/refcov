@@ -214,7 +214,9 @@ EN: Part 2: changes to the frozen core layer. Reviewed by the user on 2026-11-14
 
 **风险：** 中。涉及登记和读取两条主路径，必须保住所有现有测试。
 
-**留给设计的问题（D1）：** 镜头清单里视频的路径是相对仓库根目录的，适配器的 `read(data, name, unit_id)` 拿不到仓库根目录。候选：给适配器 `read` 加一个可选的关键字参数 `root`（只对声明了需要它的适配器传，文档适配器不受影响）；或者清单里的路径改成相对清单文件所在目录。设计文档里定，定了再改本节。
+**D1（适配器怎么拿到仓库根目录）已在设计里解决，不改核心层：** 镜头清单里视频的路径是相对仓库根目录的，适配器的 `read(data, name, unit_id)` 拿不到根目录；适配器从自己的文件位置往上找第一个含 `.git` 的目录（加载器保证适配器文件在仓库里）。见 `design.md` 第 3.2 节第 2 步。
+
+**已做（2026-11-14，提交 `f344f5f`）：** `refcov/adapters/loader.py`；`sources.register`、`api._adapter`、`api._decls`、`refcov add --adapter`、`DEFAULT_CONFIG["adapters"]`；`tests/test_adapter_loader.py` 23 个测试。适配器必须自带依赖：加载时不改 `sys.path`，只能 import 标准库和 `refcov`。
 
 ### C5：登记和读取大的二进制材料（**不做**，用户 2026-11-14 定）
 
@@ -259,4 +261,4 @@ EN: Part 2: changes to the frozen core layer. Reviewed by the user on 2026-11-14
 
 **还没定：**
 1. **EP01 全部镜头必看与否**：阈值 0.25 在 EP01 上抓到 43 处硬切，约 44 个镜头，全部必看至少读 44 次、44 张图。等 C2 实测图片额度后定；要不要在对比试验里用放宽项缩小范围（需求 6.3）。
-2. **D1**：适配器怎么拿到仓库根目录（见 C4）。设计文档里定。
+2. ~~D1：适配器怎么拿到仓库根目录~~ 已在 `design.md` 第 3.2 节解决。
