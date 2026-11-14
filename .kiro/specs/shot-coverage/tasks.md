@@ -37,7 +37,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
   - 未读完时写文件关卡拦、读完放行（用 `api.check_write`）
   - _需求：2、3、4、6.1_
 
-- [ ] 5. `count` 子命令（只读）
+- [x] 5. `count` 子命令（只读）
   - `cli.py count [--source ID]`：从读取记录数出读过几个镜头、几张图（只算有效读取），输出一行文字和 `--json`
   - 测试：读取若干镜头后数字对得上；同一镜头读两次只算一个镜头、图片张数照加
   - _需求：8.1、8.2_

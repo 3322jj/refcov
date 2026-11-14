@@ -1,4 +1,4 @@
-"""镜头覆盖率应用的命令行（镜头应用设计第 4、5 节）：`detect`、`count`、`page`。
+"""镜头覆盖率应用的命令行（镜头应用设计第 4、5 节）：`detect`、`count`，页面命令 `page` 见任务 6。
 
 在仓库根目录运行（和 `refcov` 一样：当前目录下要有 `.git`）：
 
@@ -88,6 +88,51 @@ def detect(args) -> int:
     return 0
 
 
+def count_reads(store, source: str | None = None) -> list[dict]:
+    """每个镜头参考源读过几个镜头、读了几次、送出几张图。只算有效读取（单元校验值和清单当前的一致）。
+
+    只读：数据来自读取记录和清单，覆盖率仍由核心层按记录算（需求 5.4、8.2）；这里只是把"读过几个镜头、几张图"
+    数出来，给对比试验的判分脚本用。
+    """
+    from refcov import coverage
+
+    sources = store.read_sources().get("sources", [])
+    current = coverage.current_units(sources)
+    records = [r for r in store.records() if r.get("type") == "read" and coverage.is_valid(r, current)]
+    out = []
+    for s in sources:
+        if s.get("adapter") != adapter.name or (source and s["id"] != source):
+            continue
+        mine = [r for r in records if r.get("source") == s["id"]]
+        out.append({"source": s["id"], "shots": len(s.get("units", [])),
+                    "read": len({r["unit"] for r in mine}), "reads": len(mine),
+                    "images": sum(int(r.get("images") or 0) for r in mine)})
+    return out
+
+
+def count(args) -> int:
+    import json
+
+    from refcov.store import Store, StoreError
+
+    root = _repo_root()
+    if root is None:
+        return _fail(f"统计失败：请在仓库根目录运行（{Path.cwd()} 下没有 .git）")
+    try:
+        rows = count_reads(Store(root), args.source)
+    except (StoreError, OSError, ValueError) as e:
+        return _fail(f"统计失败：{e}")
+    if args.json:
+        print(json.dumps({"sources": rows, "shots_read": sum(r["read"] for r in rows),
+                          "images": sum(r["images"] for r in rows)}, ensure_ascii=False, indent=2))
+        return 0
+    if not rows:
+        print("没有登记镜头适配器的参考源" + (f"（{args.source}）" if args.source else ""))
+    for r in rows:
+        print(f"{r['source']}：读过 {r['read']} / {r['shots']} 个镜头，读取 {r['reads']} 次，送出图片 {r['images']} 张")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shot-coverage", description="Shot coverage for a reference video.")
     sub = parser.add_subparsers(dest="command")
@@ -99,6 +144,9 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--scale", type=int, default=adapter.DEFAULT_SCALE or 0,
                    help="检测前把画面缩到这个行高再检测；0 是不缩小（默认）。EP01 上缩小没有变快，也没改变结果")
     d.add_argument("--video-path", help="写进清单的视频路径（不改变视频本身）；给对比试验的模板用")
+    c = sub.add_parser("count", help="数出读过几个镜头、几张图（只读，只算有效读取）")
+    c.add_argument("--source", help="只数这个参考源")
+    c.add_argument("--json", action="store_true", help="输出 JSON")
     return parser
 
 
@@ -109,6 +157,8 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     if args.command == "detect":
         return detect(args)
+    if args.command == "count":
+        return count(args)
     parser.print_help()
     return 0
 
