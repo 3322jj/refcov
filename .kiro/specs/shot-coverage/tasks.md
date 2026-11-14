@@ -48,7 +48,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
   - 测试（`tests/test_shot_page.py`）：格子数等于镜头数、读过的格子数对、被引用的带标记、不含 `<img>` 和 `http`、读取记录里失效的读取不亮
   - _需求：5.1–5.5、1.8_
 
-- [ ] 7. README（英文）和局限
+- [x] 7. README（英文）和局限
   - `apps/shot-coverage/README.md`：最短步骤（装 ffmpeg、`detect`、配置里声明适配器、登记、MCP 配置、复制钩子）；局限（只切硬切、一镜头一张关键帧看不到随时间出现的字、核对只比较大小和修改时间、适配器文件是普通代码改 `kinds` 能缩小必看集合属于不防蓄意伪造、适配器文件会在核心层进程里运行）；不用 power 的说明
   - 测试：README 里写的命令名和参数在 `cli.py` 里都存在（防文档和实现脱节）
   - _需求：1.8–1.10、6.2_
