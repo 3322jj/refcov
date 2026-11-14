@@ -42,7 +42,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
   - 测试：读取若干镜头后数字对得上；同一镜头读两次只算一个镜头、图片张数照加
   - _需求：8.1、8.2_
 
-- [ ] 6. 镜头条页面 `page.py` 和 `cli.py page`
+- [x] 6. 镜头条页面 `page.py` 和 `cli.py page`
   - `render_strip`：一排格子，宽度按时长成比例，读过亮、没读灰、被引用带标记；标题行、局限一句；`title` 属性写镜头 ID 和起止；**没有脚本也显示最终状态**；内联回放脚本（按读取顺序点亮，播放、暂停、进度条），不联网
   - 数据只来自核心层（设计 5）
   - 测试（`tests/test_shot_page.py`）：格子数等于镜头数、读过的格子数对、被引用的带标记、不含 `<img>` 和 `http`、读取记录里失效的读取不亮

@@ -1,4 +1,4 @@
-"""镜头覆盖率应用的命令行（镜头应用设计第 4、5 节）：`detect`、`count`，页面命令 `page` 见任务 6。
+"""镜头覆盖率应用的命令行（镜头应用设计第 4、5 节）：`detect`、`count`、`page`。
 
 在仓库根目录运行（和 `refcov` 一样：当前目录下要有 `.git`）：
 
@@ -16,6 +16,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # 同目录的 adapter.py、page.py
 
 import adapter  # noqa: E402
+import page  # noqa: E402
+from page import count_reads  # noqa: E402,F401  测试和判分脚本从这里取
 from refcov.store import sha256_file  # noqa: E402
 
 
@@ -88,29 +90,8 @@ def detect(args) -> int:
     return 0
 
 
-def count_reads(store, source: str | None = None) -> list[dict]:
-    """每个镜头参考源读过几个镜头、读了几次、送出几张图。只算有效读取（单元校验值和清单当前的一致）。
-
-    只读：数据来自读取记录和清单，覆盖率仍由核心层按记录算（需求 5.4、8.2）；这里只是把"读过几个镜头、几张图"
-    数出来，给对比试验的判分脚本用。
-    """
-    from refcov import coverage
-
-    sources = store.read_sources().get("sources", [])
-    current = coverage.current_units(sources)
-    records = [r for r in store.records() if r.get("type") == "read" and coverage.is_valid(r, current)]
-    out = []
-    for s in sources:
-        if s.get("adapter") != adapter.name or (source and s["id"] != source):
-            continue
-        mine = [r for r in records if r.get("source") == s["id"]]
-        out.append({"source": s["id"], "shots": len(s.get("units", [])),
-                    "read": len({r["unit"] for r in mine}), "reads": len(mine),
-                    "images": sum(int(r.get("images") or 0) for r in mine)})
-    return out
-
-
 def count(args) -> int:
+    """只读：数出读过几个镜头、几张图（`page.count_reads`，只算有效读取），给对比试验的判分脚本用（需求 8.2）。"""
     import json
 
     from refcov.store import Store, StoreError
@@ -133,6 +114,31 @@ def count(args) -> int:
     return 0
 
 
+def strip_page(args) -> int:
+    from refcov.store import Store, StoreError
+
+    root = _repo_root()
+    if root is None:
+        return _fail(f"生成页面失败：请在仓库根目录运行（{Path.cwd()} 下没有 .git）")
+    try:
+        data = page.collect(Store(root), args.source)
+        text = page.render_strip(data)
+    except LookupError as e:
+        return _fail(f"生成页面失败：{e}")
+    except (StoreError, OSError, ValueError, KeyError) as e:
+        return _fail(f"生成页面失败：{e}")
+    out = Path(os.path.abspath(args.out))
+    try:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_name(out.name + ".tmp")
+        tmp.write_bytes(text.encode("utf-8"))
+        os.replace(tmp, out)
+    except OSError as e:
+        return _fail(f"生成页面失败：{e}")
+    print(f"已生成 {args.out}：{data['source']} 读过 {data['read']} / {data['shots']} 个镜头，图片 {data['images']} 张")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shot-coverage", description="Shot coverage for a reference video.")
     sub = parser.add_subparsers(dest="command")
@@ -147,6 +153,9 @@ def build_parser() -> argparse.ArgumentParser:
     c = sub.add_parser("count", help="数出读过几个镜头、几张图（只读，只算有效读取）")
     c.add_argument("--source", help="只数这个参考源")
     c.add_argument("--json", action="store_true", help="输出 JSON")
+    p = sub.add_parser("page", help="生成镜头条页面（单文件 HTML，只读核心层的数据）")
+    p.add_argument("--source", help="参考源 ID；默认取第一个镜头参考源")
+    p.add_argument("--out", default="shot-strip.html", help="输出文件，默认 shot-strip.html")
     return parser
 
 
@@ -159,6 +168,8 @@ def main(argv=None) -> int:
         return detect(args)
     if args.command == "count":
         return count(args)
+    if args.command == "page":
+        return strip_page(args)
     parser.print_help()
     return 0
 
