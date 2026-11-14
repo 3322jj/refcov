@@ -16,7 +16,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
   - `tests/test_shot_adapter_import.py`：替身守卫加 `ast` 静态检查
   - _需求：1.2–1.6、3.1、7.5、10_
 
-- [ ] 2. 适配器的 `read`：视频核对和关键帧（设计 3.2）
+- [x] 2. 适配器的 `read`：视频核对和关键帧（设计 3.2）
   - 找仓库根目录：从适配器文件往上找第一个含 `.git` 的目录
   - 视频核对：存在的普通文件；大小和 `mtime_ns` 一致就通过；不一致重算 SHA-256，一致放行、不一致拒绝；通过的 `(路径, 大小, mtime_ns)` 记在进程内
   - 取关键帧：`ffmpeg -nostdin`、`stdin=DEVNULL`、超时 60 秒、中点一帧、宽度不超过 960 的 JPEG；失败带 stderr 前 300 个字符
