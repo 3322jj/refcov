@@ -10,7 +10,7 @@ import os
 import re
 from dataclasses import dataclass
 
-from refcov.sources import content_sha256, file_name
+from refcov.sources import Image, content_sha256, file_name
 from refcov.store import LockTimeout, Store, StoreError, path_matches
 
 # 需求 9.9、设计 5：每个工具的返回都带这一句
@@ -74,7 +74,7 @@ class ReadResult:
     unit: str
     title: str
     texts: list[str]
-    images: list  # refcov.sources.Image；文档适配器没有图片
+    images: list  # refcov.sources.Image，按适配器返回的顺序；文档适配器没有图片
     call: str  # "c-<seq>"
     record: dict
 
@@ -170,17 +170,26 @@ def read(store: Store, source: str, unit: str) -> ReadResult:
         found = None
     if found is None or found.sha256 != listed["sha256"]:
         raise ReadError(f"按缓存重新拆出的单元 {source}/{unit} 和清单对不上。请用户在终端重新登记：refcov add {entry['origin']} --id {source}")
-    texts = [found.text]
+    # 内容由适配器的 `read` 给出（文字和图片）。放在拿锁、写记录之前：它抛任何异常（视频变了、取帧失败等）
+    # 都不返回内容、不写记录（少算不多算，镜头应用需求 2.5、3.4）。
+    try:
+        parts = adapter.read(data, file_name(entry["origin"], source), unit)
+    except Exception as e:
+        raise ReadError(f"适配器读取 {source}/{unit} 失败，这次不返回内容，也不记读取：{e}") from e
+    texts = [p for p in parts if isinstance(p, str)]
+    images = [p for p in parts if isinstance(p, Image)]
+    if len(texts) + len(images) != len(parts):
+        raise ReadError(f"适配器读取 {source}/{unit} 返回了既不是文字也不是图片的内容，这次不返回内容，也不记读取")
     try:
         with store.locked():
             seq = store.next_seq_locked()
             rec = store.append_locked("read", None, call=f"c-{seq}", source=source, unit=unit,
-                                      unit_sha256=found.sha256, text_units=len(texts), images=0)
+                                      unit_sha256=found.sha256, text_units=len(texts), images=len(images))
     except LockTimeout as e:
         raise ReadError(f"拿不到日志锁，这次读取没有记下，也不返回内容，请稍后再读：{e}") from e
     except (StoreError, OSError) as e:
         raise ReadError(f"写读取记录失败，这次不返回内容：{e}") from e
-    return ReadResult(source, unit, found.title, texts, [], rec["call"], rec)
+    return ReadResult(source, unit, found.title, texts, images, rec["call"], rec)
 
 
 # ---- 达标检查（任务 11，设计 7，需求 5、6、8、15）----
