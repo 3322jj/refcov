@@ -24,7 +24,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
   - 测试（`tests/test_shot_read.py`）：假视频字节（不用 ffmpeg）的核对分支（一致放行、内容变而大小和修改时间变、只改修改时间、文件不存在）；合成视频（`lavfi`）上读取返回能解码的 JPEG、宽度不超过 960；取帧失败时经核心层 `api.read` 不写记录
   - _需求：2.1–2.6、3.2–3.4_
 
-- [ ] 3. `detect` 命令和 360 行高校准（设计 4）
+- [x] 3. `detect` 命令和 360 行高校准（设计 4）
   - `apps/shot-coverage/cli.py` 的 `detect <视频> [--out] [--threshold] [--min-shot] [--video-path]`：找 ffmpeg 和 ffprobe、时长、SHA-256、大小、修改时间、场景检测、写清单（先写临时文件再改名）、打印下一步；`--video-path` 指定写进清单的视频路径（给对比试验的模板用，设计 11）
   - 镜头数少于 2 或多于 300 时提示
   - **校准**：用 EP01 隔离副本和仓库外的标准答案，比较"缩小到 360 行高"和"不缩小"两种做法抓到的硬切（43 处标准答案）、用时；结果记进 DEVLOG；缩小抓得不对就退回不缩小，并把 `detect_scale` 写进清单文件头

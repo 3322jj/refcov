@@ -232,6 +232,52 @@ class ShotError(Exception):
     """读取镜头失败。消息就是原因；核心层把它变成读取错误，不返回内容、不写读取记录。"""
 
 
+# ---- 检测（设计 4，只在 `detect` 命令里用；导入时不调用）----
+
+DEFAULT_THRESHOLD = 0.25
+DEFAULT_MIN_SHOT = 0.5
+DEFAULT_SCALE = None  # 检测前缩小到的行高；None 是不缩小。EP01 上校准过：缩小到 360、540 和不缩小抓到的切点完全
+#                       一样，用时也没差（25.5、28.0、24.8 秒，时间花在解码上），所以默认不缩小（DEVLOG 2026-11-14）
+DETECT_TIMEOUT = 1800  # 场景检测的超时（秒）
+_PTS = re.compile(r"pts_time:([0-9]+(?:\.[0-9]+)?)")
+
+
+def find_tool(tool: str) -> str:
+    """在 PATH 上找 ffmpeg 或 ffprobe；找不到抛 `ShotError`，附安装提示。"""
+    found = shutil.which(tool)
+    if found is None:
+        raise ShotError(f"找不到 {tool}：请先安装 ffmpeg（含 ffprobe）并放进 PATH，"
+                        "Windows 可用 winget install ffmpeg，Linux 用包管理器装 ffmpeg")
+    return found
+
+
+def probe_duration(path: Path) -> float:
+    """用 ffprobe 取视频时长（秒）。"""
+    cmd = [find_tool("ffprobe"), "-v", "error", "-show_entries", "format=duration", "-of",
+           "default=noprint_wrappers=1:nokey=1", str(path)]
+    try:
+        res = subprocess.run(cmd, capture_output=True, stdin=subprocess.DEVNULL, timeout=120)
+        return float(res.stdout.decode("utf-8", "replace").strip())
+    except (subprocess.TimeoutExpired, OSError, ValueError) as e:
+        raise ShotError(f"ffprobe 读不出 {path} 的时长：{e}") from e
+
+
+def detect_cuts(path: Path, threshold: float, scale: int | None) -> list[float]:
+    """场景检测，返回切换时间点（秒）。`scale` 不是 None 时先把画面缩到这个行高再检测（只为快）。"""
+    vf = (f"scale=-2:{scale}," if scale else "") + f"select='gt(scene,{float(threshold)!r})',showinfo"
+    cmd = [find_tool("ffmpeg"), "-nostdin", "-hide_banner", "-i", str(path), "-an", "-vf", vf, "-f", "null", "-"]
+    try:
+        res = subprocess.run(cmd, capture_output=True, stdin=subprocess.DEVNULL, timeout=DETECT_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        raise ShotError(f"场景检测超过 {DETECT_TIMEOUT} 秒，已放弃") from None
+    except OSError as e:
+        raise ShotError(f"ffmpeg 起不来：{e}") from e
+    stderr = res.stderr.decode("utf-8", "replace")
+    if res.returncode != 0:
+        raise ShotError(f"场景检测失败（退出码 {res.returncode}）：{stderr.strip()[-ERROR_TEXT:]}")
+    return [float(m) for m in _PTS.findall(stderr)]
+
+
 # ---- 找视频、核对视频没变（设计 3.2 第 2、3 步，需求 3.4）----
 
 _verified: set[tuple[str, int, int]] = set()  # 本进程里已核对过的 (路径, 大小, 修改时间)；后面的读取不再核对

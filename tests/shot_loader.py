@@ -28,6 +28,18 @@ def install(root: Path):
     return loader.load(Store(root), "shot")
 
 
+def load_cli():
+    """加载命令行脚本 `cli.py`（只加载一次）；它自己把同目录放进 `sys.path` 再 import 同目录的 adapter.py。"""
+    name = "shot_cli_under_test"
+    if name in sys.modules:
+        return sys.modules[name]
+    spec = importlib.util.spec_from_file_location(name, CLI_PATH)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def load():
     """加载（只加载一次）并返回适配器模块。"""
     if MODULE in sys.modules:
