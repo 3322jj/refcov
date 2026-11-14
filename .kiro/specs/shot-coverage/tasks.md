@@ -31,7 +31,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
   - 测试（`tests/test_shot_detect.py`）：合成红绿蓝三段各 2 秒检测出 3 个镜头 `[0,2]`、`[2,4]`、`[4,6]`；缺 ffmpeg 时失败且不生成清单（把 `PATH` 清掉）；`--out`、`--video-path`、视频在仓库外时的默认输出位置
   - _需求：1.1、1.2、1.5、1.7、4.4–4.6_
 
-- [ ] 4. 端到端测试
+- [x] 4. 端到端测试
   - `tests/test_shot_end_to_end.py`：合成视频 → `detect` → 在临时仓库的配置里声明 `[adapters]` → `register(..., adapter="shot")` → 经 stdio 的 MCP 服务读全部镜头（每次返回文字加一张图）→ 检查达标；读取记录里 `images` 之和等于镜头数
   - 视频被改后读取被拒绝且日志不变；清单被手改坏后登记被拒绝且什么都不写；重新检测、重新登记后旧读取记录失效
   - 未读完时写文件关卡拦、读完放行（用 `api.check_write`）
