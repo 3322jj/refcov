@@ -6,7 +6,7 @@ EN summary: Implementation tasks for the shot-coverage app, following design.md 
 
 规矩：每个任务单独提交，全套测试过了才进下一个；写文件和跑它分开发出；仓库里不放 EP01 的任何帧和视频，测试只用合成视频或假字节；提交说明里不写那个只能用户跑的子命令的完整形式（保护检查按命令文本匹配）。出处暂用文字写法，转换以后再做。
 
-- [ ] 1. 清单格式、纯函数和导入守卫（`apps/shot-coverage/adapter.py` 的第一部分）
+- [x] 1. 清单格式、纯函数和导入守卫（`apps/shot-coverage/adapter.py` 的第一部分）
   - 单元 ID：`shot_id(start_tenths)`，格式 `shot-<分>-<秒>-<十分之一秒>`（设计 2）
   - `build_shots(cuts, duration, min_shot)`：四舍五入到 0.1 秒、去重、去掉 0 和终点上的点、并入过短的镜头；不用 ffmpeg（设计 4 第 4 步）
   - `format_list(...)` 写清单，`parse_list(text)` 严格校验后读回；`split(data, name)` 返回 `Unit`，单元 `text` 是校验值的输入（设计 2、3.1）
