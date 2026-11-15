@@ -1648,4 +1648,6 @@
   EN: Step 1 done: store reads [sources]; sources_problems reports URLs, wrong types, paths outside the repo and undeclared adapter names; config_mtime_ns serves the sync record. Six property tests (S1–S6).
 - 实现第 2 步：`api` 加 `gen_id`、`plan_sync`、`sync`；`gather` 按 1.5 算自动源的必看集合；报告在配置了 `[sources]` 时多一个 `sync` 字段和待同步行。全量测试第一次有一条失败：报告字段的断言不认识新键。改成没有 `[sources]` 时不加这个键，之后全过。7 个测试（Y1–Y7）。
   EN: Step 2 done: api gained gen_id, plan_sync and sync; gather applies the rule of section 1.5 to automatic sources; the report gets a sync field and a pending line only when [sources] is configured. The first full run had one failure: the report field test rejected the new key. The key is now added only with [sources], and the run passed. Seven tests (Y1–Y7).
+- 实现第 3 步：`refcov sync` 子命令，输出新增、改动、登记失败、读不了、文件已不在、已移出、没匹配的通配符；`refcov add` 拒绝 `f-` 开头的编号；`USER_ONLY` 加 `sync`（cli.py 和 hook.py 两处），test_protect 第 157 行的期望同步改。2 个测试（Y8、Y9）。
+  EN: Step 3 done: refcov sync prints the new, changed, failed, unreadable, missing, removed and unmatched groups; refcov add refuses f- IDs; USER_ONLY gains sync in cli.py and hook.py, and the expectation at test_protect line 157 changes with it. Two tests (Y8, Y9).
 

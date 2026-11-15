@@ -12,7 +12,7 @@ from refcov import __version__, api, citations
 
 # 只能由用户在终端跑的子命令（设计 6）：会往日志追加记录、写配置、建立或清空日志的子命令都放进来。
 # 接入层的保护检查不能 import 核心层，integrations/kiro/hook.py 里抄了一份，tests/test_protect.py 检查两份一致。
-USER_ONLY = ("add", "confirm")
+USER_ONLY = ("add", "confirm", "sync")
 from refcov.sources import RegisterError, register
 from refcov.store import Store, StoreError
 
@@ -62,6 +62,9 @@ def _add(args) -> int:
         print(f"登记失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
         return 1
     try:
+        if args.source_id.startswith("f-"):
+            print("登记失败：f- 开头的编号留给 [sources] 自动登记，请换一个编号", file=sys.stderr)
+            return 1
         result = register(Store(root), args.origin, args.source_id, adapter=args.adapter)
     except (RegisterError, StoreError, OSError) as e:
         print(f"登记失败：{e}", file=sys.stderr)
@@ -118,6 +121,38 @@ def _check_spec(args) -> int:
     return 0
 
 
+def _sync_text(res: dict) -> str:
+    """`sync` 的文字输出：新增、改动、登记失败、读不了、文件已不在、已移出清单、没匹配到的通配符（简化上手设计 1.3）。"""
+    if not res["wrote"]:
+        return "没有 [sources]，也没有同步记录：什么都没做。"
+    done = {i["id"] for i in res["registered"]}
+    blocks = [
+        ("新增，已登记", [f"{i['id']}  {i['file']}" for i in res["new"] if i["id"] in done]),
+        ("内容变了，已重新登记（旧读取不再算数）", [f"{i['id']}  {i['file']}" for i in res["changed"] if i["id"] in done]),
+        ("登记失败", [f"{i['id']}  {i['file']}：{i['error']}" for i in res["errors"]]),
+        ("读不了的文件", [f"{i['id']}  {i['file']}：{i['error']}" for i in res["failed"]]),
+        ("文件已不在（仍必看，缓存里的副本仍可读）", list(res["missing"])),
+        ("已移出清单（配置改过，不再必看）", list(res["removed"])),
+        ("没有匹配到任何文件的通配符", [f"{e['where']} {e['value']}" for e in res["empty"]]),
+    ]
+    lines = [f"{title}：{len(items)} 个" + "".join(f"\n  {x}" for x in items) for title, items in blocks if items]
+    return "\n".join(lines) if lines else "没有变化。"
+
+
+def _sync(args) -> int:
+    root = _repo_root()
+    if root is None:
+        print(f"同步失败：请在仓库根目录运行 refcov（{Path.cwd()} 下没有 .git）", file=sys.stderr)
+        return 1
+    try:
+        res = api.sync(Store(root))
+    except (StoreError, OSError, ValueError, api.ReadError) as e:
+        print(f"同步失败：{e}", file=sys.stderr)
+        return 1
+    print(_sync_text(res))
+    return 1 if res["errors"] else 0
+
+
 def main(argv=None) -> int:
     _match_console_encoding()
     parser = argparse.ArgumentParser(prog="refcov", description="Coverage for reference material.")
@@ -135,6 +170,7 @@ def main(argv=None) -> int:
     ck.add_argument("path", nargs="?", help="目标路径（相对仓库根目录）；不给时按全部参考源")
     chk = sub.add_parser("check-spec", help="出处检查：列出幻影需求、无效引用、未转换、被引用的单元（只读）")
     chk.add_argument("doc", help="需求文档路径（相对仓库根目录）")
+    sy = sub.add_parser("sync", help="登记 [sources] 匹配到的新文件，重新登记内容变了的文件（只能由用户运行）")
     args = parser.parse_args(argv)
     if args.command == "add":
         return _add(args)
@@ -144,5 +180,7 @@ def main(argv=None) -> int:
         return _check(args)
     if args.command == "check-spec":
         return _check_spec(args)
+    if args.command == "sync":
+        return _sync(args)
     parser.print_help()
     return 0

@@ -29,7 +29,7 @@ MCP_TOOL = re.compile(r"^mcp_refcov_")  # 和 hooks/refcov-post-mcp.json 的 mat
 
 # ---- 保护检查（任务 14，需求 14.1–14.5，设计 8 第 2 步）：不 import 核心层 ----
 
-USER_ONLY = ("add", "confirm")  # 和 refcov/cli.py 的 USER_ONLY 一致（tests/test_protect.py 检查）
+USER_ONLY = ("add", "confirm", "sync")  # 和 refcov/cli.py 的 USER_ONLY 一致（tests/test_protect.py 检查）
 WRITE_TOOLS = frozenset({"fs_write", "str_replace", "fs_append"})  # 和 hooks/refcov-pre-write.json 一致
 SHELL_TOOLS = frozenset({"execute_pwsh", "control_pwsh_process", "execute_bash"})  # 和 hooks/refcov-pre-shell.json 一致
 _I = re.IGNORECASE
