@@ -58,11 +58,11 @@ EN summary: Implementation tasks for the layer-coverage app, following design.md
   - 只读，不写文件。数字只在脚本输出里，不进仓库、DEVLOG 或提交说明
   - _需求：8.2、8.3_
 
-- [ ] 8. 运行演示：探路 → 定次数 → 正式跑（设计第 10、12 节）
+- [x] 8. 运行演示：探路 → 定次数 → 正式跑（设计第 10、12 节）
   - 模板（Claude）：建 `GIS-template` 和 `GIS-N-template`，核对四项工作区文件的 sha256，写 `refcov.toml`（10.5）
   - 模板（用户，在模板目录的终端）：`setup.py`、`refcov add docs/Metadata_BuildingFootprints.md --id nyc-bldg-dict`、`refcov sync`、`python -m refcov check`，必看单元应为 24
   - 探路（Claude，无界面 kiro-cli）：组 N × 1，组 G × 1。组 G 的工作区副本删除 `.kiro/hooks/refcov-prompt.json`，模板本身不删
   - 定次数（10.3）后正式跑。记录放 `D:\agent\kiro\refcov-trial\runs\gis-<时间>\`；组 G 查四件事（10.4）
-  - 状态：未开始，等模板搭好。试跑都由 Claude 跑，用户不跑
+  - 状态：已完成。由 Claude 运行，结果见 main 上的 docs/GIS试验结果.md。试跑都由 Claude 跑，用户不跑
   - _需求：8.4–8.6_
 

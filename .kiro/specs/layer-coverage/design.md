@@ -189,6 +189,13 @@ kind: field
    - 组 N 做对了：探路的这一次照实记下，组 N 不再跑；A、G 各 4 次。
 3. 正式跑的记录放在 `D:\agent\kiro\refcov-trial\runs\gis-<时间>\`，按组和次编号。
 
+实际结果（2026-11-15，已跑完；记录在 `D:\agent\kiro\refcov-trial\runs\gis-20261115-*`，详见 main 上的 `docs/GIS试验结果.md`）：
+
+- 探路：组 N 1 次做对，所以按上面第二条，组 N 不再跑。组 N 直接打开了字典和清单，没有 RefCov 的记录。组 G 探路 1 次：先被拦，读完必看单元，再写。
+- 正式跑：组 A 4 次全对，都读完 24 个单元；写文件时 1 次读到一半被拦，其余 3 次没拦。组 G 4 次全对，都读完 24 个单元，每次都是先被拦、读完再写。组 G 的 5 次（探路 1 次加正式 4 次）里，读完以后重写的答案，数字和被拦那次相同。
+- 组 A 有一次（A-03）把计算脚本写到了系统临时目录，那是工作区外，关卡不检查那里。10.4 第四件（经 shell 写文件绕过关卡）：GIS 试验结果里没有组 G 这样做的记录。
+- 另外两轮 GIS 试验（第二版不提车库；公认基准 ScienceAgentBench #21）也没测出"读了才做对"。
+
 ### 10.4 组 G 要看的四件事（需求 8.5）
 
 从记录里按时间顺序列出，不靠 AI 的自述：
@@ -221,9 +228,11 @@ GIS-template 的 `refcov.toml`：
 
 - `[adapters] layer = "apps/layer-coverage/adapter.py"`
 - `[sources.layer] files = ["apps/layer-coverage/bayside.fields.md"]`
-- `[[scope]]`：`paths = ["**"]`，`sources = ["nyc-bldg-dict", "layer"]`。`**` 能匹配根目录的 `answer.md`：`refcov/store.py` 的 `path_matches` 用 `fnmatchcase`，`*` 能跨 `/`（审阅核对过，不用等首次运行）。
+- `[[scope]]`：`paths = ["**"]`，`sources = ["nyc-bldg-dict", "f-apps-layer-coverage-bayside-fields-md-631ad0"]`。`**` 能匹配根目录的 `answer.md`：`refcov/store.py` 的 `path_matches` 用 `fnmatchcase`，`*` 能跨 `/`（审阅核对过，不用等首次运行）。清单经 `refcov sync` 登记后，参考源的编号是自动生成的，即 `f-apps-layer-coverage-bayside-fields-md-631ad0`，不是 `layer`；`[[scope]]` 里写的是这个编号，模板已按实际编号写。
 
 每次运行前，从模板复制一份新工作区，读取记录从零开始，上一次运行的记录不带过来。组 G 的那份工作区删除 `.kiro/hooks/refcov-prompt.json`，模板本身不删。
+
+setup.py 写进 MCP 配置和钩子的是模板目录的绝对路径（`--root`）。每次复制工作区后，运行器要把这些路径换成副本自己的路径，否则钩子和 MCP 读的还是模板。
 
 分工：
 
