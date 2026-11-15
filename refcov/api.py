@@ -317,10 +317,16 @@ def _inactive_auto(store: Store, sources: list, records: list, cfg: dict) -> set
     recorded = set(rec.get("ids") or [])
     if store.config_mtime_ns() == rec.get("config_mtime_ns"):
         active = recorded
-    else:
-        matched, _ = _spec_matches(store, cfg)
-        active = recorded & {sid for _, sid in matched.values()}
+    else:  # 配置改过：只比对清单里记下的 origin 和现在的通配符，不遍历仓库，不读材料
+        from refcov.store import path_matches
+        patterns = _pattern_list(cfg)
+        active = {s["id"] for s in sources if s["id"] in recorded and path_matches(s.get("origin", ""), patterns)}
     return auto - active
+
+
+def _pattern_list(cfg: dict) -> list[str]:
+    from refcov.store import source_specs
+    return [p for _, patterns in source_specs(cfg) for p in patterns]
 
 
 def plan_sync(store: Store) -> dict:
@@ -349,13 +355,21 @@ def plan_sync(store: Store) -> dict:
     cur = store.config_mtime_ns()
     base, missing, removed = set(), [], []
     if rec is not None:
+        from refcov.store import path_matches
         recorded = set(rec.get("ids") or [])
-        if cur == rec.get("config_mtime_ns"):
-            base = recorded
-            missing = sorted(recorded - matched_ids)
-        else:
-            base = recorded & matched_ids
-            removed = sorted(recorded - matched_ids)
+        changed_cfg = cur != rec.get("config_mtime_ns")
+        patterns = _pattern_list(cfg)
+        for sid in sorted(recorded):
+            s = entries.get(sid)
+            if s is None:
+                continue
+            origin = s.get("origin", "")
+            if changed_cfg and not path_matches(origin, patterns):
+                removed.append(sid)
+                continue
+            base.add(sid)
+            if not (store.root / origin).is_file():
+                missing.append(sid)
     return {"new": new, "changed": changed, "failed": failed, "empty": empty, "missing": missing,
             "removed": removed, "base": sorted(base), "matched_ids": sorted(matched_ids),
             "has_specs": bool(source_specs(cfg)), "has_record": rec is not None}
