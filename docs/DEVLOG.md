@@ -1670,4 +1670,14 @@
   EN: GIS requirements draft (checkpoint 1): .kiro/specs/layer-coverage/requirements.md, 7 requirements, 13 cited units. refcov check-spec: 0 phantom requirements, 0 invalid references, 0 unconverted. Before writing, all 82 units of the 8 reference sources in the layer-coverage scope were read through MCP (cumulative for this session). B2 has not been judged yet, so requirement 7.2 waits for that.
 - 读取范围：先读的 36 个新登记单元加上 46 个决定单元，正好是 scope 的 82 个。`dec-design-review` 的 1 个单元是之前读过的，计入 82。
   EN: Reads: the 36 newly registered units plus the 46 decision units make the 82 units of the scope; one decision unit had been read earlier and is counted once.
+- 用户审过 GIS 需求初稿，改三处，写进第二稿：6.3 只用标准库（不用 geopandas）；7.2 改成永久规定，不等 B2，"还没定"里的 B2 条目删掉；新增需求 8（演示：排除车库后的建筑占地面积）。
+  EN: The user approved the GIS requirements draft with three changes in the second draft: 6.3 requires the standard library only (no geopandas); 7.2 is a permanent rule, so the B2 wait and its open item are removed; requirement 8 (demo) is added.
+- `refcov check-spec` 查第二稿：8 条需求，13 个被引用单元，幻影 0、无效引用 0、未转换 0。Bayside 子集（本地抽取，6018 条）的代码分布是 2100 为 4301、5110 为 1715、5100 为 1、1001 为 1，和附录里第 0 步的计数一致。
+  EN: check-spec on the second draft: 8 requirements, 13 cited units, 0 phantom, 0 invalid, 0 unconverted. The Bayside subset in the local extract (6018 features) has codes 2100: 4301, 5110: 1715, 5100: 1 and 1001: 1, matching the step 0 counts in the appendix.
+- 保护检查拦了 1 次：一条只读的 shell 命令，文本里有状态目录名，被拦下；没有换写法绕过。之后提交都按路径加文件，因为读取记录文件一直显示为已修改（没有看它的改动内容）。
+  EN: The protection check blocked one read-only shell command because its text named the state directory; it was not rewritten to get past the check. Commits from now on add files by path, because the read record file has shown as modified throughout (its changes were not inspected).
+- 7.2 的永久规定来自聊天，现在只在验收标准里写"（用户 2026-11-15 定）"，没有出处单元。citation 草案要求把审阅回复存成 docs/decisions 下的文件再引用，存之前先给用户过目；这次还没存。
+  EN: The permanent rule in 7.2 came from the user's chat and is cited only as text ("user 2026-11-15 decision"), with no source unit. The citation draft asks for review replies to be saved under docs/decisions and cited after the user checks them; this has not been done yet.
+- 属性测试：这一步没有代码改动，没写，也没抓到东西。
+  EN: No property tests: this step changed no code, so none were written and none caught anything.
 
