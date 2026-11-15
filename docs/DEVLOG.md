@@ -1598,3 +1598,19 @@
 - 属性测试：没写。用到的 Kiro 功能：规格文档（视频对比试验设计第 9.4 节）。RefCov 拦了自己：本轮 0 次。过程：写文件和跑它分开发出；没起任何被测运行。
   EN: No property tests. Kiro features used: spec documents (section 9.4 of the video comparison trial design). RefCov blocked its own agent 0 times this round. Process: writing files and running them were sent separately; no run under test was started.
 
+## 2026-11-15（下午：接手，建 phase2-haiku 分支和施工账第一行）
+- 用了 MCP 的 `report`（只读，取源 ID 和状态）和示例配置（看 `[[scope]]` 的写法）。
+  EN: Used the MCP report tool (read-only, for source IDs and status) and the example config (for the `[[scope]]` syntax).
+- 文档和实测不一致：定位文档附录的数据字典网址是 GitHub 网页（blob），不是原文。原文网址用 Range 请求取到的是 text/plain，首行 `# Building Footprints`。blob 网址在 PowerShell 里报 SSL 错误，返回类型没核对。
+  EN: Doc-vs-behavior mismatch: the appendix URL is a GitHub blob page, not raw Markdown. The raw URL, fetched with a Range request, returned text/plain with first line "# Building Footprints". The blob URL failed with an SSL error in PowerShell, so its content type is unchecked.
+- "简化上手设计"在文档里找不到（docs、docs/decisions、README、steering 检索"上手"无结果）。没做，等用户说明。
+  EN: "简化上手设计" appears in no document (a search of docs, docs/decisions, README and steering for 上手 found nothing). Not done; waiting for the user to define it.
+- 改讲法要改 `.kiro/steering/product.md` 和 `docs/冲刺计划.md`，不在允许清单里。没改，等同意。
+  EN: The pitch change needs edits to product.md and the sprint plan, which are outside the allow list. Not edited; waiting for consent.
+- 保护检查拦了 2 次，都是 shell 命令（一次读配置文件，一次搜索文本里带了子命令名），没有绕过。本会话经 MCP 读了 0/114 个单元。
+  EN: The protection check blocked 2 shell commands (one read of the config file, one search whose text named a subcommand); no workaround. This session read 0 of 114 units through MCP.
+- 施工账的提交号要等提交后才有，所以每件活的行在下一次提交里补。
+  EN: A row's commit number exists only after its commit, so each row is added in the following commit.
+- 属性测试：没写（本次没有代码改动）。
+  EN: No property tests (no code changed this round).
+
