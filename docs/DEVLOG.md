@@ -1700,4 +1700,10 @@
   EN: 22 tests: 16 for the adapter (including property A1, 200 examples: changing one field's text changes only that unit's hash), 3 for the import guard, and 3 for the stdlib check (including a self-test that the checker finds planted violations). All passed on the first run. No mutation test was run (adding a call at module top level to see whether the guard fails), so the guard was checked by reading the code only.
 - 这一步写文件没有被关卡拦下。
   EN: No write in this step was blocked by the write gate.
+- 实现任务 3：`apps/layer-coverage/build.py`。输入是本地 GeoJSON 和字典网址，输出清单。`build_manifest` 是纯函数（字节进，文字出），`main` 只做读写。生成的文字先过一遍适配器，拆不开或单元对不上，就不写文件。
+  EN: Task 3 done: apps/layer-coverage/build.py. Input is a local GeoJSON and the dictionary URL; output is the manifest. build_manifest is a pure function (bytes in, text out), and main only reads and writes. The generated text is split by the adapter before anything is written; if the split fails or the units differ, no file is written.
+- 测试 18 个（`tests/test_layer_build.py`，假的 GeoJSON 和假的字典表）。第一次运行 12 个失败。原因：字典 Area 行的别名 `SHAPE_AREA` 和 `shape_area` 只差大小写，build 把同一行里的两个别名当成两行重名，报错。改成同一行内不算重复，只有两行争同一个名字才报错；改后 18 个全过。这是测试抓到的代码错误，已改 `map_keys`。
+  EN: 18 tests (tests/test_layer_build.py) with a fake GeoJSON and a fake dictionary table. Twelve failed on the first run: the Area row's aliases SHAPE_AREA and shape_area differ only in case, and build treated them as two rows claiming one name. The check now allows a repeat inside one row and rejects only a name claimed by two different rows. All 18 pass after the change. The tests caught this code error, and map_keys was fixed.
+- 性质测试：build 没有 `@given` 测试，因为设计第 11 节没有为它列性质。确定性由"同样输入字节相同"的固定例子守着。真实字典和真实数据还没有经过 build，那是任务 6。
+  EN: No property tests for build, because design section 11 lists no properties for it; determinism is checked by a fixed-input test. The real dictionary and the real GeoJSON have not gone through build yet; that is task 6.
 
