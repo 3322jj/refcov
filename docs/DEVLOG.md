@@ -12,6 +12,9 @@
   EN: Check the key's white flashes: in 5 of 6 runs a white-flash row near 282.1 or 335.4 s was written, while the key has only 119.3 and 217.73 s (from scene detection at threshold 0.25). Not now: the rules were final and the results are in, so changing the key would look like changing the rules afterwards; Claude looks at the original frames first.
   2026-11-14 夜更新：已核实并补进标准答案，六次重判，见 DEVLOG 当天"补记"一节和 `docs/视频对比试验设计.md` 第 9.4 节。
   EN: 2026-11-14 night update: verified and added to the key, all six runs regraded; see the catch-up entry of that day in this log and section 9.4 of docs/视频对比试验设计.md.
+- 清单生成（build.py）读字典只试一次。网络抖动时整次生成失败，只能重跑。
+  现在不做：任务 3 的设计没有要求，且失败时不写文件，重跑即可；加重试是新功能，范围已冻结。
+  EN: The manifest builder (build.py) fetches the dictionary once. A network drop fails the whole run, and the run must be repeated. Not now: the design does not ask for retries, a failed run writes nothing so a rerun is safe, and adding retries is a new feature under the scope freeze.
 - 视频对比试验的文字规则收紧（六次文字准确率全是 100%，天花板）。
   现在不做：没有下一轮试验的安排；改规则要先写下再跑。
   EN: Tighten the text rule of the video comparison trial (text accuracy is 100% in all six runs, a ceiling). Not now: no further trial is planned, and any rule change must be written down before the next run.
@@ -1732,4 +1735,18 @@
   EN: GLOBALID is in the dictionary but not in the extract; it is listed in the extent unit and gets no field unit. name is null in all 6018 rows and is the only field without values.
 - 清单的核对写成三个回归测试（结构 17 个单元；条数和代码分布；name 唯一全空）。全量 845 通过。
   EN: Three regression tests now guard the committed manifest (17-unit structure; row count and code distribution; name as the only empty field). The full suite passes 845 tests.
+- 对照需求第 1–5 条和代码，找到四处没做到的：1.4（README 要写使用条款还没读完）；2.3（字典里没有的字段要生成单元并写"字典里没有"，构建曾经直接报错）；3.1 和 3.3（坐标系单元要写 EPSG:2263、下载格式的坐标系、±2 英尺的定位精度，以及 SHAPE_LENGTH 行）；3.2（范围单元要写覆盖纽约市）。
+  EN: Re-reading requirements 1–5 against the code found four gaps: 1.4 (the README must say the terms of use are not yet read); 2.3 (a field missing from the dictionary must get a unit that says so; the builder had refused the run instead); 3.1 and 3.3 (the crs unit must state EPSG:2263, the download CRS, the ±2 ft accuracy and the SHAPE_LENGTH row); 3.2 (the extent unit must say the data covers New York City).
+- 测试没有抓到这四处，因为测试是照设计写的，而设计在 2.3 和第 3 条上和需求不一致。设计、构建、测试和清单都已按需求改过，清单已重新生成。
+  EN: No test caught these, because the tests followed the design, and the design had drifted from requirements 2.3 and 3. The design, the builder, the tests and the manifest are all updated to the requirements, and the manifest is regenerated.
+- 第一次真实构建失败：字典数据质量节的行写成 `**标签** |内容`（没有行首的竖线），原文件是 CRLF 换行。查找只认带行首竖线的行，所以报"字典里没有 Horizontal Coordinate System 那一行"。校验挡住了，没有写出清单。查找改成两种写法都认，并加了 CRLF 的测试。
+  EN: The first real build failed: the dictionary's data-quality rows are written as `**label** |value` (no leading pipe), and the file uses CRLF line endings. The lookup accepted only rows with a leading pipe, so it reported that the Horizontal Coordinate System row was missing. The check stopped the build and no manifest was written. The lookup now accepts both forms, and a test covers CRLF.
+- 探测字典时有一次读取遇到 SSL 中途断开（那是探测脚本，不是 build 的读取），重试后通过。
+  EN: One probe read of the dictionary hit an SSL connection drop (in a probe script, not in build); a retry succeeded.
+- 清单仍是 17 个单元，只是 crs 和 extent 的内容按字典数据质量节补全了。全量 850 通过。
+  EN: The manifest still has 17 units; only the crs and extent units changed, now quoting the dictionary's data-quality rows. The full suite passes 850 tests.
+- 任务 7（判分的标准答案）：用 pyproj 3.7.1 在 EPSG:2263 里算了两个口径和三个错误参照值，结果只在会话里看过。数值没有写进仓库，判分脚本也还没有存成文件，要等用户同意保存位置（设计第 12 节第 7 条）。这一步没有完成，任务清单里没有打勾。
+  EN: Task 7: the standard answer and three wrong-answer references were computed with pyproj 3.7.1 in EPSG:2263. The results were seen in this session only. The numbers are not in the repository, and the grader file is not saved until the user approves a location outside the repository (design section 12, item 7). Task 7 is not complete and is not ticked in tasks.md.
+- 这一轮没有新的属性测试：改的是构建和文档，设计第 11 节没有为构建列性质。
+  EN: No new property tests this round: the builder and the documents changed, and design section 11 lists no properties for the builder.
 

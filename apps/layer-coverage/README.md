@@ -8,6 +8,12 @@ A RefCov adapter named `layer`, plus the scripts that build its manifest. The da
 - Each field unit holds the field's text from the NYC data dictionary, copied as written, and statistics computed from the subset: the non-null count, the number of distinct values, the five most frequent values with their counts, and the number of zero values.
 - It does not compute areas, draw maps, make charts, filter data, or clean data.
 
+## Source and terms of use
+
+- Data: NYC Open Data, dataset `5zhs-2jue` (NYC Building Footprints). The data is not stored in this repository. The demo uses only the Bayside subset.
+- Data dictionary: the Markdown text published with the dataset, registered in RefCov as the reference source `nyc-bldg-dict`.
+- The full terms of use of the data and of the dictionary have not been read yet. Read them and follow them before any public use.
+
 ## Files
 
 | File | Purpose |
@@ -33,7 +39,7 @@ The manifest records the SHA-256 of the GeoJSON file and of the dictionary text,
 
 - The workspace config declares `[adapters] layer = "apps/layer-coverage/adapter.py"` and `[sources.layer] files = ["apps/layer-coverage/bayside.fields.md"]`. The adapter path must be relative to the workspace root.
 - In strict mode every unit is required. A unit counts as read only when it was read through the RefCov MCP tool. Reading the file directly does not count.
-- A requirement that cites a unit, written `[ref:<source>/<unit>]`, fails the citation check in strict mode if that unit was not read.
+- A requirement that cites a unit, written `[ref:<source>/<unit>]`, fails the citation check in strict mode if that unit was not read. The check confirms that the cited unit exists and was read. It does not check that the requirement follows from the unit.
 - The write gate blocks writes to scoped paths until the required units have been read.
 
 ## Limits

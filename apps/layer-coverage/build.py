@@ -182,23 +182,44 @@ def _labelled(label: str, text: str) -> list:
     return [label + lines[0], *lines[1:]]
 
 
-def _crs_section(gj: dict, area_row: dict, shape_row: dict) -> str:
+def quality_value(text: str, label: str) -> str:
+    """字典的数据质量表（两列：标签、内容）里，标签是 label 的那一行的内容。
+
+    原表的行有两种写法：`**标签** |内容`，和 `| **标签** | 内容 |`。两种都认。找不到就抛 BuildError。
+    """
+    for line in text.split("\n"):
+        s = line.strip()
+        if s.startswith("|"):
+            s = s[1:].lstrip()
+        if "|" not in s:
+            continue
+        name, value = s.split("|", 1)
+        if name.replace("*", "").strip() == label:
+            return value.strip().rstrip("|").strip()
+    raise BuildError(f"字典里没有'{label}'那一行")
+
+
+def _crs_section(gj: dict, shape_row: dict, area_row: dict, length_row: dict, horizontal: str, accuracy: str) -> str:
     kinds = "、".join(f"{t} {n} 个" for t, n in sorted(gj["types"].items()))
     lines = [
         "## crs", "kind: crs",
         f"几何类型：{kinds}。",
-        f"坐标系：{CRS84}（经度在前，纬度在后）。",
+        f"坐标系：{CRS84}（经度在前，纬度在后）。字典下载表里 NYC Open Data 的 geojson 是 4326，即 WGS84，和它是同一基准，只是轴的顺序不同。",
+        *_labelled("字典的水平坐标系（数据质量节原文）：", horizontal),
+        *_labelled("字典的定位精度（数据质量节原文）：", accuracy),
         *_labelled("字典 SHAPE 行原文（几何）：", shape_row["description"]),
-        *_labelled("字典 Area 行原文：", area_row["description"]),
+        *_labelled("字典 Area 行原文（不得使用）：", area_row["description"]),
+        *_labelled("字典 Length 行原文（不得使用）：", length_row["description"]),
     ]
     return "\n".join(lines)
 
 
-def _extent_section(gj: dict, dictionary_url: str, dictionary_sha: str, dictionary_only: list) -> str:
+def _extent_section(gj: dict, dictionary_url: str, dictionary_sha: str, dictionary_only: list, coverage: str) -> str:
     lon_min, lon_max, lat_min, lat_max = gj["bbox"]
     only = "、".join(dictionary_only) if dictionary_only else "（无）"
     return "\n".join([
         "## extent", "kind: extent",
+        *_labelled("覆盖范围（字典数据质量节 Spatial Coverage 原文）：", coverage),
         f"经度：最小 {lon_min:.6f}，最大 {lon_max:.6f}。",
         f"纬度：最小 {lat_min:.6f}，最大 {lat_max:.6f}。",
         f"条数：{gj['rows']}。",
@@ -230,8 +251,26 @@ def _field_section(key: str, row: dict, values: list) -> str:
     return "\n".join(lines)
 
 
+def _unmatched_section(key: str, values: list) -> str:
+    """数据里有、字典里没有同名字段：单元照样生成，明确写'字典里没有'（需求 2.3）。"""
+    st = stats.stats_of(values)
+    lines = [
+        f"## {key}", "kind: field",
+        "字典里没有：字典里没有同名字段，所以这一单元只有数据里的统计，没有字典的说明。",
+        f"数据：非空 {st.non_null} 条；不同取值 {st.distinct} 个；值为 0 的条数 {st.zeros}。",
+        "数据里的类型：" + ("、".join(st.types) if st.types else "（全部为空）") + "。",
+        "取值分布（前 5 个，按条数从多到少，同数按文字排序）：",
+    ]
+    if st.top:
+        lines += [f"- {_plain(text)}：{n}" for text, n in st.top]
+    else:
+        lines.append("（没有非空值）")
+    return "\n".join(lines)
+
+
 def build_manifest(geojson_bytes: bytes, dictionary_bytes: bytes, dictionary_url: str) -> str:
-    """由 GeoJSON 字节和字典字节生成清单文字。同样的输入，输出的字节相同。数据和字典对不上时抛 BuildError。"""
+    """由 GeoJSON 字节和字典字节生成清单文字。同样的输入，输出的字节相同。
+    数据里字典对不上的字段照样生成单元，写明'字典里没有'；字典缺了要引用的行，抛 BuildError。"""
     gj = _load_geojson(geojson_bytes)
     try:
         dictionary_text = dictionary_bytes.decode("utf-8")
@@ -239,20 +278,30 @@ def build_manifest(geojson_bytes: bytes, dictionary_bytes: bytes, dictionary_url
         raise BuildError(f"字典不是 UTF-8：{e}") from e
     rows = parse_attribute_table(dictionary_text)
     matched, dictionary_only, unmatched = map_keys(gj["keys"], rows)
-    if unmatched:
-        raise BuildError("数据里有字典对不上的字段：" + "、".join(unmatched))
     sections = [
-        _crs_section(gj, _find_alias(rows, "shape_area"), _find_alias(rows, "SHAPE")),
-        _extent_section(gj, dictionary_url, hashlib.sha256(dictionary_bytes).hexdigest(), dictionary_only),
+        _crs_section(
+            gj,
+            shape_row=_find_alias(rows, "SHAPE"),
+            area_row=_find_alias(rows, "shape_area"),
+            length_row=_find_alias(rows, "shape_length"),
+            horizontal=quality_value(dictionary_text, "Horizontal Coordinate System"),
+            accuracy=quality_value(dictionary_text, "Positional Accuracy"),
+        ),
+        _extent_section(
+            gj, dictionary_url, hashlib.sha256(dictionary_bytes).hexdigest(), dictionary_only,
+            coverage=quality_value(dictionary_text, "Spatial Coverage"),
+        ),
     ]
     for key, row in matched:
         sections.append(_field_section(key, row, [p.get(key) for p in gj["props"]]))
+    for key in unmatched:
+        sections.append(_unmatched_section(key, [p.get(key) for p in gj["props"]]))
     text = PREAMBLE + "\n" + "\n\n".join(sections) + "\n"
     try:
         units = layer_adapter.split(text.encode("utf-8"), MANIFEST_NAME)
     except ValueError as e:
         raise BuildError(f"生成的清单拆不开：{e}") from e
-    expected = ["crs", "extent"] + [key for key, _ in matched]
+    expected = ["crs", "extent"] + [key for key, _ in matched] + unmatched
     if [u.id for u in units] != expected:
         raise BuildError("生成的清单单元和预期不一致")
     return text
