@@ -294,8 +294,23 @@ def pretask_main(event: str) -> int:
     return 2
 
 
+def _take_root(argv: list) -> tuple[list, str | None]:
+    """`--root <仓库根>` 放在事件名前面时取出来，返回 (去掉它以后的参数, 仓库根或 None)。
+    setup.py 写进用户仓库的钩子命令带这个参数（简化上手设计 2.2）；没有它时仍用脚本自己的位置算出的根。"""
+    if "--root" in argv:
+        i = argv.index("--root")
+        if i + 1 < len(argv):
+            return argv[:i] + argv[i + 2:], argv[i + 1]
+    return argv, None
+
+
 def main() -> int:
-    event = sys.argv[1] if len(sys.argv) > 1 else ""
+    global ROOT, ERRORS_LOG
+    rest, root = _take_root(sys.argv[1:])
+    if root:
+        ROOT = Path(root).resolve()
+        ERRORS_LOG = ROOT / ".refcov" / "errors.log"
+    event = rest[0] if rest else ""
     if event in ("pre-write", "pre-shell"):
         return protect_main(event)  # 出错一律拦，和下面"出错放行"相反（需求 14.5）
     if event == "pretask":
