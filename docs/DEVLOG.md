@@ -1666,4 +1666,8 @@
   EN: Side effect, for review: a source whose file was deleted while the config changed stays required as long as its recorded origin still matches a pattern. The old disk-based check removed it. This fits "deleting a file never lowers the required set", but it differs from the wording of design section 1.5, which the design document now reflects.
 - README 的 Setup 一节补两句：`setup.py` 只在没有 `refcov.toml` 时写模板；钩子指向 RefCov 克隆目录里的 hook.py，克隆目录挪走要重新运行 setup.py。
   EN: The README Setup section gains two sentences: setup.py writes the refcov.toml template only when there is none; the hooks point at hook.py in the RefCov clone, so after moving the clone, run setup.py again from the project root.
+- GIS 需求初稿（检查点 1）：`.kiro/specs/layer-coverage/requirements.md`，7 条需求，13 个被引用单元。`refcov check-spec` 结果：幻影 0、无效引用 0、未转换 0。写之前经 MCP 读完了 scope 里 8 个参考源的 82 个单元（本会话累计）。B2 还没有判定，需求 7.2 等判定后再定。
+  EN: GIS requirements draft (checkpoint 1): .kiro/specs/layer-coverage/requirements.md, 7 requirements, 13 cited units. refcov check-spec: 0 phantom requirements, 0 invalid references, 0 unconverted. Before writing, all 82 units of the 8 reference sources in the layer-coverage scope were read through MCP (cumulative for this session). B2 has not been judged yet, so requirement 7.2 waits for that.
+- 读取范围：先读的 36 个新登记单元加上 46 个决定单元，正好是 scope 的 82 个。`dec-design-review` 的 1 个单元是之前读过的，计入 82。
+  EN: Reads: the 36 newly registered units plus the 46 decision units make the 82 units of the scope; one decision unit had been read earlier and is counted once.
 
