@@ -1642,4 +1642,6 @@
   EN: The uncommitted changes to refcov.toml and .refcov/sources.json were made by the user when registering three materials; Claude checked them. The user commits them outside Kiro, so they stay out of this step's commit.
 - 属性测试：没写（这一步没有代码改动）。
   EN: No property tests (no code changed in this step).
+- 检查点 3 的决定写进 `docs/简化上手设计.md` 第 0 节（10 条；第 10 条是实现时补的，待用户确认）。实现分五步提交：store、api、cli、setup 和 hook 的 --root、README。
+  EN: The checkpoint 3 decisions are in docs/简化上手设计.md section 0 (10 items; item 10 was added during implementation and awaits the user's confirmation). Implementation is split into five committed steps: store, api, cli, setup and the hook's --root, README.
 
