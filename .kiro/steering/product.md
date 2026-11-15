@@ -4,7 +4,7 @@ inclusion: always
 
 # 产品：RefCov
 
-EN summary: RefCov computes coverage for reference material: sources are split into units, the AI fetches units through MCP tools, each fetch is recorded, and coverage comes only from those records (direct file reads do not count). The core gives a tool-independent pass/fail; in Kiro, hooks block writes and task starts until it passes. Requirements must cite units; RefCov lists phantom requirements, ignored units and ghost units. The pitch (changed again 2026-11-14 night) is "the AI reads the reference material before it acts, and how much it read is a number": the main evidence is the front-end guide trial, where Kiro's default model selection and claude-haiku-5.5 opened none of 210 guides in every run and wrote from memory, while with RefCov installed they read all 82 required units every time and used the guide practices (Haiku at about a tenth of Sonnet's credits); the shot-coverage app (video) shows splitting and reading on large material; the only evidence for "gate" is still the CLI gate check, because in the front-end trial the status-line prompt and MCP reads did the work and the gate never blocked. The conditions where skipping appears (a domain the model thinks it knows, a task that can be finished without checking, a default or cheap model) and the small sample (2-4 runs per group, one task, kiro-cli 3.3.0) are stated plainly, and "faster and cheaper" is not claimed for the video trial because median credits were not lower. Must-haves are the skeleton, coverage, the three-layer write gate, two apps and an online replay demo; public claims stay within what the system does. Scope is frozen from 2026-11-13; new ideas go to the DEVLOG "later" section.
+EN summary: RefCov computes coverage for reference material: sources are split into units, the AI fetches units through MCP tools, each fetch is recorded, and coverage comes only from those records (direct file reads do not count). The core gives a tool-independent pass/fail; in Kiro, hooks block writes and task starts until it passes, and requirements must cite units (phantom requirements, ignored units and ghost units are listed). The pitch (changed 2026-11-15) keeps the one-line claim, "the AI reads the reference material before it acts, and how much it read is a number", told in three layers: the standard is in the materials and not in model memory; models often know new practices but keep old habits, with one practice unknown to the cheap models; RefCov makes the model read the registered materials first. The video and README follow the three-act story in docs/故事构思.md, with same-task credits taken from main 0dbac19 section 5; the Chinese text keeps the evidence limits (one task, 4 runs per group, kiro-cli 3.3.0, the gate never blocked in the front-end trial, the browser check found working pages in all five groups so the claim is following the project's standards, not working pages, the video trial supports splitting only) and forbids two claims (models lacking new techniques, RefCov finding the latest guides by itself). Must-haves and the scope freeze from 2026-11-13 are unchanged.
 
 ## 是什么
 
@@ -15,22 +15,31 @@ RefCov 给参考材料算"覆盖率"。代码有测试覆盖率，参考材料�
 - 核心层给出与工具无关的达标判断。在 Kiro 里，没看够就由钩子拦住写文件和任务开工。
 - 需求要标明出自哪个单元。程序列出没标出处的需求（幻影需求）、看过但没被引用的单元（被忽略单元）、必看但没看过的单元（幽灵单元）。
 
-## 对外讲法（2026-11-14 夜改；依据 `docs/进展总结-2026-11-14.md` 第 3 节和 `docs/前端指南试验结果.md`；定稿前过检查点 4）
+## 对外讲法（2026-11-15 改：三层故事，依据 `docs/故事构思.md` 和 `docs/前端指南试验结果.md` 第 6 节；定稿前过检查点 4）
 
 一句话：**AI 读了多少参考材料，应该是一个数字，而不是一句"我看过了"。**
 
-对外的故事（草稿）：
+对外的故事分三层（用户 2026-11-15 定）：
 
-> 项目里放着规范，AI 却凭记忆写代码，汇报里对规范只字不提。装上 RefCov，同样的模型先读完必看的规范再动手，指南推荐的写法基本全用上。最便宜的模型装上它，推荐写法的采用率和不装的 Sonnet 5.5 相当，额度约为十分之一。
+> 项目的标准写在你给的材料里，不在模型的记忆里。模型常常知道新写法，却照老习惯写（前端指南试验，`docs/前端指南试验结果.md` 第 6 节）。有些新东西它不知道：测到一例，弹框时背后不滚动的 `overscroll-behavior` 写法，claude-haiku-5.5 和自动选模型都不知道，claude-sonnet-5.5 知道。团队自己的约定它更不可能知道（常识推理：团队私有的约定不在模型的训练数据里，没有单独测）。RefCov 让它先读完你登记的材料再动手。
+
+视频和 README 的结构按 `docs/故事构思.md` 的三幕写。同题对照的额度以 main 上 `0dbac19` 的第 5 节为准：Opus 5.5 为 4.77（T1）和 9.31（T2），Haiku 5.5 为 0.18（T1）和 0.37（T2），各 1 次。
 
 这个故事**必须同时交代**（写在同一段或紧挨着的一段里）：
 
-- 只在一个任务上测得（账户设置页：确认对话框加表单校验）、kiro-cli 3.3.0，每组 2–4 次；是描述，不是统计结论。
-- "效果相当"只指四种指南写法（用没用上），页面在浏览器里好不好用没有测。
+- 只在一个任务上测得（账户设置页：确认对话框加表单校验）、kiro-cli 3.3.0，每组 4 次；是描述，不是统计结论。
+- "效果相当"只指四种指南写法（用没用上）：Haiku 装上 RefCov 是 14/16，和不装的 Sonnet 5.5 相同（每组 4 次，见 `docs/前端指南试验结果.md` 第 5 节）。
+- 浏览器实测（第 5b 节，无界面 Chrome 点过五组共 20 份页面）：五组的页面基本都能用，不装 RefCov 时功能也做得出来，只是不按项目规范写。所以对外讲"照项目规范写"，不讲"装了页面才好用"。
 - 登记哪 8 份指南是人按任务挑的，四种写法所在的指南都在里面；真实项目里团队也要登记和当前工作相关的规范。
 - 起作用的是发消息时的状态行提示和 MCP 读取，**写文件关卡一次也没拦**。
 - Kiro 默认的自动选模型，每次实际用的是哪个模型日志里看不到。
 - 不装时 Sonnet 5.5 自己会去读相关指南（每次 6–7 份）；不看规范的是自动选模型和 Haiku 5.5。
+- Haiku 写的代码仍要审：能力测试里 T2 有几处比 Opus 粗糙。故事里说"由 Claude 在检查点审阅"，不讲"Haiku 自己就够了"。
+- 前后两半做的是不同的活，难度不同，总额度不能直接对比；要比就比同题对照（故事构思第 5 节）的同一件活。
+- 第二幕的证据只是一个任务、每组 4 次；"效果相当"只指四种指南写法。
+- RefCov 保证"读了"，不保证"读懂了"。
+- 登记哪些材料是人挑的；RefCov 不会自己去找最新指南。
+- 第一幕的画面是实验记录，不是真实用户的项目。
 
 **偷懒什么时候出现**（试验里归纳的，三个条件同时满足）：AI 自以为熟悉的领域；不查也能交差（老写法照样能跑）；默认或便宜的模型。条件不满足时没有测出偷懒：GIS 陷阱 6 次、网店约定 6 次、随口提问 6 次、120 份工单 2 次、视频对比 6 次，强模型（多为固定的 Sonnet 5.5）都认真读了；这些题要么能靠搜索直接找到答案，要么不查就做不对。对外照实说这个边界，不讲成"AI 总会偷懒"。
 
@@ -44,6 +53,8 @@ RefCov 给参考材料算"覆盖率"。代码有测试覆盖率，参考材料�
 "设陷阱等 AI 出错"的试验已结束，不再讲"抓到 AI 出错了多少次"。试验结果随模型变，对外只说"在某模型上测得"。不要讲成"又一个防止 AI 撒谎的工具"。
 
 只讲做得到的：记录看过什么、算覆盖率、在 Kiro 里拦住自带的写文件工具和任务开工、其余情况事后标红。不说"不准写文件""换了工具关卡也还在""AI 只能经工具取材料""shell 写的文件也拦得住"（实测拦不住，`docs/验证结果.md` 第 8 项）。不说"最便宜的模型和最贵的模型一样好"（对比的是 Sonnet 5.5，不是最贵的模型）；不说"全部用上"（Haiku 装上后是 7/8，Sonnet 不装是 14/16）。镜头只按硬切算，软切换里的画面在同一个镜头单元里，不说"看过每个画面"。RefCov 防偷懒和虚报，不防蓄意伪造记录。演示页和视频只展示严格模式。写文件关卡在仓库自己开发里的拦截是事先安排的，不说成"抓到"；意外抓到的是保护检查（`docs/关键时刻清单.md`）。
+
+另外两条不说：不说"模型不会新技术"（直接问时，Haiku 和自动选模型答得对四种里的三种，见前端指南试验第 6 节）；不说 RefCov 会自己去找最新指南（材料由用户登记）。
 
 ## 给谁用
 

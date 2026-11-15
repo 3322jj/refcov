@@ -4,6 +4,9 @@
 
 格式：一行写点子，一行写为什么现在不做（见 `.kiro/steering/product.md` 范围冻结）。这一节固定在最前面，日记照常按时间加在文件末尾。
 
+- 让 `[[scope]]` 的 `sources` 能写路径（例如 `sources = ["guides/forms/*.md"]`），不只认生成的编号。
+  现在不做：这一步只加 `[sources]` 一行；路径写法要改 `refcov/coverage.py` 的 scope 解析，先用生成的编号。
+  EN: Let [[scope]] sources take paths (for example sources = ["guides/forms/*.md"]) as well as generated IDs. Not now: this step only adds the [sources] line; path scopes would change the scope parser in refcov/coverage.py, so generated IDs are used for now.
 - 视频对比试验的标准答案核对白闪：六次里 5 次在 282.1 或 335.4 秒附近写了白闪，标准答案只有 119.3、217.73 两次（来自场景检测阈值 0.25）。
   现在不做：试验规则已定稿、结果已出，改标准答案会像事后改规则；先让 Claude 看原帧判断。
   EN: Check the key's white flashes: in 5 of 6 runs a white-flash row near 282.1 or 335.4 s was written, while the key has only 119.3 and 217.73 s (from scene detection at threshold 0.25). Not now: the rules were final and the results are in, so changing the key would look like changing the rules afterwards; Claude looks at the original frames first.
@@ -1613,4 +1616,30 @@
   EN: A row's commit number exists only after its commit, so each row is added in the following commit.
 - 属性测试：没写（本次没有代码改动）。
   EN: No property tests (no code changed this round).
+
+## 2026-11-15（晚：改讲法，写简化上手设计初稿，都未提交）
+- 用了 MCP `read_unit` 读 `dec-design-review` 的 1 个单元（shell 拦截的决定）。读 `.kiro/hooks` 的 shell 命令被保护检查拦了 1 次，没绕过；钩子内容改从 `integrations/kiro/hooks` 的模板和 README 核对。
+  EN: Read one unit of dec-design-review through MCP (the shell-blocking decision). One shell command that read .kiro/hooks was blocked by the protection check and not worked around; hook contents came from the integrations templates and the README.
+- 决定和设计不一致：`docs/decisions/2026-11-10-design-review.md` 第 1 条写 shell 里 `refcov add` 放行（"只会让覆盖率变低"）；骨架设计第 293 行改成拦（同一编号登记一个小文件，覆盖率变 100%）。代码按拦实现。
+  EN: Decision vs design: the 11-10 decision allows refcov add in shell because it can only lower coverage; design line 293 blocks it because re-registering a small file under the same ID makes coverage 100%. Code follows the design.
+- README 写 4 个钩子，`integrations/kiro/hooks` 有 5 个模板（多 `refcov-pretask.json`，README 没写）。打包：`pyproject.toml` 只包含 `refcov*`、`refcov_mcp*`，`integrations/` 没有 `__init__.py`，装好的包里没有钩子脚本。
+  EN: README lists four hooks; integrations/kiro/hooks has five templates (refcov-pretask.json is not in the README). The package includes only refcov* and refcov_mcp*, and integrations has no __init__.py, so the hook script is not installed.
+- 测得（本机）：`python -c pass` 5 次 64–108 毫秒；`docs/` 下 19 个文件 624,660 字节，stat 合计 1.2 毫秒，sha256 合计 0.5 毫秒（一次）。210 份指南的数字是外推，没测。
+  EN: Measured here: bare Python start 64–108 ms (5 runs); the 19 files under docs/ (624,660 bytes) took 1.2 ms of stat and 0.5 ms of sha256 (one run). The figure for 210 guides is extrapolated, not measured.
+- 工作区里 `refcov.toml`（+5 行）和 `.refcov/sources.json`（+282 行）有未提交的改动。不是本会话改的，没有读它们的内容，留给用户确认。
+  EN: Uncommitted changes exist in refcov.toml (+5 lines) and .refcov/sources.json (+282 lines). This session did not make them and did not read their contents; the user is to confirm them.
+- 讲法：product.md 的对外讲法（三层）和冲刺计划第 1 节已改，未提交，等检查点 4。设计：`docs/简化上手设计.md` 初稿，未提交，等检查点 3。属性测试：没写（没有代码改动）。
+  EN: Pitch: the outward section of product.md (three layers) and section 1 of the sprint plan are changed, uncommitted, for checkpoint 4. Design: docs/简化上手设计.md draft, uncommitted, for checkpoint 3. No property tests (no code changed).
+
+## 2026-11-15（夜：检查点 3、4 的结论；简化上手现在做）
+- 用户 2026-11-15 定"简化上手现在就做"。这是范围冻结（2026-11-13 起）的例外，记在这里。模型仍是 claude-haiku-5.5；同一处连续两次做不对就停，在施工账记"升级"。
+  EN: On 2026-11-15 the user decided that simplified onboarding is done now. This is an exception to the scope freeze of 2026-11-13, recorded here. The model stays claude-haiku-5.5; two consecutive failures at one point mean a stop and an "upgrade" row in the ledger.
+- 讲法补三处（检查点 4 通过）：团队约定的标注改成常识推理；Haiku 两组各 4 次，Haiku 装 RefCov 14/16，和不装的 Sonnet 相同（fef2603）；加浏览器限定，五组页面基本都能用，对外讲"照项目规范写"（f360764 第 5b 节，main 现在在 90627b3）。
+  EN: Three fixes to the pitch after checkpoint 4: the team-convention note is common-sense reasoning; the Haiku groups have 4 runs each, and Haiku with RefCov scores 14/16, the same as Sonnet without (fef2603); a browser limit was added: pages work in all five groups, so the pitch says "follows the project's standards" (f360764 section 5b; main is now at 90627b3).
+- 这一步前经 MCP `read_unit` 读完新登记的 36 个单元（app-positioning 13、nyc-bldg-dict 7、shot-design 16）。严格模式当时是 1/150。两次读取因为标题抄错字报错，改正后读通。
+  EN: Before this step, the 36 units of the three newly registered sources were read through MCP read_unit (13, 7 and 16); the strict-mode status had read 1 of 150. Two reads failed on mistyped titles and passed after correction.
+- 工作区里 refcov.toml 和 .refcov/sources.json 的登记改动是用户做的，Claude 核对过。它们由用户在 Kiro 外提交，不进这一步的提交。
+  EN: The uncommitted changes to refcov.toml and .refcov/sources.json were made by the user when registering three materials; Claude checked them. The user commits them outside Kiro, so they stay out of this step's commit.
+- 属性测试：没写（这一步没有代码改动）。
+  EN: No property tests (no code changed in this step).
 
