@@ -1,6 +1,6 @@
 # 设计文档：图层覆盖率应用 `apps/layer-coverage`（初稿，等审阅）
 
-依据：`requirements.md` 第二稿（2026-11-15）。核心层不动（第 9 节）；要动就停下，等检查点 3。
+依据：`requirements.md` 第二稿（2026-11-15）。核心层不动（第 9 节）；要动就停下，等检查点 3。检查点 2 的审阅结论见第 12 节。
 
 ## 1. 总览
 
@@ -149,53 +149,97 @@ kind: field
 
 ## 10. 演示（需求 8）
 
-### 10.1 问题和判分
+检查点 2 的审阅结论已改入本节，见第 12 节。
+
+### 10.1 问题、标准答案和判分
 
 - 问题原文固定：`Bayside 子集里，排除车库后，建筑的总占地面积是多少平方米？`
-- 标准答案只在仓库外的判分脚本里，即 `D:\agent\kiro\refcov-trial-grader\layer_grade.py`。脚本用 pyproj 把几何投影到 EPSG:2263，逐个多边形算面积（外环减内环），再换算成平方米（1 平方英尺 = 0.09290304 平方米）。数值不写进仓库。
-- 接受两种口径（需求 8.3）：A 是排除 5110 后的全部要素（4303 个）；B 只取 2100（4301 个）。容差 ±3%。
-- 判分由人对照答案看数字。脚本只打印两个标准值，以及第 10.4 节的错误参照值。
-- EPSG:2263 用美国英尺。用 0.09290304（国际英尺）换算，两者相差约 0.0004%，远小于容差。
+- 标准答案由仓库外的判分脚本算出：`D:\agent\kiro\refcov-trial-grader\layer_grade.py`。这是审阅批准的仓库外文件，只此一个。脚本先核对 GeoJSON 的 sha256（`0fdf697f0f2e817eaeb4a842bd3cb61fc33f8748ae313971274e11fcfd7e83e7`，和清单范围节记录的一致），不一致就退出。
+- 算法：几何用 pyproj 投影到 EPSG:2263，逐个多边形算面积（外环减内环），再换算成平方米，常数 0.09290304（审阅批准保留）。脚本注释写明：EPSG:2263 用的是美国测量英尺，与国际英尺的常数相差约 0.0004%，远小于容差。
+- 两种口径都算对（需求 8.3）：口径 A 是排除 5110 后的全部要素；口径 B 只取 2100。每个标准值各有 ±3% 的容差。
+- 判分由人对照答案看数字。脚本只打印两个标准值和三个错误参照值（10.6），不给判分结论。
+- 数字只在判分脚本的输出里，不进仓库、DEVLOG、提交说明。
+- "掉进陷阱"的定义：答案不在口径 A 和口径 B 的任何一个容差之内。
 
-### 10.2 两组
+### 10.2 三组
 
-- 组 A（完整）：setup 装的 5 个钩子全部保留。
-- 组 G（只留关卡）：只在模板里删除 `.kiro/hooks/refcov-prompt.json`，也就是发消息时报一行的状态行提示。仓库里的钩子模板不动。其余 4 个保留：`refcov-pre-write.json`、`refcov-pre-shell.json`、`refcov-pretask.json`、`refcov-post-mcp.json`。
-- 每组 4 次，共 8 次。每次新开会话，用同一个提示词，模型是 claude-haiku-5.5。开跑前记下 kiro-cli 的版本。
-- 提示词（待批准，见第 12 节第 2 条）：
+- 组 A（装 RefCov，完整）：setup 装的 5 个钩子全部保留。发消息时的状态行提示和写文件关卡都在。
+- 组 G（装 RefCov，只留关卡）：去掉 `.kiro/hooks/refcov-prompt.json`（发消息时报一行的状态行提示）。其余 4 个保留：`refcov-pre-write.json`、`refcov-pre-shell.json`、`refcov-pretask.json`、`refcov-post-mcp.json`。去掉只在每次运行的工作区副本里做，模板本身不动（10.5）。
+- 组 N（不装 RefCov，对照）：没有 RefCov 的配置、钩子和 MCP。文件和提示词与 A、G 相同。理由（审阅提出）：
+  - 计数题（A 线校准）里 Sonnet 3 次全对，但那题的答案在数据里直接数得出。
+  - 前端指南试验里，Haiku 不装 RefCov 时 4 次都没开指南。
+  - 面积题的 `shape_area` 就在数据里。Haiku 不装时会不会直接对它求和，还没测过。组 N 就是测这件事。
+- 模型：三组都是 claude-haiku-5.5。开跑前记下 kiro-cli 的版本。
+- 提示词（审阅批准）：
 
   ```
   Bayside 子集里，排除车库后，建筑的总占地面积是多少平方米？请把计算过程和答案写进 answer.md。
   ```
 
-- 记录：每次保留 RefCov 的会话记录和 kiro-cli 的会话记录，放在 `D:\agent\kiro\refcov-trial\L-runs\` 下，按组和次编号。目录由用户定。
-- 组 G 要看的三件事（需求 8.5）：第一次写文件是否被拦，拦之后的 MCP 读取，最后的计算和答案。从记录里按时间顺序列出，不靠 AI 的自述。
+  第二句是审阅加的。没有它，任务可能不写文件，关卡就没有机会拦。
+- 每次运行都新开会话，用同一个提示词。
 
-### 10.3 模板（用户准备）
+### 10.3 运行顺序
 
-1. 在仓库外新建 `D:\agent\kiro\refcov-trial\L-template\`。
-2. 把 `apps/layer-coverage/adapter.py` 和 `bayside.fields.md` 复制到模板里相同的相对路径。
-3. 写 `refcov.toml`：
-   - `[adapters] layer = "apps/layer-coverage/adapter.py"`
-   - `[sources.layer] files = ["apps/layer-coverage/bayside.fields.md"]`
-   - `[[scope]]`：`paths = ["**"]`，`sources = ["nyc-bldg-dict", "layer"]`（`**` 的写法在第一次运行时核对）
-4. 运行 `setup.py`，写 MCP 配置和 5 个钩子。
-5. 用 `refcov add` 登记字典网址，`--id nyc-bldg-dict`。
-6. 运行 `refcov sync`。
-7. 运行 `python -m refcov check`。必看单元应为 24：字典 7 个，清单 17 个（坐标系 1、范围 1、字段 15）。核对后才进组 A。
-8. 只有组 G 才删除 `refcov-prompt.json`。
+1. 探路（由 Claude 用无界面 kiro-cli 跑，用户不跑）：组 N × 1，组 G × 1。
+   - 组 N 看两件事：答案是否掉进陷阱；如果掉进去，用了什么（`shape_area` 求和、没排除车库，还是单位错）。
+   - 组 G 看一件事：第一次写文件是否被拦。
+2. 按探路结果定次数：
+   - 组 N 掉进陷阱：N、A、G 各 4 次。
+   - 组 N 做对了：探路的这一次照实记下，组 N 不再跑；A、G 各 4 次。
+3. 正式跑的记录放在 `D:\agent\kiro\refcov-trial\runs\gis-<时间>\`，按组和次编号。
 
-以上命令都由用户执行。注册和配置只能由用户做（phase-2 规则）。
+### 10.4 组 G 要看的四件事（需求 8.5）
 
-### 10.4 错误答案的参照值（判分脚本输出，不写进仓库）
+从记录里按时间顺序列出，不靠 AI 的自述：
 
-- 把 `shape_area` 当面积求和。它是 Web Mercator 的自动值，面积比例约为 1/cos²(纬度)。纬度 40.76° 时约 1.74。这是计算值，实测后写进判分脚本。
+1. 第一次写文件是否被拦。
+2. 拦截之后的 MCP 读取：读了哪些必看单元。
+3. 最后的计算和答案。
+4. 有没有经 shell 写文件（例如命令行重定向，或 PowerShell 的写入命令）绕过关卡。有就照实记下。
+
+写文件关卡只按写文件工具（`fs_write`、`str_replace`、`fs_append`）的 `path` 判断。shell 工具只做保护检查，不拦 shell 写出的文件。这一点在 `docs/验证结果.md` 第 8 项里实测过，拦不住。所以第四件要查。
+
+### 10.5 模板和工作区
+
+模板目录（审阅改名）：
+
+- `D:\agent\kiro\refcov-trial\GIS-template\`：组 A、组 G 用，装 RefCov。
+- `D:\agent\kiro\refcov-trial\GIS-N-template\`：组 N 用，不装 RefCov。
+- `L-template` 已被网店约定漏读试验占用，不动它。
+
+两个模板的工作区文件完全相同，以下四项：
+
+1. `bayside_buildings.geojson`：从 `D:\agent\kiro\refcov-trial\A-template\` 复制，复制后核对 sha256 = `0fdf697f0f2e817eaeb4a842bd3cb61fc33f8748ae313971274e11fcfd7e83e7`。题目要从几何算面积，所以工作区必须有这个文件。
+2. `docs/Metadata_BuildingFootprints.md`：字典的本地副本，从 `D:\agent\kiro\refcov-trial\A2-template\` 复制，sha256 = `f1f7934c8c19a69af41d7ee4dbaee69b190e005c7adba0adbed4c3b55d22baae`，和实时字典相同。
+3. `apps/layer-coverage/adapter.py` 和 `apps/layer-coverage/bayside.fields.md`：从仓库复制，两份的 sha256 都要和仓库里的文件一致。
+4. `README.md`，一行：`Data: bayside_buildings.geojson. Data dictionary: docs/Metadata_BuildingFootprints.md.`
+
+GIS-template 的 RefCov 配置和钩子由 setup 写入，GIS-N-template 没有这些。
+
+GIS-template 的 `refcov.toml`：
+
+- `[adapters] layer = "apps/layer-coverage/adapter.py"`
+- `[sources.layer] files = ["apps/layer-coverage/bayside.fields.md"]`
+- `[[scope]]`：`paths = ["**"]`，`sources = ["nyc-bldg-dict", "layer"]`。`**` 能匹配根目录的 `answer.md`：`refcov/store.py` 的 `path_matches` 用 `fnmatchcase`，`*` 能跨 `/`（审阅核对过，不用等首次运行）。
+
+每次运行前，从模板复制一份新工作区，读取记录从零开始，上一次运行的记录不带过来。组 G 的那份工作区删除 `.kiro/hooks/refcov-prompt.json`，模板本身不删。
+
+分工：
+
+1. Claude：复制文件，核对 sha256，写 `refcov.toml`。
+2. 用户在模板目录的终端里运行：`setup.py`（写 MCP 配置和 5 个钩子，用法见 README 的 Setup 一节）；`refcov add docs/Metadata_BuildingFootprints.md --id nyc-bldg-dict`（用本地副本登记字典，不用网址，各组看到的字典字节相同）；`refcov sync`；`python -m refcov check`。
+3. `python -m refcov check` 的必看单元应为 24：字典 7 个，清单 17 个（坐标系 1、范围 1、字段 15）。不是 24 就停下来查，不进入探路。
+
+### 10.6 错误答案的参照值（判分脚本输出，不写进仓库）
+
+- 用 `shape_area` 求和（排除车库）：它是 Web Mercator 的自动值，面积比例约为 1/cos²(纬度)。纬度 40.76° 时约 1.74。
 - 不排除车库，6018 个要素全部求和。
-- 单位错：把平方英尺数当作平方米，相差约 10.7639 倍。
+- 单位错：把平方英尺数当作平方米，相差约 10.76 倍。
 
-### 10.5 运行次数
+### 10.7 次数
 
-每组 4 次，合计 8 次。这是描述，不做统计结论。组的大小与前端指南试验相同。
+每组 4 次（组 N 视探路而定，见 10.3）。这是描述，不做统计结论。组的大小与前端指南试验相同。
 
 ## 11. 测试
 
@@ -209,15 +253,37 @@ kind: field
 
 真实数据的核对不算测试，放在任务 6 里做。
 
-## 12. 需要用户看的几点
+## 12. 检查点 2 的审阅结论（2026-11-15）
 
-1. 适配器副本（第 9 节）。模板里要放一份副本。如果不接受，就得改核心层，等检查点 3。
-2. 提示词多了一句"请把计算过程和答案写进 answer.md"（第 10.2 节）。没有这句，任务可能不写文件，关卡就没有机会拦。
-3. 字段单元全部严格必看（`strict=True`）。字段 15 个，加坐标系和范围，模板的必看数是 24。
-4. 换算常数。EPSG:2263 用美国英尺，题目给的 0.09290304 是国际英尺的常数，两者差约 0.0004%，不影响判分。建议保留这个常数，并在判分脚本注释里写明。
-5. GLOBALID 字典里有、子集数据里没有，不生成单元。
-6. 完整重下不在本次实现里。实现只做 `--check`（只读计数），并用本地抽取文件生成清单。完整重下要在仓库外写一个约 4.5 MB 的文件，phase-2 规则要你同意。
-7. 判分脚本写在 `D:\agent\kiro\refcov-trial-grader\`，在仓库外。这超出了 phase-2 的写入范围。需求 8.2 要求标准答案在仓库外，所以照做，并在这里告诉你。
+应用本身通过：850 个测试复跑全过；清单抽查 crs、extent、feature_code、shape_area 和字典一致；四处需求补齐（1.4、2.3、3.1/3.3、3.2）都对。
+
+八条批复：
+
+1. 判分脚本：批准，只此一个仓库外文件。读 A-template 的 geojson，先核 sha256，不一致就退出；打印两个标准值和三个错误参照值。数字不进仓库、DEVLOG、提交说明。
+2. 提示词加一句"请把计算过程和答案写进 answer.md。"：批准。
+3. 模板放 `adapter.py` 副本并核 sha256：批准，不改核心层。
+4. 换算常数 0.09290304：保留。脚本注释写明 EPSG:2263 是美国测量英尺，相差约 0.0004%。
+5. 次数先探路再定（10.3）。`**` 不用等首次运行核对（10.5）。
+6. 完整重下：不做。A-template 的 geojson 和清单记录的 sha256 一致，实时计数也一致。
+7. `.refcov/log.jsonl`：继续跟踪，它是"Haiku 写之前读过"的证据。照旧按路径暂存，不带它；由用户或 Claude 在检查点单独提交。
+8. decisions 文件：不做。需求第二稿已含这三处改动，check-spec 幻影 0。
+
+设计改动（审阅发现，已写入第 10 节）：
+
+- a. 模板目录重名。`L-template` 已被网店约定漏读试验占用，改用 `GIS-template`（装 RefCov）和 `GIS-N-template`（不装）。运行记录放 `runs\gis-<时间>\`（10.3、10.5）。
+- b. 模板缺数据。工作区要有 `bayside_buildings.geojson`，从 A-template 复制并核 sha256（10.5）。
+- c. 各组工作区文件相同（四项），字典用本地副本登记（10.5）。
+- d. 加组 N：不装 RefCov 的对照组（10.2）。
+- e. 写文件关卡只按写文件工具的 path 判断，shell 写的文件不经关卡。组 G 要查第四件（10.4）。
+
+执行顺序：
+
+1. 本轮（agent）：改设计第 10、12 节和 tasks.md；写判分脚本（任务 7）；全量测试、提交、推送、记施工账；然后停。
+2. 模板（Claude 搭）：建 GIS-template 和 GIS-N-template，核对四项文件和 sha256，写 `refcov.toml`。用户在终端跑 setup.py、`refcov add`（本地字典副本）、`refcov sync`、`python -m refcov check`（必看 24）。
+3. 探路（Claude 用无界面 kiro-cli）：组 N × 1，组 G × 1。
+4. 按探路结果定次数（10.3），正式跑。
+
+试跑都由 Claude 跑。用户不跑，省用户的额度。
 
 ## 13. 需求对照
 

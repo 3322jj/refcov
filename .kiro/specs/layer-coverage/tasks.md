@@ -1,6 +1,6 @@
 # 实施计划：图层覆盖率应用 `apps/layer-coverage`
 
-EN summary: Implementation tasks for the layer-coverage app, following design.md (2026-11-15 draft, awaiting review). Order: the statistics functions with property tests; the adapter with its import guard and stdlib check; the build script that writes the manifest; the fetch script with count checks; the read-only CLI and English README; a real-data run that writes only the in-repo manifest; the standard-answer script outside the repo; then a stop at checkpoint 2, before any demo run. Each task is its own commit, the full test suite must pass before the next task starts, and a task's ledger row goes into the next commit. Tasks 1–6 are done; task 7 waits for the user's approval of where the grader file may be saved.
+EN summary: Implementation tasks for the layer-coverage app, following design.md (2026-11-15 draft, awaiting review). Order: the statistics functions with property tests; the adapter with its import guard and stdlib check; the build script that writes the manifest; the fetch script with count checks; the read-only CLI and English README; a real-data run that writes only the in-repo manifest; the standard-answer script outside the repo; then a stop at checkpoint 2, before any demo run. Each task is its own commit, the full test suite must pass before the next task starts, and a task's ledger row goes into the next commit. Tasks 1–7 are done. Task 8 (the demo) runs in the order probe, then decide the counts, then the formal runs, as set out in design sections 10.3 and 12.
 
 依据：`requirements.md`（第二稿）、`design.md`（2026-11-15 初稿）。`_需求：…_` 写需求编号，"设计 N"指 `design.md` 第 N 节。
 
@@ -52,15 +52,17 @@ EN summary: Implementation tasks for the layer-coverage app, following design.md
   - 用 `adapter.py` 拆清单，得 17 个单元；`cli.py fields` 列出 15 个字段；核对 `name` 字段非空为 0；另写一段计数代码核对 15 个字段的数字，0 处不符
   - _需求：1、2、3_
 
-- [ ] 7. 仓库外的判分脚本（设计 10.1、10.4）
-  - 写到 `D:\agent\kiro\refcov-trial-grader\layer_grade.py`（仓库外，设计第 12 节第 7 条）
-  - 用 pyproj 把几何投影到 EPSG:2263，逐个多边形算面积，换算成平方米；输出两个标准值（口径 A 4303 个、口径 B 4301 个）和第 10.4 节的三个错误参照值
-  - 数值不进仓库，不写进 DEVLOG 或任何提交说明
-  - 状态：标准答案和错误参照值已用 stdin 脚本算出，只在会话里看过，没有存成文件。等用户同意保存位置后再写文件、再打勾
+- [x] 7. 仓库外的判分脚本（设计 10.1、10.6）
+  - 已写到 `D:\agent\kiro\refcov-trial-grader\layer_grade.py`。这是审阅批准的仓库外文件，只此一个（检查点 2 批复 1）
+  - 脚本先核对 GeoJSON 的 sha256，不一致就退出；用 pyproj 投影到 EPSG:2263，逐个多边形算面积，换算成平方米；打印两个标准值和三个错误参照值
+  - 只读，不写文件。数字只在脚本输出里，不进仓库、DEVLOG 或提交说明
   - _需求：8.2、8.3_
 
-- [ ] 8. 停在检查点 2
-  - 把设计第 10 节的模板步骤、两组运行、提示词（含 answer.md 那一句）、记录方式交用户审
-  - 不运行任何演示，不起 kiro-cli。等用户批准后再运行
+- [ ] 8. 运行演示：探路 → 定次数 → 正式跑（设计第 10、12 节）
+  - 模板（Claude）：建 `GIS-template` 和 `GIS-N-template`，核对四项工作区文件的 sha256，写 `refcov.toml`（10.5）
+  - 模板（用户，在模板目录的终端）：`setup.py`、`refcov add docs/Metadata_BuildingFootprints.md --id nyc-bldg-dict`、`refcov sync`、`python -m refcov check`，必看单元应为 24
+  - 探路（Claude，无界面 kiro-cli）：组 N × 1，组 G × 1。组 G 的工作区副本删除 `.kiro/hooks/refcov-prompt.json`，模板本身不删
+  - 定次数（10.3）后正式跑。记录放 `D:\agent\kiro\refcov-trial\runs\gis-<时间>\`；组 G 查四件事（10.4）
+  - 状态：未开始，等模板搭好。试跑都由 Claude 跑，用户不跑
   - _需求：8.4–8.6_
 
