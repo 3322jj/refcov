@@ -1706,4 +1706,12 @@
   EN: 18 tests (tests/test_layer_build.py) with a fake GeoJSON and a fake dictionary table. Twelve failed on the first run: the Area row's aliases SHAPE_AREA and shape_area differ only in case, and build treated them as two rows claiming one name. The check now allows a repeat inside one row and rejects only a name claimed by two different rows. All 18 pass after the change. The tests caught this code error, and map_keys was fixed.
 - 性质测试：build 没有 `@given` 测试，因为设计第 11 节没有为它列性质。确定性由"同样输入字节相同"的固定例子守着。真实字典和真实数据还没有经过 build，那是任务 6。
   EN: No property tests for build, because design section 11 lists no properties for it; determinism is checked by a fixed-input test. The real dictionary and the real GeoJSON have not gone through build yet; that is task 6.
+- 实现任务 4：`apps/layer-coverage/fetch.py`（只用标准库）。分页每页 50000 条，`$order=:id`。写文件之前先核对：总条数等于 `count(*)`，每个 feature_code 的条数等于分组查询，两样都对才写。`--out` 在仓库里时退出码 2，联网之前就拒绝。网络错误和 5xx 重试，等 2、4、8 秒；4xx 不重试。
+  EN: Task 4 done: apps/layer-coverage/fetch.py (standard library only). Pages of 50,000 rows ordered by :id. Before anything is written, the download is checked against count(*) for the total and against the group query for each feature_code. --out inside the repo gives exit code 2 before any request. Network errors and 5xx are retried with waits of 2, 4 and 8 seconds; 4xx is not retried.
+- 测试 17 个（fetch 12 个，标准库检查 5 个），第一次运行全过。测试用假的 SODA 接口，不联网。
+  EN: 17 tests (12 for fetch, 5 for the stdlib check), all passing on the first run. The tests use a fake SODA endpoint and make no network calls.
+- fetch 导入了 build，共用子集条件和坐标系名。所以运行 fetch 时也会加载适配器，要求 refcov 包可导入（已经是可编辑安装）。
+  EN: fetch imports build to share the subset condition and the CRS name, so running fetch also loads the adapter, which needs the refcov package importable; the package is installed in editable mode.
+- 假接口里计数列的名字写的是 `count`，是按我对 SODA 返回格式的理解写的，没有对实时接口核对。这一点留给任务 6 的 `--check`。没有做变异测试。
+  EN: The fake endpoint names the count column "count", which is my understanding of SODA's response format and has not been checked against the live API; that check belongs to task 6 (--check). No mutation test was run.
 
