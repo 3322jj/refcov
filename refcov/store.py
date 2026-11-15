@@ -41,6 +41,7 @@ DEFAULT_CONFIG = {
     "relax": {"sources": [], "kinds": [], "units": []},
     "scope": [],
     "adapters": {},  # 适配器名 → 适配器文件路径（相对仓库根目录），见 refcov/adapters/loader.py
+    "sources": {},  # [sources]：files 是通配符列表，[sources.<适配器名>] 的 files 同理（见 source_specs）
 }
 
 
@@ -138,6 +139,55 @@ def _string_lists_to_lists(cfg: dict) -> list[dict]:
     return out
 
 
+def source_specs(cfg: dict) -> list[tuple[str, list[str]]]:
+    """`[sources]` 展开成 (适配器名, 通配符列表)。`files` 用内置的 markdown 适配器；`[sources.<名字>]` 用那个名字。
+    类型写错的项不在这里报（见 sources_problems），这里只取字符串。没有 `[sources]` 时返回空列表。"""
+    src = cfg.get("sources")
+    if not isinstance(src, dict):
+        return []
+    out = []
+    files = src.get("files")
+    if isinstance(files, list):
+        out.append(("markdown", [p for p in files if isinstance(p, str)]))
+    for name, sub in src.items():
+        if name != "files" and isinstance(sub, dict) and isinstance(sub.get("files"), list):
+            out.append((name, [p for p in sub["files"] if isinstance(p, str)]))
+    return out
+
+
+def sources_problems(cfg: dict) -> list[dict]:
+    """`[sources]` 写错的地方，每项 {where, value, note}，按配置顺序。形式和 config_problems 一样。
+    网址不登记（网址只走 refcov add）；通配符只能是仓库内的相对路径；子表名字要在 [adapters] 里声明。"""
+    src = cfg.get("sources")
+    if not src:
+        return []
+    if not isinstance(src, dict):
+        return [{"where": "sources", "value": src, "note": "应为表：[sources] files = [...]"}]
+    adapters = cfg.get("adapters") if isinstance(cfg.get("adapters"), dict) else {}
+    problems = []
+    for key, value in src.items():
+        if key == "files":
+            where, items = "sources.files", value
+        elif isinstance(value, dict):
+            if key not in adapters:
+                problems.append({"where": f"sources.{key}", "value": key, "note": "适配器名没有在 [adapters] 里声明"})
+            where, items = f"sources.{key}.files", value.get("files")
+        else:
+            problems.append({"where": f"sources.{key}", "value": value, "note": "只能是 files 或 [sources.<适配器名>]"})
+            continue
+        if not isinstance(items, list):
+            problems.append({"where": where, "value": items, "note": "应为字符串列表"})
+            continue
+        for pattern in items:
+            if not isinstance(pattern, str) or not pattern.strip():
+                problems.append({"where": where, "value": pattern, "note": "空的，或不是字符串"})
+            elif "://" in pattern or pattern.lower().startswith(("http:", "https:")):
+                problems.append({"where": where, "value": pattern, "note": "网址不能写在 [sources]，用 refcov add 登记"})
+            elif pattern.startswith("/") or (len(pattern) > 1 and pattern[1] == ":") or ".." in pattern.split("/"):
+                problems.append({"where": where, "value": pattern, "note": "只能写仓库内的相对路径"})
+    return problems
+
+
 class Store:
     """一个仓库的状态目录。第一次写入时才建目录，只读操作不建。"""
 
@@ -199,6 +249,13 @@ class Store:
         except FileNotFoundError:
             return None
         return datetime.fromtimestamp(ts).astimezone().isoformat(timespec="seconds")
+
+    def config_mtime_ns(self) -> int | None:
+        """配置文件最后修改时间，纳秒整数；文件不存在时为 None。`sync` 记录和移出清单的判断用（比秒精确）。"""
+        try:
+            return self.config_path.stat().st_mtime_ns
+        except FileNotFoundError:
+            return None
 
     # ---- 清单 ----
 

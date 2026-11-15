@@ -1644,4 +1644,6 @@
   EN: No property tests (no code changed in this step).
 - 检查点 3 的决定写进 `docs/简化上手设计.md` 第 0 节（10 条；第 10 条是实现时补的，待用户确认）。实现分五步提交：store、api、cli、setup 和 hook 的 --root、README。
   EN: The checkpoint 3 decisions are in docs/简化上手设计.md section 0 (10 items; item 10 was added during implementation and awaits the user's confirmation). Implementation is split into five committed steps: store, api, cli, setup and the hook's --root, README.
+- 实现第 1 步：`store` 读 `[sources]`；`sources_problems` 报网址、类型错、仓库外路径、未声明的适配器名；`config_mtime_ns` 给同步记录用。6 个属性测试（S1–S6）。
+  EN: Step 1 done: store reads [sources]; sources_problems reports URLs, wrong types, paths outside the repo and undeclared adapter names; config_mtime_ns serves the sync record. Six property tests (S1–S6).
 
