@@ -1722,4 +1722,14 @@
   EN: cli.py does not import the adapter, because the adapter imports refcov.sources; so cli.py has its own copy of the same split rules. A test checks that both produce identical units for the same manifest.
 - 测试 14 个（命令行 8，标准库 6），第一次运行全过。
   EN: 14 tests (8 for the CLI, 6 for the stdlib check), all passing on the first run.
+- 实跑（任务 6）：`fetch.py --check` 连实时接口，总条数 6018；分组 2100 为 4301、5110 为 1715、5100 为 1、1001 为 1，和第 0 步一致。只读计数，没有下载完整数据，也没有写文件。完整重下还没做（设计第 12 节第 6 条）。
+  EN: Live run (task 6): fetch.py --check against the live API returned 6018 rows, with groups 2100: 4301, 5110: 1715, 5100: 1 and 1001: 1, matching step 0. It only read counts; the full download was not run and no file was written. A full re-download is still open (design section 12, item 6).
+- `build.py` 用本地抽取文件（sha256 0fdf697f…）和实时字典（sha256 f1f7934c…）生成 `bayside.fields.md`：坐标系、范围各 1 个，字段 15 个，共 17 个单元。第一次运行就通过，没有报错。
+  EN: build.py used the local extract (sha256 0fdf697f…) and the live dictionary (sha256 f1f7934c…) to write bayside.fields.md: one crs unit, one extent unit and 15 field units, 17 in all. It ran without error on the first attempt.
+- 独立核对：另写一段 Python 计数（不用 stats.py），15 个字段的非空数、不同取值数、零的条数、前 5 个取值都和清单一致，0 处不符。子集里没有一个字段有零值，`height_roof` 也没有空值。
+  EN: Independent check: a separate plain-Python count (not stats.py) matches the manifest on non-null count, distinct count, zero count and top-5 values for all 15 fields, with 0 mismatches. No field has a zero value in the subset, and height_roof has no nulls.
+- 字典有、数据里没有的 GLOBALID 写进范围单元，不生成字段单元。`name` 在 6018 行里全为空，是唯一没有非空值的字段。
+  EN: GLOBALID is in the dictionary but not in the extract; it is listed in the extent unit and gets no field unit. name is null in all 6018 rows and is the only field without values.
+- 清单的核对写成三个回归测试（结构 17 个单元；条数和代码分布；name 唯一全空）。全量 845 通过。
+  EN: Three regression tests now guard the committed manifest (17-unit structure; row count and code distribution; name as the only empty field). The full suite passes 845 tests.
 
