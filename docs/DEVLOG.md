@@ -1694,4 +1694,10 @@
   EN: Loading problem: a dataclass in a module loaded by file path looks itself up in sys.modules while it resolves string annotations. Without registration the load fails with AttributeError (confirmed with a probe script). The test now registers the module before executing it, as the core loader does. It was found before the first test run, not reported by a test.
 - 属性测试：P1–P5 没有抓到反例，性质没有改动。
   EN: Property tests: P1–P5 found no counterexample, and no property was changed.
+- 实现任务 2：`apps/layer-coverage/adapter.py`，名字 `layer`。`kinds`：字段严格必看；坐标系和范围严格且关键（轻量模式也必看）。`split` 只认行首的 `## ` 节和节首的 `kind:` 行；`read` 只返回文字；`facts` 解析"数据："行和范围的三行。
+  EN: Task 2 done: apps/layer-coverage/adapter.py, named "layer". Kinds: fields strict; crs and extent strict and key (required in light mode too). split recognizes only "## " sections at line start and the "kind:" line that opens each section; read returns text only; facts parses the "数据：" line and the three extent lines.
+- 测试 22 个：适配器 16 个（含性质 A1，每例改一个字段的正文，只有它的校验值变，200 例）；导入守卫 3 个；标准库 3 个（含检查程序对放进去的违规 import 的自检）。第一次运行全过。没有做变异测试（故意在顶层加一个调用，看守卫会不会报错），所以守卫的有效性只是按代码读过，没有实际验证。
+  EN: 22 tests: 16 for the adapter (including property A1, 200 examples: changing one field's text changes only that unit's hash), 3 for the import guard, and 3 for the stdlib check (including a self-test that the checker finds planted violations). All passed on the first run. No mutation test was run (adding a call at module top level to see whether the guard fails), so the guard was checked by reading the code only.
+- 这一步写文件没有被关卡拦下。
+  EN: No write in this step was blocked by the write gate.
 
