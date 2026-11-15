@@ -1680,4 +1680,12 @@
   EN: The permanent rule in 7.2 came from the user's chat and is cited only as text ("user 2026-11-15 decision"), with no source unit. The citation draft asks for review replies to be saved under docs/decisions and cited after the user checks them; this has not been done yet.
 - 属性测试：这一步没有代码改动，没写，也没抓到东西。
   EN: No property tests: this step changed no code, so none were written and none caught anything.
+- 写了 GIS 应用的设计（`.kiro/specs/layer-coverage/design.md`）和任务清单（`tasks.md`）。设计依据三处：适配器协议（`refcov/sources.py`）、适配器加载器（`refcov/adapters/loader.py`）、`[sources]` 子表（`refcov/store.py`）。字典的 Attribute 表两个单元经 MCP 读过，设计第 2.1 节照它写。
+  EN: Wrote the GIS app design (design.md) and task list (tasks.md). The design follows three existing interfaces: the adapter protocol in refcov/sources.py, the loader in refcov/adapters/loader.py, and the [sources] sub-tables in refcov/store.py. Both dictionary attribute units were read through MCP, and design section 2.1 follows them.
+- 只读核对的事实（没有写数据）：字典 Attribute 表能对上本地抽取文件的 15 个属性（大小写不敏感；别名行 shape_area、shape_length 也对上）；GLOBALID 字典里有、抽取文件里没有；15 个属性的值全是字符串或 null，`name` 在 6018 行里全为 null；几何 6018 个，全是 MultiPolygon，坐标系 CRS84。
+  EN: Read-only facts checked (no data written): the dictionary attribute table matches the 15 properties of the local extract case-insensitively, including the alias rows shape_area and shape_length; GLOBALID is in the dictionary but not in the extract; all 15 properties hold strings or null, and name is null in all 6018 rows; all 6018 geometries are MultiPolygon in CRS84.
+- 设计里有三处要用户看：字段单元全部严格必看；适配器路径只能是工作区里的相对路径，所以演示模板要放一份适配器副本；题目给的换算常数 0.09290304 是国际英尺的，EPSG:2263 是美国英尺，两者差约 0.0004%，远小于 ±3% 的容差。都在设计第 12 节。
+  EN: Three points need the user's review: every field unit is strictly required; the adapter path must be relative to the workspace, so the demo template needs a copy of the adapter; the 0.09290304 constant is for international feet while EPSG:2263 uses US survey feet, a difference of about 0.0004%, far inside the ±3% tolerance. All three are in design section 12.
+- 属性测试：这一步只改了文档，没写，也没抓到东西。
+  EN: No property tests: this step changed only documents, so none were written and none caught anything.
 
