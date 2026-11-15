@@ -1646,4 +1646,6 @@
   EN: The checkpoint 3 decisions are in docs/简化上手设计.md section 0 (10 items; item 10 was added during implementation and awaits the user's confirmation). Implementation is split into five committed steps: store, api, cli, setup and the hook's --root, README.
 - 实现第 1 步：`store` 读 `[sources]`；`sources_problems` 报网址、类型错、仓库外路径、未声明的适配器名；`config_mtime_ns` 给同步记录用。6 个属性测试（S1–S6）。
   EN: Step 1 done: store reads [sources]; sources_problems reports URLs, wrong types, paths outside the repo and undeclared adapter names; config_mtime_ns serves the sync record. Six property tests (S1–S6).
+- 实现第 2 步：`api` 加 `gen_id`、`plan_sync`、`sync`；`gather` 按 1.5 算自动源的必看集合；报告在配置了 `[sources]` 时多一个 `sync` 字段和待同步行。全量测试第一次有一条失败：报告字段的断言不认识新键。改成没有 `[sources]` 时不加这个键，之后全过。7 个测试（Y1–Y7）。
+  EN: Step 2 done: api gained gen_id, plan_sync and sync; gather applies the rule of section 1.5 to automatic sources; the report gets a sync field and a pending line only when [sources] is configured. The first full run had one failure: the report field test rejected the new key. The key is now added only with [sources], and the run passed. Seven tests (Y1–Y7).
 
