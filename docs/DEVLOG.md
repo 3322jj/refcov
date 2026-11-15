@@ -1688,4 +1688,10 @@
   EN: Three points need the user's review: every field unit is strictly required; the adapter path must be relative to the workspace, so the demo template needs a copy of the adapter; the 0.09290304 constant is for international feet while EPSG:2263 uses US survey feet, a difference of about 0.0004%, far inside the ±3% tolerance. All three are in design section 12.
 - 属性测试：这一步只改了文档，没写，也没抓到东西。
   EN: No property tests: this step changed only documents, so none were written and none caught anything.
+- 实现任务 1：`apps/layer-coverage/stats.py`（只用标准库：`stats_of`、`value_counts`、`text_of`、`is_zero`）和 `tests/test_layer_stats.py`。P1–P5 五个 `@given` 测试各 200 例，加 7 个固定例子，共 12 个，第一次运行全过。
+  EN: Task 1 done: apps/layer-coverage/stats.py (standard library only: stats_of, value_counts, text_of, is_zero) and tests/test_layer_stats.py with five @given properties P1–P5 (200 examples each) and seven fixed cases; 12 tests, all passed on the first run.
+- 加载问题：按路径加载的模块里，dataclass 解析字符串注解时要从 `sys.modules` 找回自己。没登记就加载失败（`AttributeError: 'NoneType' object has no attribute '__dict__'`，用一段探测代码确认过）。测试里先登记再执行，和核心层的加载器一样。这是在第一次跑测试前发现的，不是测试报的。
+  EN: Loading problem: a dataclass in a module loaded by file path looks itself up in sys.modules while it resolves string annotations. Without registration the load fails with AttributeError (confirmed with a probe script). The test now registers the module before executing it, as the core loader does. It was found before the first test run, not reported by a test.
+- 属性测试：P1–P5 没有抓到反例，性质没有改动。
+  EN: Property tests: P1–P5 found no counterexample, and no property was changed.
 
