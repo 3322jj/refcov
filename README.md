@@ -90,7 +90,7 @@ Python 3.11+. The core library uses only the standard library. The MCP server mo
    python <RefCov clone>/integrations/kiro/setup.py
    ```
 
-   It writes `.kiro/settings/mcp.json` with absolute paths to your Python and your project, copies five hooks into `.kiro/hooks/` (their commands point at this clone and at your project), and writes a `refcov.toml` template if there is none. It never overwrites `refcov.toml`. Without `--force` it leaves existing hook files and the `refcov` entry in `mcp.json` alone; `--force` replaces only those. Only you edit `refcov.toml`. There is no `refcov init`; the state directory `.refcov/` is created on the first write.
+   It writes `.kiro/settings/mcp.json` with absolute paths to your Python and your project, copies five hooks into `.kiro/hooks/` (their commands point at this clone and at your project), and writes a `refcov.toml` template if there is none. It never overwrites `refcov.toml`. Without `--force` it leaves existing hook files and the `refcov` entry in `mcp.json` alone; `--force` replaces only those. Only you edit `refcov.toml`. There is no `refcov init`; the state directory `.refcov/` is created on the first write. `setup.py` writes the `refcov.toml` template only when there is no `refcov.toml` yet. The hooks point at `integrations/kiro/hook.py` inside the RefCov clone, so if you move that clone, run `setup.py` again from your project root.
 
 3. In `refcov.toml`, list the reference material under `[sources]`. Patterns are relative to the project root, and `*` also crosses `/`:
 

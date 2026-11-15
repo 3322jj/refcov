@@ -1664,4 +1664,6 @@
   EN: Performance change: when the config had changed and no sync had run, _inactive_auto walked the whole repository on every gate check. It now compares each recorded origin with the [sources] patterns (properties Y10 and Y11, one test each); plan_sync computes missing and removed by the same rule.
 - 副作用，请审：配置改过、文件也删了的源，只要 origin 仍被通配符匹配，就仍必看。以前按磁盘上的文件判断会移出。这和"删文件不让必看变少"一致，但和设计 1.5 原来写的"现在仍匹配"不完全一样，设计文档已改。
   EN: Side effect, for review: a source whose file was deleted while the config changed stays required as long as its recorded origin still matches a pattern. The old disk-based check removed it. This fits "deleting a file never lowers the required set", but it differs from the wording of design section 1.5, which the design document now reflects.
+- README 的 Setup 一节补两句：`setup.py` 只在没有 `refcov.toml` 时写模板；钩子指向 RefCov 克隆目录里的 hook.py，克隆目录挪走要重新运行 setup.py。
+  EN: The README Setup section gains two sentences: setup.py writes the refcov.toml template only when there is none; the hooks point at hook.py in the RefCov clone, so after moving the clone, run setup.py again from the project root.
 
