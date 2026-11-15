@@ -878,6 +878,288 @@
           "chars": 71
         }
       ]
+    },
+    {
+      "id": "nyc-bldg-dict",
+      "origin": "https://raw.githubusercontent.com/CityOfNewYork/nyc-geo-metadata/main/Metadata/Metadata_BuildingFootprints.md",
+      "fetched": "2026-11-15T17:18:15+08:00",
+      "sha256": "7a7c3df3bde8bccf5f0219fe829cdf380702699c8854298c6c6d8b1e2b5cb407",
+      "adapter": "markdown",
+      "registered_seq": 256,
+      "units": [
+        {
+          "id": "Building-Footprints",
+          "title": "Building Footprints",
+          "kind": "section",
+          "sha256": "c71eb8435c916adf8fc671d4a205ca972f98c93ed9fd03d614f210993518ae11",
+          "chars": 136
+        },
+        {
+          "id": "Table-of-Contents<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**1.-Identification**-(#1-identification)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**2.-Data-Quality-and-Specifications**-(#2-data-quality-and-specifications)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**3.-Attribute-Information**-(#3-attribute-information)<br><br>",
+          "title": "Table of Contents<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**1. Identification**](#1-identification)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2. Data Quality and Specifications**](#2-data-quality-and-specifications)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**3. Attribute Information**](#3-attribute-information)<br><br>",
+          "kind": "section",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "chars": 0
+        },
+        {
+          "id": "1.-Identification",
+          "title": "1. Identification",
+          "kind": "section",
+          "sha256": "c5d92b7f5fb5e8833844891ee0c868c4241507b7e9a1ef0599d3cf0c8fc42185",
+          "chars": 2174
+        },
+        {
+          "id": "2.-Data-Quality-and-Specifications",
+          "title": "2. Data Quality and Specifications",
+          "kind": "section",
+          "sha256": "12f32b0b3e8e7b229cc994bce0a0b60518c0661a1e7d9e140746c7b0bc6498bf",
+          "chars": 4000
+        },
+        {
+          "id": "2.-Data-Quality-and-Specifications@2",
+          "title": "2. Data Quality and Specifications (2)",
+          "kind": "section",
+          "sha256": "5476807dff8a8e739448892b60c0340382fd52ae49f27d10d620c342ac0dfc53",
+          "chars": 417
+        },
+        {
+          "id": "3.-Attribute-Information",
+          "title": "3. Attribute Information",
+          "kind": "section",
+          "sha256": "29f887cdfa7db0c512d7ccbf19f0760572e1329456206e5e49068c8bb6156e02",
+          "chars": 4000
+        },
+        {
+          "id": "3.-Attribute-Information@2",
+          "title": "3. Attribute Information (2)",
+          "kind": "section",
+          "sha256": "fc0c6c6428b7aa0884e014853dff63d0c5a18ce0756f6cacc894f4b33c30c135",
+          "chars": 1690
+        }
+      ]
+    },
+    {
+      "id": "app-positioning",
+      "origin": "docs/应用定位和陷阱试验.md",
+      "fetched": "2026-11-15T17:18:22+08:00",
+      "sha256": "d882f62b0d1df66008500b38775e4aa21f7dce179809ec210e5419942f5c8dba",
+      "adapter": "markdown",
+      "registered_seq": 257,
+      "units": [
+        {
+          "id": "两个应用的定位、证据和演示（第二版）",
+          "title": "两个应用的定位、证据和演示（第二版）",
+          "kind": "section",
+          "sha256": "65a693e5303247b02de6d98e828106210e6b03eb273ddad8cde97a16a5c04fbd",
+          "chars": 700
+        },
+        {
+          "id": "1.-结论",
+          "title": "1. 结论",
+          "kind": "section",
+          "sha256": "7c52f3c1a2428a2bd8d86c5b5d471808c848771c30c13c33ce5b7693ce95aeea",
+          "chars": 220
+        },
+        {
+          "id": "2.-为什么改：这两天的四个发现",
+          "title": "2. 为什么改：这两天的四个发现",
+          "kind": "section",
+          "sha256": "0c191852beaaf9deeb4bead7105c2630fde148d4649285c0788ecb81b9bac67a",
+          "chars": 716
+        },
+        {
+          "id": "3.-对外讲法",
+          "title": "3. 对外讲法",
+          "kind": "section",
+          "sha256": "4f5dfbe6fd60d3a83c3fd04b8b1c2e4889752e6fd464ed95e3d4cce7387ba60f",
+          "chars": 363
+        },
+        {
+          "id": "4.-镜头覆盖率-`apps/shot-coverage`：拆和读",
+          "title": "4. 镜头覆盖率 `apps/shot-coverage`：拆和读",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "要做的",
+          "title": "要做的",
+          "kind": "section",
+          "sha256": "c302c291c569d43f558cdc29e63a7f0b5ef170e6b68d44a28e7ddf081eacbf3d",
+          "chars": 315
+        },
+        {
+          "id": "对比试验（主要证据）",
+          "title": "对比试验（主要证据）",
+          "kind": "section",
+          "sha256": "aac72a8565b9acf519364182167c97c45366901f4196df887a2d72e6e544ab9c",
+          "chars": 675
+        },
+        {
+          "id": "5.-图层覆盖率-`apps/layer-coverage`：拦和出处",
+          "title": "5. 图层覆盖率 `apps/layer-coverage`：拦和出处",
+          "kind": "section",
+          "sha256": "3b6ac6a74de6e54340ee0d0fc37408724c2bf477f67b025e91da6fea87b0d948",
+          "chars": 438
+        },
+        {
+          "id": "6.-证据清单",
+          "title": "6. 证据清单",
+          "kind": "section",
+          "sha256": "edb241948edf5ffc8cc03c92618996574e43320c221e9dcb1ba0d3a3a6b3361c",
+          "chars": 382
+        },
+        {
+          "id": "7.-视觉语言",
+          "title": "7. 视觉语言",
+          "kind": "section",
+          "sha256": "da95bfe21edec672f16fadba160cbb4f021d84b76801742ca32beae2d6c672c8",
+          "chars": 81
+        },
+        {
+          "id": "8.-视频分镜（3-分钟以内，英文）",
+          "title": "8. 视频分镜（3 分钟以内，英文）",
+          "kind": "section",
+          "sha256": "6ec6705d410da3cff84abf7205ea03c563ef0a1d7e2d1621f282df60659cd88f",
+          "chars": 420
+        },
+        {
+          "id": "9.-风险和待验证",
+          "title": "9. 风险和待验证",
+          "kind": "section",
+          "sha256": "4f5374e74882e9e2d8545ba6be2b4cc5b488428e16e9753a1aa62aa6776b1db8",
+          "chars": 361
+        },
+        {
+          "id": "附录：纽约建筑轮廓数据",
+          "title": "附录：纽约建筑轮廓数据",
+          "kind": "section",
+          "sha256": "5ea71449cc6c393019987b3ed7b86bbb42b98ef38a7c9724a8ae75763d338f14",
+          "chars": 431
+        }
+      ]
+    },
+    {
+      "id": "shot-design",
+      "origin": ".kiro/specs/shot-coverage/design.md",
+      "fetched": "2026-11-15T17:18:43+08:00",
+      "sha256": "a8c56735f74ec0d17813d2f0b269f4ac790103ea4623df07f168c06df69aa2eb",
+      "adapter": "markdown",
+      "registered_seq": 258,
+      "units": [
+        {
+          "id": "设计文档：镜头覆盖率应用-`apps/shot-coverage`（初稿，等审阅）",
+          "title": "设计文档：镜头覆盖率应用 `apps/shot-coverage`（初稿，等审阅）",
+          "kind": "section",
+          "sha256": "8e234e3ac057ab3a4a259457b1db9e02f767096bbbb4ba6e344a45db651fd767",
+          "chars": 978
+        },
+        {
+          "id": "1.-总览",
+          "title": "1. 总览",
+          "kind": "section",
+          "sha256": "809a18fa58b21178fe85493fd3c37651357ff633a96c992d0e66d374040594f1",
+          "chars": 1162
+        },
+        {
+          "id": "2.-镜头清单格式（需求-1.2）",
+          "title": "2. 镜头清单格式（需求 1.2）",
+          "kind": "section",
+          "sha256": "4be5eb9a92496ad72d50355d68a54392dc766883bf82937605fcb6b73c321ff1",
+          "chars": 991
+        },
+        {
+          "id": "3.-适配器-`adapter.py`",
+          "title": "3. 适配器 `adapter.py`",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "3.1-对核心层的接口",
+          "title": "3.1 对核心层的接口",
+          "kind": "section",
+          "sha256": "00acb953e64a767a3a548ee932e3abf4f3572280eebf63ed7f8f1e624afee21d",
+          "chars": 646
+        },
+        {
+          "id": "3.1.1-导入-`adapter.py`-时不做任何耗时的事（用户-2026-11-14-审阅补）",
+          "title": "3.1.1 导入 `adapter.py` 时不做任何耗时的事（用户 2026-11-14 审阅补）",
+          "kind": "section",
+          "sha256": "d9b10eec6d265889f65ba0a6351462b8263167bd71797fe299d8f93b465d4bd9",
+          "chars": 760
+        },
+        {
+          "id": "3.2-`read`-的步骤",
+          "title": "3.2 `read` 的步骤",
+          "kind": "section",
+          "sha256": "32f0b5879d59d1d26455e62e403ba7a6c6840fc819fea7c8b3293c5c63b89e7d",
+          "chars": 1367
+        },
+        {
+          "id": "3.3-为什么不把取帧放进登记",
+          "title": "3.3 为什么不把取帧放进登记",
+          "kind": "section",
+          "sha256": "0ddb5504f20b54e6a64e253e58fd171d5cbd88c1fca7cae6a4b1befe979daa0a",
+          "chars": 116
+        },
+        {
+          "id": "4.-检测-`detect`（需求-1、4）",
+          "title": "4. 检测 `detect`（需求 1、4）",
+          "kind": "section",
+          "sha256": "2dfb9076537bedbec303e2dd4c616dd272811ef3767e6ebad6ce431c7f8a92e3",
+          "chars": 1262
+        },
+        {
+          "id": "5.-镜头条页面-`page.py`（需求-5）",
+          "title": "5. 镜头条页面 `page.py`（需求 5）",
+          "kind": "section",
+          "sha256": "9b91bbcbf28bc5f78d2391f9e32fbc6f21c505a9b565ad0a66f60bf7821ae29b",
+          "chars": 846
+        },
+        {
+          "id": "6.-配置、保护和安全",
+          "title": "6. 配置、保护和安全",
+          "kind": "section",
+          "sha256": "aa219feac385f4328700075c36998bbe5303dcdc007e59f1ebe2deaa6d77e8b6",
+          "chars": 644
+        },
+        {
+          "id": "7.-测试",
+          "title": "7. 测试",
+          "kind": "section",
+          "sha256": "5a2de4b36c1322123035346ebe58cac5f8e6cd4b0babbc41b11fe4aff820ca06",
+          "chars": 1152
+        },
+        {
+          "id": "8.-参数初值（实测后定）",
+          "title": "8. 参数初值（实测后定）",
+          "kind": "section",
+          "sha256": "4dfe08095856226c9c385030a731d6af454c050a3013d583738a32e43a214e81",
+          "chars": 304
+        },
+        {
+          "id": "9.-需求和设计对照",
+          "title": "9. 需求和设计对照",
+          "kind": "section",
+          "sha256": "dc95abc8ae51cd809e40e604c2cacaad3b4eb08bd1ab6025a1d7184e463fd1ef",
+          "chars": 413
+        },
+        {
+          "id": "10.-需要用户看的几点",
+          "title": "10. 需要用户看的几点",
+          "kind": "section",
+          "sha256": "269736176b011a6f49f46cdcdf25c08dd7cc8275b0cd0a63923fa75cbda7971f",
+          "chars": 620
+        },
+        {
+          "id": "11.-给对比试验用（用户-2026-11-14-审阅补）",
+          "title": "11. 给对比试验用（用户 2026-11-14 审阅补）",
+          "kind": "section",
+          "sha256": "f9da782ea6294ce951c469d31821368edfe9eb5189f06dfd99cc5e8eed7c3187",
+          "chars": 1222
+        }
+      ]
     }
   ]
 }

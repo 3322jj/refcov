@@ -55,3 +55,8 @@ sources = ["rules",
 
 # 没列在上面的路径（例如以后的 apps/**）会要求全部参考源。
 # 做两个应用时，登记它们自己的参考材料后在这里各加一条规则。
+[[scope]]
+paths   = ["apps/layer-coverage/**", ".kiro/specs/layer-coverage/**"]
+sources = ["nyc-bldg-dict", "app-positioning", "shot-design",
+           "dec-analysis-answers", "dec-commit-and-design", "dec-design-review",
+           "dec-questions-reply", "dec-review-reply"]
