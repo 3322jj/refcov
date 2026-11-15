@@ -1714,4 +1714,12 @@
   EN: fetch imports build to share the subset condition and the CRS name, so running fetch also loads the adapter, which needs the refcov package importable; the package is installed in editable mode.
 - 假接口里计数列的名字写的是 `count`，是按我对 SODA 返回格式的理解写的，没有对实时接口核对。这一点留给任务 6 的 `--check`。没有做变异测试。
   EN: The fake endpoint names the count column "count", which is my understanding of SODA's response format and has not been checked against the live API; that check belongs to task 6 (--check). No mutation test was run.
+- 实现任务 5：`apps/layer-coverage/cli.py`（`fields` 只列 kind 为 field 的单元；`show <ID>` 打印正文；只读清单，不 import refcov）和英文的 `README.md`。README 只写机制和局限（需求 7.1），没有写抓到了多少。
+  EN: Task 5 done: apps/layer-coverage/cli.py (fields lists only the field units; show <ID> prints one unit; read-only; does not import refcov) and an English README.md. The README describes the mechanism and the limits only (requirement 7.1) and gives no count of catches.
+- 设计第 8 节原来写"每个单元一行"，和需求 6.1 的"列出字段单元"不一致。按需求改了设计，并在设计里注明。
+  EN: Design section 8 said "each unit", which conflicts with requirement 6.1 ("list the field units"). The design now follows the requirement and notes the change.
+- cli.py 不 import 适配器，因为适配器 import 了 refcov.sources。所以 cli.py 自己有一份同样规则的切法。测试核对两份切法对同一份清单给出相同的单元。
+  EN: cli.py does not import the adapter, because the adapter imports refcov.sources; so cli.py has its own copy of the same split rules. A test checks that both produce identical units for the same manifest.
+- 测试 14 个（命令行 8，标准库 6），第一次运行全过。
+  EN: 14 tests (8 for the CLI, 6 for the stdlib check), all passing on the first run.
 

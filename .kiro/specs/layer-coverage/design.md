@@ -133,9 +133,9 @@ kind: field
 
 ## 8. 命令行（`cli.py`，需求 6.1）
 
-- `python apps/layer-coverage/cli.py fields`：每个单元一行，格式为"ID 制表符 标题"。
+- `python apps/layer-coverage/cli.py fields`：列出字段单元（kind 为 field 的单元），每个一行，格式为"ID 制表符 标题"。坐标系和范围不列，它们用 `show` 看。（需求 6.1 写的是"列出字段单元"，这里照它做。）
 - `python apps/layer-coverage/cli.py show <ID>`：打印该单元的正文。ID 不存在时退出码 1。
-- 只读 `apps/layer-coverage/bayside.fields.md`。不 import `refcov`，不写任何记录（测试）。
+- 默认只读 `apps/layer-coverage/bayside.fields.md`；`--manifest <文件>` 可以指定别的清单（测试用）。不 import `refcov`，不写任何记录（测试）。切法和适配器的 `split` 一致（测试核对）。
 
 ## 9. 核心层和接入（需求 6.3，检查点 3）
 
