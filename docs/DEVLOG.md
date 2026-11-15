@@ -1749,4 +1749,8 @@
   EN: Task 7: the standard answer and three wrong-answer references were computed with pyproj 3.7.1 in EPSG:2263. The results were seen in this session only. The numbers are not in the repository, and the grader file is not saved until the user approves a location outside the repository (design section 12, item 7). Task 7 is not complete and is not ticked in tasks.md.
 - 这一轮没有新的属性测试：改的是构建和文档，设计第 11 节没有为构建列性质。
   EN: No new property tests this round: the builder and the documents changed, and design section 11 lists no properties for the builder.
+- 检查点 2（任务 8）：停在这里，没有运行演示，也没有起 kiro-cli。等用户批准的事项：（1）判分脚本存到仓库外的哪个目录（默认 `D:\agent\kiro\refcov-trial-grader\`，超出 phase-2 的写入范围）；（2）提示词多一句"请把计算过程和答案写进 answer.md"；（3）模板里放一份适配器副本，而不改核心层；（4）换算常数用 0.09290304 还是美国英尺的常数；（5）两组各 4 次。设计第 10 和 12 节写了细节。
+  EN: Checkpoint 2 (task 8): stopped here. No demo was run and kiro-cli was not started. Items awaiting the user's approval: (1) where the grader file may be saved (default D:\agent\kiro\refcov-trial-grader\, outside the phase-2 write scope); (2) one extra sentence in the prompt, asking for the working and answer to be written to answer.md; (3) a copy of the adapter placed in the template instead of a core change; (4) the conversion constant, 0.09290304 or the US survey foot constant; (5) four runs per group. Design sections 10 and 12 give the details.
+- 全部已推送到 phase2-haiku 分支；main 没有动。
+  EN: Everything is pushed to the phase2-haiku branch; main is untouched.
 
