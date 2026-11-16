@@ -1774,3 +1774,21 @@
 - 关卡的正确次序：前端扩展的 4 次是先读后拦（读到一半就想写，被拦下）；GIS 只留关卡组的 5 次是先拦后读；两组都是拦下以后读完才写。
   EN: The correct patterns: the four front-end extension blocks were read-then-block (the model began writing partway through reading); the five GIS gate-only blocks were block-then-read; in both groups the model read everything before it wrote.
 
+## 2026-11-16（演示页开工：用户拍板后的需求第一稿）
+- 按 Claude 的请求，先读 main 上的 `docs/演示页方案.md`，再写 `.kiro/specs/demo-page/requirements.md`（16 条需求）。第 5 节五条照建议定，第 7 节的四次运行固定。这一步只写需求：没有建 `site/`，没有写设计、转换脚本和页面代码。
+  EN: As Claude asked, read docs/演示页方案.md on main first, then wrote requirements.md for the demo page (16 requirements). The five recommendations in section 5 are adopted and the four runs in section 7 are fixed. This step only writes requirements: site/ is not created, and no design, conversion script or page code was written.
+- phase-2 写入范围扩大：用户批准加上 `.kiro/specs/demo-page/**` 和 `site/**`。这一步只用到前者。
+  EN: The phase-2 write scope now also covers .kiro/specs/demo-page/** and site/**, approved by the user. This step uses only the first.
+- check-spec：16 条需求，幻影 0，无效引用 0，未转换 9 条（需求 2、3、6、8、10、12、14、15、16）。被引用的 4 个单元都是 `app-positioning` 的已读单元（第 3、5、7、9 节）。未转换的是文字出处：方案、产品引导和结果文档都在 main 上，phase2-haiku 上没有，等用户决定怎么登记后再转换。
+  EN: check-spec on the requirements: 16 requirements, 0 phantom, 0 invalid, 9 unconverted (requirements 2, 3, 6, 8, 10, 12, 14, 15 and 16). The four registered units cited are app-positioning sections 3, 5, 7 and 9, all read. The unconverted items are text citations to documents that exist only on main; they convert once the user decides how to register them.
+- `app-positioning` 第 4 节（镜头）经 MCP 两次读出空内容，所以没有引用它；需求 5 的"拆"段改引第 9 节和方案。这可能是单元内容为空，需要 Claude 看一下。
+  EN: app-positioning section 4 (the shot app) read back empty through MCP twice, so it is not cited; requirement 5 cites section 9 and the plan instead. The unit may be empty, which needs a look from Claude.
+- 需求 2 有一条核对要求：左栏"一次工具调用就写完"要在转换脚本里对照运行记录核对，核对不过就改页面文字，不改数据。
+  EN: Requirement 2 requires the left column's "one tool call, then write" to be checked against the run records when the conversion script is written; if the check fails, the page text changes, not the data.
+- 四次运行的文件夹都在方案指定的位置。这一步只核对了它们存在，没有打开内容。
+  EN: The four replay run folders exist at the locations the plan gives. This step only checked that they exist and did not open their contents.
+- 上一条提交（b071028）的过程问题：commit 和 push 在同一批发出，违反了操作顺序规则。结果是对的（远端和本地都是 b071028），但那是碰巧，不是保证。之后 commit 和 push 分开发出。
+  EN: A process error in the previous commit (b071028): commit and push were sent in one batch, which breaks the ordering rule. The result is right (the remote and local both point at b071028), but that was luck, not a guarantee. From now on commit and push are sent separately.
+- 属性测试：没有（这一步只有需求文件）。
+  EN: No property tests: this step contains only the requirements file.
+
