@@ -1792,3 +1792,19 @@
 - 属性测试：没有（这一步只有需求文件）。
   EN: No property tests: this step contains only the requirements file.
 
+## 2026-11-16（审阅后：演示页需求第二稿）
+- 按 Claude 对第一稿（878deaa）的审阅改了需求。8.6 去掉和判分脚本标准值的对照：转换脚本不读 `answer.md` 正文，GIS 段只显示固定句，写出前检查 JSON。回放段加 kiro-cli 版本（1.4、2.2、4.2、5.2）。2.5 写指南登记方式，3.5 写表的模型和链接。5 段出处改引 `app-positioning` 的 `要做的` 和 `对比试验（主要证据）` 两个子节。6.3 改成按 Haiku 的提交标记过滤。7.1 写明每组的模型和版本。9.5 改为由 Claude 在上线前读完使用条款，经用户确认。
+  EN: Revised the requirements per Claude's review of the first draft. 8.6 no longer compares with grader standard values: the converter does not read answer.md, the GIS segment shows one fixed sentence, and the JSON is checked before writing. The replays state kiro-cli versions (1.4, 2.2, 4.2, 5.2). 2.5 states how the guides were registered, and 3.5 states the table's model and links. The segment 5 citations point at the subsections 要做的 and 对比试验（主要证据）. 6.3 filters commits by the Haiku trailer. 7.1 states the model and version of each trial. 9.5 has Claude read the usage terms before launch, with the user's confirmation.
+- 逐个核对了 kiro-cli 版本，依据运行记录和设计文档：G-01 为 3.3.0（status 文件的 `kiro_cli` 字段）；VB-01 为 3.1.0（`kiro_cli_at_batch_start`，批次开始时的值）；GIS 的 status 文件全是 3.3.0。W-H-03 和 WB-H-03 的记录里没有版本字段，3.3.0 只依据 `docs/前端指南试验结果.md` 第 3 节的标题，第 5 节的 Haiku 补跑没有另写版本。视频试验有两批：`20261114-180540`（V-01、VB-01）是 3.1.0，`20261114-184158`（V-02、VB-02、V-03、VB-03）是 3.3.0，`docs/视频对比试验设计.md` 第 9 节也这么写。
+  EN: Checked kiro-cli versions against run records and design docs. G-01 is 3.3.0 (kiro_cli field). VB-01 is 3.1.0 (kiro_cli_at_batch_start, the value at batch start). All GIS status files read 3.3.0. The W-H-03 and WB-H-03 records have no version field, so their 3.3.0 rests only on the heading of docs/前端指南试验结果.md section 3, and section 5 does not restate it. The video trial ran two batches: 20261114-180540 (V-01, VB-01) on 3.1.0 and 20261114-184158 (V-02, VB-02, V-03, VB-03) on 3.3.0, as docs/视频对比试验设计.md section 9 also states.
+- 有一处没有替 Claude 或用户定：第一轮登记的 8 份指南由谁挑。`.kiro/steering/product.md` 第 34 行和 Claude 的审阅第 3 条写"人按任务挑的"；`docs/故事构思.md` 第 81 行（第 6 节）和 `docs/前端扩展试验结果.md` 第 68 行（第 7 节）写"Claude 挑的"。需求 2.5 写成待定，文末"还没定的"也列了。
+  EN: One point is left open on purpose: who picked the first round's 8 guides. product.md line 34 and Claude's review item 3 say a person picked them. docs/故事构思.md line 81 (section 6) and docs/前端扩展试验结果.md line 68 (section 7) say Claude did. Requirement 2.5 is marked pending, and the open list at the end of the requirements file records it too.
+- Claude 核对过 W-H-03 的记录只有 1 次工具调用、39 秒，所以需求 2.3 不改。app-positioning 第 4 节是标题单元，正文在两个 `###` 子节里（`要做的`、`对比试验（主要证据）`），两个都经 MCP 读过；公司名的规则在后一个，镜头条的写法在前一个。
+  EN: Claude checked that the W-H-03 record has one tool call and 39 seconds, so requirement 2.3 stays as written. app-positioning section 4 is a heading-only unit. Its body is in two ### subsections, 要做的 and 对比试验（主要证据）, both read through MCP. The company-name rule is in the second, and the shot-strip design in the first.
+- Claude 把 main 合进了本分支（合并提交 `4807463`），方案和结果文档现在本地有。它们还没登记，出处保持文字写法。check-spec：16 条需求，幻影 0，无效引用 0，未转换 9 条（2、3、6、8、10、12、14、15、16）。全量测试 850 通过，有 1 个警告，没有查。本步 RefCov 拦了 0 次。
+  EN: Claude merged main into the branch (4807463), so the plan and result documents are local now. They are not registered, so citations stay as text. check-spec: 16 requirements, 0 phantom, 0 invalid, 9 unconverted (requirements 2, 3, 6, 8, 10, 12, 14, 15 and 16). Full suite: 850 passed with 1 warning, not investigated. RefCov blocked this step 0 times.
+- 工具输出里只看到退出码 0，没看到 pytest 的汇总行；把输出写进临时文件再读尾部，才看到 850 passed。
+  EN: The tool output showed only exit code 0 and no pytest summary line. Writing the output to a temp file and reading its tail showed "850 passed".
+- 属性测试：本步没有新增。全量测试里原有的属性测试一起跑了，通过，没有抓到问题。
+  EN: Property tests: none added in this step. The full suite, which includes the existing property tests, passed and found nothing.
+

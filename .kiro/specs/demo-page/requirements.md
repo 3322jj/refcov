@@ -1,10 +1,10 @@
-# 需求文档：演示页 `site/`（第一稿，2026-11-16）
+# 需求文档：演示页 `site/`（第二稿，2026-11-16）
 
-EN summary: Requirements for the demo page in `site/`: one static HTML, CSS and JavaScript page, in English only, that replays four real session logs as eight segments, each labelled with its run, date and model. A standard-library script keeps the raw logs outside the repository and writes small JSON files with local paths, model thinking and standard-answer values removed and no key-frame images. The page follows the product's public-claim rules, runs no model, calls no backend and collects no visitor data, is hosted on GitHub Pages online until 2027-01-29, and is itself configured under RefCov, with Chrome guides chosen by the guide pack's retrieval rules before any page code is written.
+EN summary: Requirements for the demo page in `site/`: one static HTML, CSS and JavaScript page, in English only, that replays four real session logs as eight segments, each labelled with its run, date, model and kiro-cli version. A standard-library script keeps the raw logs outside the repository and writes small JSON files with local paths, model thinking and standard-answer values removed and no key-frame images. The page follows the product's public-claim rules, runs no model, calls no backend and collects no visitor data, is hosted on GitHub Pages online until 2027-01-29, and is itself configured under RefCov, with Chrome guides chosen by the guide pack's retrieval rules before any page code is written.
 
-状态：**第一稿，2026-11-16。** 依据 `docs/演示页方案.md`（在 main 上；用户 2026-11-16 拍板：第 5 节五条照建议定；第 7 节定了回放用的四次运行）。本稿只写需求。设计、转换脚本和页面代码在后面的步骤做，`site/` 本步没有建。
+状态：**第二稿，2026-11-16。** 按 Claude 对第一稿的审阅修改。依据 `docs/演示页方案.md`（main 已合进本分支，合并提交 `4807463`，方案现在本地就有；用户 2026-11-16 拍板：第 5 节五条照建议定；第 7 节定了回放用的四次运行）。本稿仍只写需求。设计、转换脚本和页面代码在后面的步骤做，`site/` 本步没有建。
 
-文字出处（未登记，待转换）：`docs/` 下的方案、结果文档和 `.kiro/steering/product.md` 都在 main 上，phase2-haiku 上没有。这些出处是文字写法，检查程序报为"未转换"，不算幻影。等用户决定怎么登记（合并 main，或从 main 登记）以后，由 Claude 转换为 `[ref:…]`。
+文字出处（未登记，待转换）：`docs/` 下的方案、结果文档和 `.kiro/steering/product.md` 原在 main 上，main 已合进本分支，现在本地就有。这些文档还没有登记为参考源，所以出处保持文字写法，检查程序报为"未转换"，不算幻影。用户决定登记哪些文档以后，由 Claude 转换为 `[ref:…]`。
 
 ## 简介
 
@@ -31,8 +31,9 @@ EN: As a judge, I want to read eight segments on one page from top to bottom, so
 1. THE 页面 SHALL 只有一页，从上到下依次为：0 开头、1 对照回放、2 五个任务、3 拦、4 拆、5 我们自己就是这么用的、6 我们没证明的、7 自己试。
 2. THE 第 0 段 SHALL 有一句话 "How much of your reference material did the AI actually read?"，和一个数字：不装 RefCov 时 16 次里 13 次一份登记的指南都没打开；装上后 16 次都读完了全部必看单元。
 3. THE 页面的视觉 SHALL 统一用一排格子：读过的亮，没读的灰，被拦的那一刻闪一下（减少动态效果时改为静态标记，见需求 13）。
+4. THE 每段回放 SHALL 标明运行文件夹和编号、日期、模型和 kiro-cli 版本；各段的具体值见需求 2.2、4.2、5.2（方案第 6 节第 2 条）。
 
-出处：`docs/演示页方案.md` 第 2 节（main 上，未登记，待转换）；[ref:app-positioning/7.-视觉语言]
+出处：`docs/演示页方案.md` 第 2 节（未登记，待转换）；[ref:app-positioning/7.-视觉语言]
 
 ### 需求 2：对照回放，左右并排，每段标明运行
 EN: Side-by-side replay, with the run, date and model stated
@@ -43,11 +44,12 @@ EN: As a judge, I want to see the same prompt and the same cheap model run with 
 #### 验收标准
 
 1. THE 第 1 段 SHALL 左右两栏同时回放两次运行：左边是不装 RefCov 的 `webhaiku-20261115-173415\W-H-03`，右边是装上 RefCov 的 `webrefcovhaiku-20261115-173528\WB-H-03`。
-2. THE 第 1 段 SHALL 标明每栏的运行文件夹和编号、日期（2026-11-15）、模型（claude-haiku-5.5）。
+2. THE 第 1 段 SHALL 标明每栏的运行文件夹和编号、日期（2026-11-15）、模型（claude-haiku-5.5）、kiro-cli 版本（3.3.0，依据 `docs/前端指南试验结果.md` 第 3 节的标题；两个运行的记录文件里没有版本字段）。
 3. THE 右栏 SHALL 显示格子一格格亮起（必看单元 82 个），然后才出现写文件事件。THE 左栏 SHALL 按运行记录显示它的过程；方案说"一次工具调用就写完"，这一点在转换脚本里对照运行记录核对，核对不过就改页面文字。
 4. THE 第 1 段 SHALL 并排列出两份代码里四种指南写法的用上情况；右栏 SHALL 照实显示没用上的那一种（WB-H-03 用上 3 处，没用 `commandfor`）。
+5. THE 第 1 段旁边 SHALL 写明指南的登记方式：前端扩展的 4 个任务由指南包自带的检索按规则选（`docs/前端扩展试验结果.md` 第 7 节）；第一轮登记的 8 份指南由谁挑，待定（见本文末"已定和还没定的"），定下后按定下的说法写。
 
-出处：`docs/演示页方案.md` 第 2 节段 1、第 7 节（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 2 节段 1、第 7 节（未登记，待转换）
 
 ### 需求 3：五个任务的表，照实标出限制
 EN: Five-task table, with its limits stated
@@ -61,8 +63,9 @@ EN: As a judge, I want the result of each of the five tasks, including where it 
 2. THE 表 SHALL 照实标出"读完后选了保守写法"和"不装也自己读了"的任务和次数。
 3. THE 表的数字 SHALL 与 `docs/前端指南试验结果.md` 和 `docs/前端扩展试验结果.md` 里的表一致。合计一行（不装 13/16 次没开指南，装上 16/16 读完，写法 9/58 → 39/58）SHALL 与 `docs/故事构思.md` 第 2 节一致。
 4. THE 第 2 段 SHALL 写明每个数字来自哪份文档和哪一节。
+5. THE 表 SHALL 写明：五行的数字都是 claude-haiku-5.5 的结果（kiro-cli 3.3.0）。第一轮账户设置页的自动选模型和 claude-sonnet-5.5 两组不在表里，结果见 [前端指南试验结果](../../../docs/前端指南试验结果.md) 第 3 节（Haiku 的第一轮数字在第 5 节）。
 
-出处：`docs/演示页方案.md` 第 2 节段 2（main 上，未登记，待转换）；`docs/前端扩展试验结果.md` 第 2–7 节（main 上，未登记，待转换）；`docs/故事构思.md` 第 2 节（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 2 节段 2（未登记，待转换）；`docs/前端扩展试验结果.md` 第 2–7 节（未登记，待转换）；`docs/故事构思.md` 第 2 节（未登记，待转换）
 
 ### 需求 4：拦，GIS 只留关卡组的一次运行
 EN: The gate: one GIS run where the write was blocked before reading
@@ -73,12 +76,12 @@ EN: As a judge, I want to see a real block: the AI tries to write its answer, th
 #### 验收标准
 
 1. THE 第 3 段 SHALL 回放 `gis-20261115-213112\G-01`（GIS 只留关卡组正式批次的第一次）：写 `answer.md` 被拦，并显示关卡给的原因 → 必看单元的格子一格格亮起（24 格）→ 写成。
-2. THE 第 3 段 SHALL 标明运行文件夹和编号、日期（2026-11-15）、模型（claude-haiku-5.5）。
+2. THE 第 3 段 SHALL 标明运行文件夹和编号、日期（2026-11-15）、模型（claude-haiku-5.5）、kiro-cli 版本（3.3.0，见 `gis-20261115-213112\G-01.status.json` 的 `kiro_cli` 字段）。
 3. THE 第 3 段 SHALL 只显示"写出 answer.md，在标准值 ±3% 内"，不显示面积数字。
 4. THE 第 3 段 SHALL 在旁边放一句照实的话："在这份数据上模型自己也会查字典；RefCov 让'查过'变成能核对的数字。"
 5. THE 页面 SHALL NOT 说 RefCov 让答案变对，也 SHALL NOT 说拦让答案变对（三轮 GIS 试验都没测出，见 `docs/GIS试验结果.md`）。
 
-出处：`docs/演示页方案.md` 第 2 节段 3、第 3 节、第 7 节（main 上，未登记，待转换）；[ref:app-positioning/5.-图层覆盖率-`apps/layer-coverage`：拦和出处]；`docs/GIS试验结果.md`（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 2 节段 3、第 3 节、第 7 节（未登记，待转换）；[ref:app-positioning/5.-图层覆盖率-`apps/layer-coverage`：拦和出处]；`docs/GIS试验结果.md`（未登记，待转换）
 
 ### 需求 5：拆，两个应用的格子，不放关键帧
 EN: Splitting: the two apps' grids, without key-frame images
@@ -89,11 +92,11 @@ EN: As a judge, I want to see how each app splits its material into cells, witho
 #### 验收标准
 
 1. THE 第 4 段 SHALL 显示两组格子：镜头条（视频对比试验批次 `20261114-180540` 的 `VB-01`，46 个镜头，宽度按时长），和 24 格字段表（GIS 清单：15 个字段、坐标系、范围，以及 7 个字典单元）。
-2. THE 镜头条 SHALL 标明运行和日期（2026-11-14）、模型（claude-sonnet-5.5；视频对比试验用的是 Sonnet 5.5，不是 Haiku）。
+2. THE 镜头条 SHALL 标明运行和日期（2026-11-14）、模型（claude-sonnet-5.5；视频对比试验用的是 Sonnet 5.5，不是 Haiku）、kiro-cli 版本（3.1.0，批次 `20261114-180540` 开始时的版本，见 `20261114-180540\VB-01.pgrade.json` 的 `kiro_cli_at_batch_start` 字段）。
 3. THE 第 4 段 SHALL NOT 放任何关键帧图片，也 SHALL NOT 放视频里的画面文字或真实公司名（`app-positioning` 第 9 节第 5 条）。
 4. THE 镜头条 SHALL 只标出镜头的起止时间和读过的状态。
 
-出处：`docs/演示页方案.md` 第 2 节段 4、第 3 节（main 上，未登记，待转换）；[ref:app-positioning/9.-风险和待验证]
+出处：`docs/演示页方案.md` 第 2 节段 4、第 3 节（未登记，待转换）；[ref:app-positioning/要做的]；[ref:app-positioning/对比试验（主要证据）]；[ref:app-positioning/9.-风险和待验证]
 
 ### 需求 6：我们自己就是这么用的，施工账和同一件活的额度对比
 EN: "We used it on ourselves": the build ledger and the same-task cost comparison
@@ -105,10 +108,10 @@ EN: As a judge, I want the build ledger of the Haiku-built app and the same-task
 
 1. THE 第 5 段 SHALL 列出 `docs/施工账.md` 每件活的日期、任务、模型、额度（"未知"照写）、测试、读了几个单元、被拦几次。
 2. THE 第 5 段 SHALL 列出同一件活 Opus 和 Haiku 的额度：T1 为 0.18 对 4.77，T2 为 0.37 对 9.31，与 `docs/故事构思.md` 第 5 节一致。
-3. THE 第 5 段 SHALL 指向 `git log before-haiku..phase2-haiku`。
+3. THE 第 5 段 SHALL 指向 Haiku 写的提交：`git log before-haiku.. --grep "Kiro-Model: claude-haiku-5.5"`。合并 main 以后，`before-haiku..phase2-haiku` 里会混进 Claude 的文档提交，所以不用它。
 4. THE 第 5 段 SHALL 照实写：Haiku 写的代码仍由 Claude 在检查点审阅，不讲"Haiku 自己就够了"（`docs/故事构思.md` 第 6 节）。
 
-出处：`docs/演示页方案.md` 第 2 节段 5（main 上，未登记，待转换）；`docs/施工账.md`；`docs/故事构思.md` 第 5、6 节（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 2 节段 5（未登记，待转换）；`docs/施工账.md`；`docs/故事构思.md` 第 5、6 节（未登记，待转换）
 
 ### 需求 7：我们没证明的，和自己试
 EN: What the project did not show, and how to try it
@@ -118,12 +121,12 @@ EN: As a judge, I want to see what the project did not prove and how to try it m
 
 #### 验收标准
 
-1. THE 第 6 段 SHALL 写明：读了不等于照做；GIS 上没测出"读了才做对"；补的是信息，不补能力；次数少，是描述而不是统计；只在 claude-haiku-5.5 和 kiro-cli 3.3.0 上测过。
+1. THE 第 6 段 SHALL 写明：读了不等于照做；GIS 上没测出"读了才做对"；补的是信息，不补能力；次数少，是描述而不是统计；前端和 GIS 的结果在 kiro-cli 3.3.0 上测得，是 claude-haiku-5.5 的结果（第一轮前端另有自动选模型和 claude-sonnet-5.5 两组）；视频试验用 claude-sonnet-5.5，两批分别在 kiro-cli 3.1.0 和 3.3.0 上跑（`docs/视频对比试验设计.md` 第 9 节）。
 2. THE 第 6 段 SHALL 写明适用条件：小材料、点名时，强模型本来就会读，RefCov 只多一份记录；材料大、贵、是手段而不是任务本身时，价值最大（`app-positioning` 第 3 节）。
 3. THE 第 7 段 SHALL 写三步装法：运行 `setup.py`，在 `refcov.toml` 里写要读的材料，运行 `refcov sync`；并链接到仓库 README 的 Setup 一节。
 4. THE 第 7 段的步骤 SHALL 与 README 的 Setup 一节一致，以 README 为准。
 
-出处：`docs/演示页方案.md` 第 2 节段 6–7（main 上，未登记，待转换）；[ref:app-positioning/3.-对外讲法]；`docs/故事构思.md` 第 6 节（main 上，未登记，待转换）；仓库 `README.md`（未登记，待转换）
+出处：`docs/演示页方案.md` 第 2 节段 6–7（未登记，待转换）；[ref:app-positioning/3.-对外讲法]；`docs/故事构思.md` 第 6 节（未登记，待转换）；仓库 `README.md`（未登记，待转换）
 
 ### 需求 8：回放数据，标准库脚本，小 JSON，只放该放的
 EN: Replay data: a standard-library script that writes small JSON, keeping only what may be published
@@ -138,9 +141,9 @@ EN: As a maintainer, I want the page to read only small JSON files in the reposi
 3. THE 事件 SHALL 限于五类：工具调用、读单元、被拦、写文件、最后的汇报。每个事件只带时间（秒）、类型、单元编号和固定词表里的短标签，不带模型写的自由文字。
 4. THE JSON SHALL NOT 含标准答案的数值（GIS 的面积数字），也 SHALL NOT 含关键帧图片或视频画面的文字。
 5. THE 转换脚本 SHALL 可以重跑：同样的运行记录，两次输出的字节相同。
-6. THE 转换脚本 SHALL 在写出前检查输出：不含盘符路径或用户目录名；不含 GIS 答案的数字（与判分脚本的标准值对照）。
+6. THE 转换脚本 SHALL NOT 读 `answer.md` 的正文。THE GIS 那段 SHALL 只显示固定文字"写出 answer.md，在标准值 ±3% 内"。THE 转换脚本 SHALL 在写出前检查 JSON：不含本机路径，不含来自 `answer.md` 的文字。
 
-出处：`docs/演示页方案.md` 第 3 节（main 上，未登记，待转换）；`apps/layer-coverage/README.md`（未登记，待转换）
+出处：`docs/演示页方案.md` 第 3 节（未登记，待转换）；`apps/layer-coverage/README.md`（未登记，待转换）
 
 ### 需求 9：版权和隐私
 EN: Copyright and privacy limits on what the page shows
@@ -154,9 +157,9 @@ EN: As a maintainer, I want the page to respect the data and video rights and no
 2. THE 页面 SHALL 只显示 Chrome 指南的单元标题（指南为 Apache-2.0）。
 3. THE 页面 SHALL NOT 放参考视频的关键帧、画面文字或真实公司名。
 4. THE 页面 SHALL NOT 放访客数据，不加载第三方脚本、字体、统计代码或广告（方案第 6 节）。
-5. THE 数据和字典的使用条款全文 SHALL 在上线前读完并照做；`apps/layer-coverage/README.md` 写明目前还没有读完。
+5. THE 数据和字典的使用条款 SHALL 由 Claude 在上线前读完，并经用户确认后才上线；`apps/layer-coverage/README.md` 写明目前还没有读完。
 
-出处：`docs/演示页方案.md` 第 3、6 节（main 上，未登记，待转换）；[ref:app-positioning/9.-风险和待验证]；`apps/layer-coverage/README.md`（未登记，待转换）
+出处：`docs/演示页方案.md` 第 3、6 节（未登记，待转换）；[ref:app-positioning/9.-风险和待验证]；`apps/layer-coverage/README.md`（未登记，待转换）
 
 ### 需求 10：四次运行，固定，不挑
 EN: Four fixed runs, chosen by rule and not by result
@@ -174,7 +177,7 @@ EN: As a judge, I want to know the replays were not picked for their results, so
 2. THE 第 2 段的表 SHALL 列出五个任务的全部运行结果，不只列被选中的那几次。
 3. THE 页面 SHALL 写明选择规则，并写明每次运行的记录文件夹。
 
-出处：`docs/演示页方案.md` 第 6 节第 3 条、第 7 节（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 6 节第 3 条、第 7 节（未登记，待转换）
 
 ### 需求 11：对外文字，只讲测出来的
 EN: Public text states only what was measured
@@ -204,7 +207,7 @@ EN: As a maintainer, I want the page to have no framework or build step and to b
 3. THE 页面 SHALL 只有英文，不做中文版（方案第 5 节第 4 条）。
 4. THE 页面 SHALL 在无界面 Chrome 里打开时没有脚本错误。
 
-出处：`docs/演示页方案.md` 第 4 节、第 5 节第 4 条、第 7 节（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 4 节、第 5 节第 4 条、第 7 节（未登记，待转换）
 
 ### 需求 13：深浅色、手机和无障碍
 EN: Dark and light themes, mobile layout and accessibility
@@ -221,7 +224,7 @@ EN: As a judge, I want the page readable on any device and setting, including by
 5. THE 每个格子 SHALL 有文字替代：屏幕阅读器读出单元标题和状态（读过、没读、被拦）。
 6. WHERE 用户设定了减少动态效果，THE 页面 SHALL 停止闪烁和动画，改用静态标记。
 
-出处：[ref:app-positioning/7.-视觉语言]；`docs/演示页方案.md` 第 2 节（视觉）、第 4 节（main 上，未登记，待转换）
+出处：[ref:app-positioning/7.-视觉语言]；`docs/演示页方案.md` 第 2 节（视觉）、第 4 节（未登记，待转换）
 
 ### 需求 14：托管和在线期限
 EN: Hosting on GitHub Pages, online until 2027-01-29
@@ -235,7 +238,7 @@ EN: As a maintainer, I want the page on GitHub Pages over HTTPS until 2027-01-29
 2. THE 页面 SHALL 在线到 2027-01-29。
 3. THE 发布方式（从哪个分支、哪个目录发布）SHALL 在设计里定。
 
-出处：`docs/演示页方案.md` 第 4 节、第 5 节第 1 条（main 上，未登记，待转换）；`.kiro/steering/product.md` "必须有"第 5 条（未登记，待转换）
+出处：`docs/演示页方案.md` 第 4 节、第 5 节第 1 条（未登记，待转换）；`.kiro/steering/product.md` "必须有"第 5 条（未登记，待转换）
 
 ### 需求 15：不做的事
 EN: What the page does not do
@@ -249,7 +252,7 @@ EN: As a maintainer, I want the page's scope to stop at replays, so that it does
 2. THE 页面 SHALL 只做回放，不做实时演示；每段回放 SHALL 写明是哪一次运行、哪天、什么模型（方案第 6 节第 2 条）。
 3. THE 页面 SHALL NOT 为了好看挑数字：回放的运行在方案定下后固定（需求 10）。
 
-出处：`docs/演示页方案.md` 第 6 节（main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 6 节（未登记，待转换）
 
 ### 需求 16：页面本身由 RefCov 管着写
 EN: The page is itself written under RefCov
@@ -264,7 +267,7 @@ EN: As a user, I want the demo page itself written under RefCov, so that the pag
 3. THE 必看材料 SHALL 在写页面代码之前配好。顺序是：本需求定稿；Claude 按检索规则选出指南；用户登记并运行 `refcov sync`；然后才写页面代码。
 4. THE 配置 SHALL 用 `[[scope]]` 的 `paths = ["site/**"]` 写明页面文件夹，`sources` 填登记后生成的参考源编号。
 
-出处：`docs/演示页方案.md` 第 4 节、第 7 节（main 上，未登记，待转换）；`docs/前端扩展试验结果.md` 第 1 节（检索规则，main 上，未登记，待转换）
+出处：`docs/演示页方案.md` 第 4 节、第 7 节（未登记，待转换）；`docs/前端扩展试验结果.md` 第 1 节（检索规则，未登记，待转换）
 
 ## 已定和还没定的
 
@@ -272,4 +275,5 @@ EN: As a user, I want the demo page itself written under RefCov, so that the pag
 - 已定（方案第 7 节）：回放的四次运行和选择规则（需求 10）。
 - 设计阶段定：发布方式（分支和目录）；转换脚本截短到多长；事件标签的固定词表；页面的具体布局、颜色和动效时长。
 - 写页面代码之前必须完成：Chrome 指南的选择和登记（需求 16）。
-- 还没定，要用户拍板：文字出处怎么转换（合并 main，或从 main 登记方案和结果文档）。
+- 还没定，要用户拍板：登记哪些文档。main 已合进本分支（合并提交 `4807463`），文字出处要等登记后才能改成 `[ref:…]`。
+- 还没定，要 Claude 或用户定：第一轮登记的 8 份指南由谁挑。`docs/故事构思.md` 第 6 节和 `docs/前端扩展试验结果.md` 第 7 节写的是 Claude 挑的；`.kiro/steering/product.md` 的对外讲法写的是人按任务挑的。两种说法不能同时写进页面。
