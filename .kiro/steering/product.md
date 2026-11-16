@@ -4,7 +4,7 @@ inclusion: always
 
 # 产品：RefCov
 
-EN summary: RefCov computes coverage for reference material: sources are split into units, every read through MCP is recorded, and coverage counts only those records, with a tool-independent pass or fail that Kiro hooks enforce before writes and task starts. The pitch keeps one claim, "how much reference material the AI reads is a number", told in three layers: the standard is in the materials, not in model memory; models often know new practices but keep old habits; RefCov makes the model read the registered materials first. The evidence is five front-end tasks (without RefCov 13 of 16 runs opened no registered guide; with it 16 of 16 read every required unit; guide practices 9/58 rising to 39/58), and the gate blocked premature writes in the extension trial and in the GIS gate-only group, but no GIS trial showed reading turning a wrong answer right. The public text therefore claims reading, records and gate behavior, never correct answers, new-practice adoption, or RefCov filling capability gaps, and it keeps each trial's limits (one-task first trial, small runs, kiro-cli 3.3.0; browser checks show pages work in every group, so the claim is "follows the project's standards", not "pages are better with RefCov"). Must-haves and the scope freeze from 2026-11-13 are unchanged.
+EN summary: RefCov computes coverage for reference material: sources are split into units, every read through MCP is recorded, and coverage counts only those records, with a tool-independent pass or fail that Kiro hooks enforce before writes and task starts. The pitch keeps one claim, "how much reference material the AI reads is a number", told in three layers: the standard is in the materials, not in model memory; models often know new practices but keep old habits; RefCov makes the model read the registered materials first. The evidence is five front-end tasks (without RefCov 13 of 16 runs opened no registered guide; with it 16 of 16 read every required unit; guide practices 9/58 rising to 39/58), and the gate blocked premature writes in the extension trial and in the GIS gate-only group, but no GIS trial showed reading turning a wrong answer right. The public text therefore claims reading, records and gate behavior, never correct answers, never that installing RefCov guarantees new-practice adoption, or that RefCov fills capability gaps, and it keeps each trial's limits (one-task first trial, small runs, kiro-cli 3.3.0; browser checks show pages work in every group, so the claim is "follows the project's standards", not "pages are better with RefCov"). Must-haves and the scope freeze from 2026-11-13 are unchanged.
 
 ## 是什么
 
@@ -31,14 +31,14 @@ RefCov 给参考材料算"覆盖率"。代码有测试覆盖率，参考材料�
 - 5 个任务合计：不装 RefCov 时 16 次里有 13 次一份登记的指南都没打开就写完了；装上 RefCov 后 16 次都读完了全部必看单元；指南的写法用上的比例从 9/58 升到 39/58。
 - "效果相当"只在第一个任务（账户设置页）上比过，只指四种指南写法（用没用上）：Haiku 装上 RefCov 是 14/16，和不装的 Sonnet 5.5 相同（每组 4 次，见 `docs/前端指南试验结果.md` 第 5 节）。
 - 浏览器实测（第 5b 节，无界面 Chrome 点过五组共 20 份页面）：五组的页面基本都能用，不装 RefCov 时功能也做得出来，只是不按项目规范写。所以对外讲"照项目规范写"，不讲"装了页面才好用"。
-- 登记哪 8 份指南是人按任务挑的，四种写法所在的指南都在里面；真实项目里团队也要登记和当前工作相关的规范。
-- 第一轮前端试验里，起作用的是发消息时的状态行提示和 MCP 读取，写文件关卡一次也没拦。之后的前端扩展试验里，装上 RefCov 的 12 次有 4 次被关卡拦下；GIS 只留关卡的一组 5 次也都被拦下。拦下的都是先读后拦，读完才写。
+- 第一轮登记的 8 份指南是人按任务挑的，四种写法所在的指南都在里面；前端扩展的 4 个任务由指南包自带的检索按规则选（见 main 上的 `docs/前端扩展试验结果.md`）。真实项目里团队也要登记和当前工作相关的规范。
+- 第一轮前端试验里，起作用的是发消息时的状态行提示和 MCP 读取，写文件关卡一次也没拦。之后的前端扩展试验里，装上 RefCov 的 12 次有 4 次被关卡拦下；GIS 只留关卡的一组 5 次也都被拦下。前端扩展的 4 次是先读后拦（读到一半就想写，被拦下）；GIS 只留关卡组的 5 次是先拦后读；拦下以后都读完才写。
 - Kiro 默认的自动选模型，每次实际用的是哪个模型日志里看不到。
 - 不装时 Sonnet 5.5 自己会去读相关指南（每次 6–7 份）；不看规范的是自动选模型和 Haiku 5.5。
 - Haiku 写的代码仍要审：能力测试里 T2 有几处比 Opus 粗糙。故事里说"由 Claude 在检查点审阅"，不讲"Haiku 自己就够了"。
 - 前后两半做的是不同的活，难度不同，总额度不能直接对比；要比就比同题对照（故事构思第 5 节）的同一件活。
 - RefCov 补的是信息缺口（项目规范、模型知道却不用的新写法、团队约定），不补能力缺口（规划长流程、用好专业库）。GIS 三轮试验都没测出"读了才做对"，结果见 `docs/GIS试验结果.md`。
-- 读完之后，模型会因为浏览器支持度选保守写法（前端扩展试验里，下拉菜单和长文阅读页有的运行读完后仍选了保守写法）。RefCov 保证读，不保证照做。
+- 读完之后，模型会因为浏览器支持度选保守写法（前端扩展试验里，FAQ、下拉菜单和长文阅读页都有运行读完后选了保守写法）。RefCov 保证读，不保证照做。
 - 材料一眼能找到、看起来正对题时（深色模式任务、GIS 字典），不装 RefCov 的模型也会自己去读。
 - RefCov 保证"读了"，不保证"读懂了"。
 - 登记哪些材料是人挑的；RefCov 不会自己去找最新指南。

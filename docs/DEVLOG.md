@@ -1769,4 +1769,8 @@
   EN: `.kiro/steering/product.md` is outside the phase-2 write scope. This round it was edited because the user's relayed request asked for it, and this entry records that. No standard-answer numbers were written.
 - 下一步：演示页的方案由 Claude 写，用户拍板后再开始（冲刺计划第 4 节）。
   EN: Next: Claude writes the demo-page plan, and work starts only after the user approves it (sprint plan section 4).
+- Claude 审过 4d945e8，两件确认事项批准：改 product.md 是用户转发的请求要求的；顺手改的过时说法也对。这一轮修了五处：关卡那条的两类次序写错了；EN 摘要的 new-practice adoption 说过头了；保守写法那条漏了 FAQ；"登记哪 8 份指南"没注明是第一轮；设计 10.3 的 shell 那句改成 kiro-cli 核对结果。施工账补 4d945e8 的行。
+  EN: Claude reviewed commit 4d945e8, and the user approved the two points it asked about (editing product.md was requested in the relayed message, and the other out-of-date corrections are right). Five fixes this round: the gate bullet had its two block patterns the wrong way round; the English summary overstated new-practice adoption; the conservative-writing bullet left out FAQ; the eight-guide bullet did not say it was the first round; design 10.3's shell sentence now reports the kiro-cli check. The ledger gets the 4d945e8 row.
+- 关卡的正确次序：前端扩展的 4 次是先读后拦（读到一半就想写，被拦下）；GIS 只留关卡组的 5 次是先拦后读；两组都是拦下以后读完才写。
+  EN: The correct patterns: the four front-end extension blocks were read-then-block (the model began writing partway through reading); the five GIS gate-only blocks were block-then-read; in both groups the model read everything before it wrote.
 
