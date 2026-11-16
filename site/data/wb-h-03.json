@@ -1,0 +1,481 @@
+{
+  "blocks": 0,
+  "date": "2026-11-15",
+  "events": [
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Dialog"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Overview"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Choose-the-overlay-type"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Rule-1:-The-overlay-interrupts-the-user-and-blocks-the-page-(default)"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Rule-2:-The-user-keeps-working-in-the-page-while-the-panel-is-open"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Rule-3:-The-overlay-is-not-a-dialog"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Choose-how-it-can-be-dismissed"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Guidelines"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Accessible-name-and-initial-focus"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Opening"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Closing"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Hooking-into-close"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Non-modal-dialogs"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Backdrop-and-styling"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Accessibility"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Fallback-strategies"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/`closedby`-(`dialog-closedby`)"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/`overscroll-behavior`"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Invoker-Commands-(`command`-/-`commandfor`)"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-dialog/Fallbacks-&-browser-support-for-Popover"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Light-Dismiss-a-Dialog"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Implementation"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Attribute-Values"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Styling-the-Backdrop"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Example"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Constraints-&-Accessibility"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-light-dismiss-a-dialog/Fallback-strategies"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-platform-controls-dismiss-dialog/Platform-Controls-Dismiss-Dialog"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-platform-controls-dismiss-dialog/Fallback-strategies"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-declarative-dialog-popover-control/Declarative-Dialog-and-Popover-Control"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-declarative-dialog-popover-control/Implementing-Declarative-Popovers"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-declarative-dialog-popover-control/Implementing-Declarative-Modal-Dialogs"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-declarative-dialog-popover-control/Fallback-strategies"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-declarative-dialog-popover-control/Polyfilling-Invoker-Commands"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-declarative-dialog-popover-control/Fallbacks-&-browser-support-for-Popover"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/Prevent-the-Page-Underneath-a-Modal-Di\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/Implementation"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/1.-Contain-scroll-chaining-on-the-`<di\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/2.-Turn-`::backdrop`-into-a-scroll-con\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/Example-Code"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/Best-Practices-&-Constraints"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-prevent-page-scroll-under-modal-dialog/Fallback-Strategies"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Validate-Input-After-Interaction"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/The-Problem"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/The-Solution"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Implementation-Strategy"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Implementation-Guide"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Use-Case-1:-Email-Validation"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Use-Case-2:-Password-Complexity"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Fallbacking-&-Browser-Support"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Fallbacks-&-browser-support-for-:user-valid-\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/CSS-for-Fallback"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/JavaScript-Fallback"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Other-Considerations"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-validate-input-after-interaction/Other-Considerations@2"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/Required-Field-Feedback"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/The-Problem"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/The-Solution"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/Implementation-Strategy"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/Implementation-Guide"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/1.-HTML-Structure"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/2.-CSS"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/3.-JavaScript-State-Synchronization"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/3.-JavaScript-State-Synchronization@2"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/Fallbacking-&-Browser-Support"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/Fallbacks-&-browser-support-for-:user-valid-and-:user\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/CSS-for-Fallback"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/JavaScript-Fallback"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-required-field-feedback/Other-Considerations"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/Accessible-Error-Announcement"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/The-Problem"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/The-Solution"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/Implementation-Strategy"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/Implementation-Guide"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/1.-HTML-Structure"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/2.-CSS"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/3.-JavaScript"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/3.-JavaScript@2"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/Fallbacking-&-Browser-Support"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/Fallbacks-&-browser-support-for-:user-valid-and\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/CSS-for-Fallback"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "g-accessible-error-announcement/JavaScript-Fallback"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "write",
+      "label": "write:index.html"
+    },
+    {
+      "kind": "write",
+      "label": "write:index.html"
+    },
+    {
+      "kind": "final",
+      "label": "final-report"
+    }
+  ],
+  "id": "WB-H-03",
+  "kiro_cli": {
+    "basis": "inferred",
+    "value": "3.3.0"
+  },
+  "model": "claude-haiku-5.5",
+  "must_read": {
+    "read": 82,
+    "total": 82
+  },
+  "needles": {
+    "closedby": true,
+    "commandfor": false,
+    "overscroll": true,
+    "user_invalid": true
+  },
+  "run_folder": "webrefcovhaiku-20261115-173528",
+  "schema": 1,
+  "seconds": 126,
+  "seconds_reconstructed": false,
+  "tool_calls": 92
+}

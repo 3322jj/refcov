@@ -1830,3 +1830,19 @@
 - 属性测试：本步没有新增。全量测试 850 通过，有 1 个警告，没有查。
   EN: Property tests: none added in this step. The full suite passed, 850 tests, with one warning that was not investigated.
 
+## 2026-11-17（设计修订，转换脚本，四个 JSON）
+- Claude 审过 b126ca5：设计整体可以，改四处。一、去掉每个事件的时间：输出流没有时间戳，只有读取记录有；页面只显示整次运行的总秒数。二、需求 4.1、4.3、4.4、8.6 的中文固定句换成英文句，中文意思留在括号里。三、读取记录的字段按 Claude 核对的写。四、视频对比试验设计文档不登记，7.1 的出处保持文字。
+  EN: Claude reviewed commit b126ca5 and approved the design with four changes. One: no per-event times, because the stream has no timestamps and only the read and block records do; the page shows each run's total seconds. Two: the Chinese fixed sentences in requirements 4.1, 4.3, 4.4 and 8.6 are replaced by English sentences, with the Chinese meaning in parentheses. Three: the record fields follow Claude's check. Four: the video design doc is not registered, so the 7.1 citation stays text.
+- 指南单元：site/** 的 182 个里，我先读了 8 个。其余 174 个由 5 个子 agent 经 MCP 工具读完（分别读了 46、25、23、34、46 个）。子 agent 只报计数，没把内容带回来，所以我没有读那 174 个单元的内容。读完后写 site/ 没有被拦。6 个单元读回来正文是空的（标题单元），覆盖率仍按读过算。
+  EN: Of the 182 guide units under site/**, I had read 8. Five sub-agents read the other 174 through the MCP tool (46, 25, 23, 34 and 46 units). They returned counts only, so I did not read those units' contents. Writes under site/ were accepted afterwards. Six units came back with empty bodies (heading-only units), and coverage still counts them as read.
+- 转换脚本 site/convert_runs.py（只用标准库）。先写 tests/test_site_convert.py，17 个测试用合成记录，全部通过。真实的四次运行跑过一遍，写出 site/data/ 下的四个 JSON。核对：W-H-03 的工具调用 1 次；WB-H-03 读到 82 个不同单元，全部 completed；G-01 先拦 1 次，再读 24 个单元，最后写 answer.md；VB-01 的 46 个镜头全部读过，用时 301 秒，取自批次文件（标为 reconstructed）。
+  EN: site/convert_runs.py (standard library only) was written after tests/test_site_convert.py; its 17 tests use synthetic records and all pass. Run on the four real runs, it wrote the four JSON files under site/data. Checks: W-H-03 has one tool call; WB-H-03 reads 82 distinct units, all completed; G-01 is blocked once, then reads 24 units, then writes answer.md; VB-01 has 46 shots, all read, and 301 seconds taken from its batch file, marked as reconstructed.
+- 四种写法：W-H-03 为 0/4，WB-H-03 为 3/4（没有 commandfor）。和第一轮的文档一致。
+  EN: Needle check: W-H-03 0 of 4; WB-H-03 3 of 4 with no commandfor. Both match the first-round results doc.
+- 发现一：G-01 的一个读单元是字典的目录，它的 ID 里带 HTML 片段（`<br>`、`&nbsp;`）。截到 80 个字符后仍然是一段 HTML，页面要为它另外设显示名。发现二：6 个指南单元是标题单元，正文为空。这两点都记在这里，不改注册。
+  EN: Finding one: a G-01 read unit is the dictionary's table of contents, and its ID carries HTML fragments (<br>, &nbsp;). Cut to 80 characters it is still HTML, so the page needs a display name for it. Finding two: six guide units are heading-only and have empty bodies. Both are recorded here; the registration is not changed.
+- 属性测试：Hypothesis 的截短性质（最多 80 个字符，超出时以省略号结尾并保留前缀）通过，没有反例。测试函数的文档字符串写明了它检查的性质（测试约定）。
+  EN: Property test: a Hypothesis property (truncation keeps at most 80 characters, ends with an ellipsis when cut, and keeps the prefix) passed with no counterexample. Each test docstring names the property it checks, per the testing rule.
+- 全量测试 867 通过（850 加新增的 17 个），有 1 个 anyio 插件的旧警告，和以前一样。RefCov 在这一步没有拦截。
+  EN: Full suite: 867 passed (850 plus the 17 new tests), with the same old anyio plugin warning as before. RefCov blocked nothing in this step.
+

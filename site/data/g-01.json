@@ -1,0 +1,209 @@
+{
+  "blocks": 1,
+  "date": "2026-11-15",
+  "events": [
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "file-read"
+    },
+    {
+      "kind": "tool",
+      "label": "file-read"
+    },
+    {
+      "kind": "tool",
+      "label": "file-read"
+    },
+    {
+      "kind": "tool",
+      "label": "file-read"
+    },
+    {
+      "kind": "tool",
+      "label": "file-read"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "blocked",
+      "label": "gate:required-units-unread"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "tool-call"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/Building-Footprints"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/Table-of-Contents<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs\u2026"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/1.-Identification"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/2.-Data-Quality-and-Specifications"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/2.-Data-Quality-and-Specifications@2"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/3.-Attribute-Information"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "nyc-bldg-dict/3.-Attribute-Information@2"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/crs"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/extent"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/objectid"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/base_bbl"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/bin"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/construction_year"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/doitt_id"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/feature_code"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/geom_source"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/ground_elevation"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/height_roof"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/last_edited_date"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/last_status_type"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/mappluto_bbl"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/name"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/shape_area"
+    },
+    {
+      "kind": "read",
+      "label": "unit-read",
+      "unit": "f-apps-layer-coverage-bayside-fields-md-631ad0/shape_length"
+    },
+    {
+      "kind": "tool",
+      "label": "mcp-call"
+    },
+    {
+      "kind": "write",
+      "label": "write:answer.md"
+    },
+    {
+      "kind": "final",
+      "label": "final-report"
+    }
+  ],
+  "id": "G-01",
+  "kiro_cli": {
+    "basis": "record",
+    "value": "3.3.0"
+  },
+  "model": "claude-haiku-5.5",
+  "must_read": {
+    "read": 24,
+    "total": 24
+  },
+  "run_folder": "gis-20261115-213112",
+  "schema": 1,
+  "seconds": 91,
+  "seconds_reconstructed": false,
+  "tool_calls": 40
+}

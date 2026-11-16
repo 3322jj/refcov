@@ -75,10 +75,10 @@ EN: As a judge, I want to see a real block: the AI tries to write its answer, th
 
 #### 验收标准
 
-1. THE 第 3 段 SHALL 回放 `gis-20261115-213112\G-01`（GIS 只留关卡组正式批次的第一次）：写 `answer.md` 被拦，并显示关卡给的原因 → 必看单元的格子一格格亮起（24 格）→ 写成。
+1. THE 第 3 段 SHALL 回放 `gis-20261115-213112\G-01`（GIS 只留关卡组正式批次的第一次）：写 `answer.md` 被拦，并显示固定的英文拦截原因 "Write blocked by the RefCov gate: required units not read yet."（旁边注明 "(gate message, translated)"，即关卡原文的译文）→ 必看单元的格子一格格亮起（24 格）→ 写成。
 2. THE 第 3 段 SHALL 标明运行文件夹和编号、日期（2026-11-15）、模型（claude-haiku-5.5）、kiro-cli 版本（3.3.0，见 `gis-20261115-213112\G-01.status.json` 的 `kiro_cli` 字段）。
-3. THE 第 3 段 SHALL 只显示"写出 answer.md，在标准值 ±3% 内"，不显示面积数字。
-4. THE 第 3 段 SHALL 在旁边放一句照实的话："在这份数据上模型自己也会查字典；RefCov 让'查过'变成能核对的数字。"
+3. THE 第 3 段 SHALL 只显示固定的英文句 "answer.md written. Graded outside this repository: within ±3% of the reference answer."（中文意思：写出 answer.md，在标准值 ±3% 内），不显示面积数字。
+4. THE 第 3 段 SHALL 在旁边放一句照实的英文话 "Without RefCov, the model also looked up the dictionary on this dataset. RefCov adds a count you can check, and here the answer file could not be written until all 24 units had been read."（中文意思：不装 RefCov 时，模型在这份数据上也会查字典；RefCov 给出能核对的数字，这里答案文件要等 24 个单元全部读完才能写出）。
 5. THE 页面 SHALL NOT 说 RefCov 让答案变对，也 SHALL NOT 说拦让答案变对（三轮 GIS 试验都没测出，见 `docs/GIS试验结果.md`）。
 
 出处：[ref:demo-plan/2.-页面结构（一页，从上往下）]；[ref:demo-plan/3.-回放的数据从哪来]；[ref:demo-plan/7.-拍板结果和回放用的运行（用户-2026-11-16-定）]；[ref:app-positioning/5.-图层覆盖率-`apps/layer-coverage`：拦和出处]；[ref:gis-results/1.-一句话]；[ref:gis-results/5.-为什么-GIS-上测不出来]；[ref:gis-results/7.-运行记录]
@@ -141,7 +141,7 @@ EN: As a maintainer, I want the page to read only small JSON files in the reposi
 3. THE 事件 SHALL 限于五类：工具调用、读单元、被拦、写文件、最后的汇报。每个事件只带时间（秒）、类型、单元编号和固定词表里的短标签，不带模型写的自由文字。
 4. THE JSON SHALL NOT 含标准答案的数值（GIS 的面积数字），也 SHALL NOT 含关键帧图片或视频画面的文字。
 5. THE 转换脚本 SHALL 可以重跑：同样的运行记录，两次输出的字节相同。
-6. THE 转换脚本 SHALL NOT 读 `answer.md` 的正文。THE GIS 那段 SHALL 只显示固定文字"写出 answer.md，在标准值 ±3% 内"。THE 转换脚本 SHALL 在写出前检查 JSON：不含本机路径，不含来自 `answer.md` 的文字。
+6. THE 转换脚本 SHALL NOT 读 `answer.md` 的正文。THE GIS 那段 SHALL 只显示固定英文句 "answer.md written. Graded outside this repository: within ±3% of the reference answer."（中文意思：写出 answer.md，在标准值 ±3% 内）。THE 转换脚本 SHALL 在写出前检查 JSON：不含本机路径，不含来自 `answer.md` 的文字。
 
 出处：[ref:demo-plan/3.-回放的数据从哪来]；[ref:layer-readme/Source-and-terms-of-use]
 
@@ -276,5 +276,6 @@ EN: As a user, I want the demo page itself written under RefCov, so that the pag
 - 设计阶段定：发布方式（分支和目录）；转换脚本截短到多长；事件标签的固定词表；页面的具体布局、颜色和动效时长。
 - 写页面代码之前：指南已选、已登记（用户 2026-11-17，`refcov.toml` 的 `site/**` 配置）。但 `site/**` 的材料还没全部读过：指南的 182 个单元在严格模式下要先读完（需求 16）。
 - 已定（用户，2026-11-17）：登记哪些文档。演示页文件夹 `.kiro/specs/demo-page/**` 登记了六份项目文档和 `app-positioning`；`site/**` 另加 17 份 Chrome 指南（`docs/reference/chrome-guides/README.md` 写了选法）。产品引导文档没登记。
-- 还没定，要用户拍板：`docs/视频对比试验设计.md` 要不要登记。它不在上面的六份里，所以 7 的出处先写成文字。
+- 已定（用户，2026-11-17）：`docs/视频对比试验设计.md` 不登记；7.1 的出处保持文字写法。
+- 已定（用户与 Claude 审阅，2026-11-17）：页面的固定英文句（需求 4.1、4.3、4.4、8.6），中文意思留在括号里。
 - 已定（用户，2026-11-17）：第一轮的 8 份指南是 Claude 按任务挑的，挑的时候知道要测哪几种写法。此前写成人挑的地方已更正（需求 2.5）；`.kiro/steering/product.md` 的对外讲法也一并改了。
