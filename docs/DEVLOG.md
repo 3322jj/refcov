@@ -1808,3 +1808,25 @@
 - 属性测试：本步没有新增。全量测试里原有的属性测试一起跑了，通过，没有抓到问题。
   EN: Property tests: none added in this step. The full suite, which includes the existing property tests, passed and found nothing.
 
+## 2026-11-17（登记完成后：出处改引用，设计初稿）
+- 用户登记已完成：演示页文件夹登记了六份项目文档和 app-positioning，`site/` 文件夹另加 17 份 Chrome 指南。这一步先经 MCP 读了这 52 个单元（登记前读数为 0），然后才改出处、写设计。读单元时有一次把带空格的标题直接当 ID，MCP 报错并给出正确 ID，失败的那次不算看过。
+  EN: The user finished the registration: six project docs plus app-positioning for the demo-page folder, and 17 Chrome guides for site. This step read the 52 units through MCP first (the read count was 0 before), then converted the citations and wrote the design. One read failed because the title had spaces; MCP returned the hyphenated ID, and the failed call did not count.
+- 第一轮 8 份指南的挑选者改为 Claude。故事构思第 6 节、前端扩展第 7 节、前端指南第 4 节都这么写。Claude 审阅第 3 条写成人挑，那一条错了。需求 2.5、product.md 对外讲法、文末"已定"已改。
+  EN: The first round's 8 guides are now recorded as picked by Claude. story §6, fe-ext §7 and fe-results §4 all say so. Claude's review item 3 said a person picked them, which was wrong. Requirement 2.5, the public line in product.md and the open-items list are updated.
+- 需求 2.2 的版本写作用户给的推定说明；3.5 和 7.1 对账户设置页那一组也加了同样的推定说明。
+  EN: Requirement 2.2 states 3.3.0 as an inference, in the wording the user gave. Requirements 3.5 and 7.1 carry the same caveat for the first-round account-page pair.
+- 两处出处原先写错：11.4 引了故事构思第 2 节，那里没有"装了页面才好用"，改成前端指南第 5b 节；16.1 引了前端扩展第 1 节，检索规则在第 7 节，已改。
+  EN: Two citations were wrong. Requirement 11.4 cited story §2 for the page-usability rule, which is in fe-results §5b; requirement 16.1 cited fe-ext §1 for the retrieval rule, which is in §7. Both are corrected.
+- check-spec：16 条需求，幻影 0，无效引用 0，未转换 0。剩下的文字出处是 product.md（2 处）、README、施工账，还有 docs/视频对比试验设计.md（7.1，它不在六份里）。
+  EN: check-spec: 16 requirements, 0 phantom, 0 invalid, 0 unconverted. The text citations left are product.md (two places), the README, the build ledger, and docs/视频对比试验设计.md in requirement 7.1, which is not one of the six.
+- 保护检查拦了一条 shell 命令，原因是命令文字里有状态目录的名字（想看日志的字段名）。没有改写绕过，没有读状态目录；字段名留到实现前用 MCP 的 report 核对。这次算一次被拦。写需求、设计和施工账时没有被拦。
+  EN: A protection check blocked one shell command because its text contained the RefCov state directory name; I wanted to look up a log's field names. I did not rephrase it to get around the check and did not read the state directory. The field names will be checked through the MCP report tool before implementation. That is one block. No writes to the requirements, the design or the ledger were blocked.
+- design.md 初稿：八段结构；转换脚本（输入、输出结构、固定词表、截短、写出前检查）；发布用 GitHub Actions 只上传 `site/`，用户要改一次仓库设置；深浅色和无障碍引用 7 条指南单元；测试 4 个文件，要批准写入范围。读了 8 个指南单元，其余 174 个未读。
+  EN: First draft of design.md: the eight segments; the converter (inputs, output structure, fixed vocabulary, truncation, pre-write checks); publishing through a GitHub Actions workflow that only uploads site/, which the user switches on once in the repository settings; dark mode and accessibility with seven guide units cited; four test files that need the write scope approved. Eight guide units were read and 174 are still unread.
+- 待定：页面只有英文，但需求 4.3、8.6 的固定句是中文，设计里给了英文版；两处写入范围；视频设计文档要不要登记。
+  EN: Open items: the requirements' fixed sentence is in Chinese while the page is English only, so the design gives an English version; two write-scope approvals; and whether docs/视频对比试验设计.md should be registered.
+- 施工账：878deaa 行的读取数用 MCP 的 report 核对，本会话 82 个。report 给不出写 878deaa 之前的数，所以只改了标注。7346f4b 的行这次补上。
+  EN: Ledger: the reads figure in the 878deaa row matches the MCP report at 82 for this session. The report cannot give the count from before 878deaa, so only the label changed. The 7346f4b row is added in this commit.
+- 属性测试：本步没有新增。全量测试 850 通过，有 1 个警告，没有查。
+  EN: Property tests: none added in this step. The full suite passed, 850 tests, with one warning that was not investigated.
+
