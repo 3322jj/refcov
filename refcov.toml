@@ -60,3 +60,16 @@ paths   = ["apps/layer-coverage/**", ".kiro/specs/layer-coverage/**"]
 sources = ["nyc-bldg-dict", "app-positioning", "shot-design",
            "dec-analysis-answers", "dec-commit-and-design", "dec-design-review",
            "dec-questions-reply", "dec-review-reply"]
+           # 演示页的规格：看完方案、试验结果和应用定位（2026-11-17 加）
+[[scope]]
+paths   = [".kiro/specs/demo-page/**"]
+sources = ["demo-plan", "story", "fe-results", "fe-ext-results", "gis-results", "layer-readme", "app-positioning"]
+
+# 演示页的代码：再加上按检索规则选的 17 份 Chrome 指南（docs/reference/chrome-guides/README.md）
+[[scope]]
+paths   = ["site/**"]
+sources = ["demo-plan", "story", "fe-results", "fe-ext-results", "gis-results", "layer-readme", "app-positioning",
+           "g-dark-mode-toggle", "g-color", "g-component-specific-light-dark-theme", "g-css-layout",
+           "g-responsive-design", "g-responsive-table", "g-accessibility", "g-2d-panning",
+           "g-natural-interactions", "g-contrast-color", "g-highlight-text-ranges", "g-tabs", "g-motion",
+           "g-dynamic-sibling-animations", "g-scrollytelling", "g-sortable-table", "g-card"]
