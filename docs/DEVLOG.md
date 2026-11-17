@@ -66,6 +66,16 @@
 - 按示例配置 `integrations/kiro/refcov.example.toml`，只有 `integrations/kiro/**` 有 scope（对应 `kiro-hooks`），其他路径一条 scope 都不命中，按需求 8.2 要求读完全部参考源（现在 114 个单元）。任务 15 建 `refcov.toml` 时要定：其他路径（例如 `refcov/**`、`tests/**`、`.kiro/specs/**`）各对应哪些参考源，或者放宽哪些。（2026-11-12，任务 11 动手前，用户提出）
   EN: With the example config, only integrations/kiro/** has a scope (kiro-hooks); every other path matches no scope and, per requirement 8.2, requires all sources (114 units now). When task 15 creates refcov.toml, decide which sources other paths (e.g. refcov/**, tests/**, .kiro/specs/**) map to, or what to relax. (Raised by the user on 2026-11-12 before task 11 coding.)
 
+- 把 `integrations/kiro` 改名为 `refcov_kiro`，让顶层包名不那么泛。
+  现在不做：测试里约 47 处把这个路径当字符串用，仓库自己的钩子也指向它；改名要用户改钩子，或者留一个转发壳。
+  EN: Rename integrations/kiro to refcov_kiro so the top-level package name is less generic. Not now: about 47 tests use this path as a string, the repository's own hooks point at it, and a rename needs the user to change the hooks or leave a forwarding shim.
+- 让适配器路径能指向仓库外的文件（镜头应用的适配器在 RefCov 仓库里，用户仓库放不下）。
+  现在不做：适配器是代码，会在 RefCov 的进程里运行；放宽路径规则是安全上的决定，要用户定。
+  EN: Let an adapter path point outside the repository, since the shot-coverage adapter lives in the RefCov repository. Not now: an adapter is code that runs inside RefCov, so relaxing the path rule is a security decision for the user.
+- 让 `refcov doctor` 检查用户级 MCP 配置里有没有重复的 refcov 项。
+  现在不做：不在方案第 2 节的清单里，范围已冻结。
+  EN: Make doctor check the user-level MCP configuration for a duplicate refcov entry. Not now: it is not in the section 2 list, and scope is frozen.
+
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
 - 环境：Kiro IDE 1.4.121，Windows。
@@ -1936,4 +1946,49 @@
   EN: Ledger: the row for dda0f07 was added (review pending). The page's ledger table and summary sentence now match: 33 pieces of work, full-suite count from 742 to 904. This step's row goes in the next commit.
 - 没做的：合并 main、打开 Pages，等用户指示。
   EN: Not done: merging main and turning on Pages, which wait for the user's go-ahead.
+## 2026-11-17（晚：易用性改造第一层，规格和设计）
+- 同步分支：在 phase2-haiku 上运行 `git merge --ff-only main`，快进到 39b7969，没有冲突。快进前，本地分支已经比远端多一个提交（3f9dcc2，读取记录的提交），这次推送会把它一起推上去。
+  EN: Synced the branch with `git merge --ff-only main`, which fast-forwarded phase2-haiku to 39b7969 with no conflicts. Before the merge, the local branch was already one commit (3f9dcc2, the read-record commit) ahead of origin, so this push also sends that commit.
+- 用了哪些 Kiro 功能：经 MCP 的 `read_unit` 读了 4 个登记单元（`kiro-hooks` 的 File-naming-and-location 和 Hook-file-schema，`kiro-permissions` 的 Defining-rules，`dec-design-review` 的第 1 条），`list_units` 和 `report` 各调用一次。开工时钩子的报告：严格模式达标，必看 384 个，历史 384/384，没有还差的单元。没有用子代理。
+  EN: Kiro features: read four registered units through the MCP `read_unit` tool (kiro-hooks File-naming-and-location and Hook-file-schema, kiro-permissions Defining-rules, dec-design-review item 1), and called `list_units` and `report` once each. The start-of-task hook report said strict mode is met: 384 required units, 384 of 384 read historically, none left. No sub-agents were used.
+- 保护检查拦了一次。我在 shell 里运行一条命令，想看配置文件里登记了哪些资料；命令文本里有配置文件的名字，被拦下（退出码 2）。没有改写绕过，改用 `list_units` 和 `report` 拿到了同样的登记信息。这次算一次被拦，当时的读取是本会话 0/384、历史 384/384。
+  EN: The protection check stopped one shell command. I wanted to see which sources were registered, and the command text named the configuration file. I did not rephrase the command; `list_units` and `report` gave the same registration information. That is one block, at 0 of 384 read this session and 384 of 384 historically.
+- 未登记的文档（易用性改造方案、简化上手设计、施工账、DEVLOG 和代码）是直接读文件的。它们不是登记单元，覆盖率报告不计。
+  EN: Unregistered documents (the usability plan, the simplified-setup design, the ledger, the DEVLOG and the code) were read as files. They are not registered units, so the coverage report does not count them.
+- 规格和设计写在 `.kiro/specs/easy-install/`：需求 8 条，每条有英文标题和英文用户故事；设计 11 节。第 2 节列出 4 个等 Claude 审的决定，每个都写了建议和替代办法。这一步没有改代码，所以决定留在文档里，没有在对话里直接定下。
+  EN: The spec and design are in .kiro/specs/easy-install/: 8 requirements, each with an English title and story line, and an 11-section design. Section 2 lists four decisions for Claude, each with a recommendation and an alternative. This step changed no code, so the decisions stay in the document rather than being settled in conversation.
+- 出处检查（`check-spec`）：8 条需求，幻影 0，无效引用 0，未转换 5（需求 1、3、4、7、8）。被引用的 4 个单元都是已经读过的登记单元。
+  EN: Citation check (`check-spec`): 8 requirements, 0 phantom, 0 invalid, 5 unconverted (requirements 1, 3, 4, 7 and 8). The four cited units are registered units that were already read.
+- 全量测试 905 通过。这一步没有改代码；改的是规格、施工账、演示页的台账和本日志。
+  EN: Full suite: 905 passed. This step changed no code; it changed the specs, the build ledger, the demo page's ledger table and this log.
+- 问题 1：本机没有 `uv`。最后的 `uv tool install` 验收只能由用户做，这一步的验收改用 venv 加 pip（设计第 7.2 节）。
+  EN: Problem 1: `uv` is not installed on this machine. The final `uv tool install` check can only be run by the user, so the design's acceptance steps use a venv and pip (section 7.2).
+- 问题 2：易用性改造方案不是登记的参考源，所以需求出处只能写成文字。检查程序把它报成"未转换"，既不算幻影，也不让达标失败，所以检查程序不会提醒这件事。要用户登记以后才能转换。
+  EN: Problem 2: the usability plan is not a registered source, so the requirement citations can only be text. The checker reports them as unconverted, which is neither phantom nor a failure, so the checker does not flag the gap. They can be converted only after the user registers the plan.
+- 问题 3：`python -m` 把当前目录放在 `sys.path` 最前面。实测：在临时目录里运行 `python -m site`，第一项是那个目录；加 `-P` 后第一项是标准库的 zip。方案里没有这一条。设计里钩子命令和 MCP 项都加了 `-P`，等 Claude 审。
+  EN: Problem 3: `python -m` puts the current directory first on `sys.path`. Tested: `python -m site` run from a temporary directory listed that directory first; with `-P`, the first entry was the standard library zip. The plan does not cover this. The design adds `-P` to the hook and MCP commands, pending Claude's review.
+- 问题 4（读代码，未测）：现在的钩子脚本把 `--root`（用户仓库）放进 `sys.path`。装了包以后，用户仓库里的同名包会先被导入。设计改成只放脚本自己的上级目录。
+  EN: Problem 4 (from reading the code, not tested): the hook script puts `--root`, the user's repository, on `sys.path`. Once the package is installed, a package of the same name in the user's repository would be imported first. The design limits `sys.path` to the script's own parent directory.
+- 问题 5（读代码和 `tech.md`，未测）：找不到钩子模块时，钩子的退出码是 1，既不拦，也不报给 Kiro。`tech.md` 已经写了这一条局限。设计在 `init` 和 `doctor` 里加了探测。
+  EN: Problem 5 (from reading the code and `tech.md`, not tested): when the hook module cannot be found, the hook exits with code 1, which neither blocks nor reports to Kiro. `tech.md` already records this limit. The design adds a probe to `init` and to `doctor`.
+- 问题 6：2026-11-10 的决定里，`init` 指的是清空日志的命令；这一步要用同一个名字写配置和钩子。名字撞了。理由不同，"shell 里要拦"的结论相同。
+  EN: Problem 6: the 2026-11-10 decision uses `init` for a command that clears the log, and this step proposes the same name for writing configuration and hooks. The names collide. The reasons differ, but the conclusion (block it in the shell) is the same.
+- 问题 7：保护检查的说明文字写的是"AI 不能改状态目录、配置和钩子"，但写文件的规则只拦状态目录和配置文件。写钩子目录由 Kiro 要求确认，`test_ordinary_writes_are_allowed` 有这条期望。说明文字比实际范围宽。
+  EN: Problem 7: the protection message says the AI cannot change the state directory, the configuration and the hooks. The write rule blocks only the state directory and the configuration file; writes to the hooks folder are left to Kiro's confirmation, and `test_ordinary_writes_are_allowed` expects that. The message is broader than the rule.
+- 问题 8（设计时发现，已写进设计）：如果 `setup.py` 的新规则只看路径，`git add integrations/kiro/setup.py` 也会被拦。规则改成要求路径前面有 Python 命令。
+  EN: Problem 8 (found while designing, already in the design): a rule that matched only the path would also block `git add integrations/kiro/setup.py`. The rule now requires a Python command in front of the path.
+- 问题 9（读代码）：仓库自己的钩子是相对路径，没有 `--root`，doctor 会报它们有问题。这是事实；钩子是用户的文件，这一步不改。
+  EN: Problem 9 (from reading the code): the repository's own hooks use relative paths and have no `--root`, so doctor will report them. That is accurate. The hooks belong to the user, so this step does not change them.
+- 规格流程和随口对话的差别：随口的说明不会被检查；规格里的文字出处会被检查，但只报为未转换，不让检查失败，所以一份未登记的计划文档不会让检查失败。返工 0 次（还没有审）。
+  EN: Spec flow compared with ad-hoc talk: a loose remark is never checked, while a text citation in a spec is checked and reported as unconverted without failing the check, so an unregistered plan does not fail it. Rework: 0 so far, because the review has not happened.
+- 属性测试：这一步只有规格和设计，没有代码，没有写性质测试。设计里列了 I1 到 I3 和 D1，实现时写。没有抓到反例，因为还没有测试。
+  EN: Property tests: this step has specs and design only, no code, so no property test was written. The design lists I1 to I3 and D1 for the implementation step. No counterexample was found, because no test exists yet.
+- 演示页的施工账表和摘要跟着加了一行，因为 `tests/test_site_numbers.py` 要求两边的行数、顺序和数字都一致：34 件，全量测试从 742 到 905。页面仍是英文，只是台账的镜像。以后每加一行台账，页面也要同步改。
+  EN: The demo page's ledger table and summary gained the matching row, because tests/test_site_numbers.py requires the rows, their order and their figures to agree: 34 pieces, full-suite count from 742 to 905. The page stays in English and only mirrors the ledger, so each new ledger row also changes the page.
+- 施工账补了 9239c79 一行。这一步自己的一行要在下一次提交里补。9239c79 那一行的被拦次数写的是 0，依据是 DEVLOG 该条没有记被拦，没有另外核对。
+  EN: The build ledger got its 9239c79 row. This step's own row goes into the next commit. The blocks cell for 9239c79 says 0, based on its DEVLOG entry, which records no block; it was not counted separately.
+- 范围冻结例外：用户 2026-11-17 指示做第一层（方案第 2 节），按例外办理。第二层没有开始。
+  EN: Scope-freeze exception: on 2026-11-17 the user asked for layer 1 of the plan (section 2), so it is handled as an exception. Layer 2 has not been started.
+- 写文件关卡：到写本条为止，这一步的写入没有被写文件关卡拦下。
+  EN: Write gate: up to this entry, none of this step's writes was stopped by the write gate.
 
