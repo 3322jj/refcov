@@ -253,6 +253,157 @@ class Inputs:
     empty_docs: tuple = ()  # 命中配置、但一条需求都没解析出来的需求文档
 
 
+# ---- [sources]：登记和同步（简化上手设计 1.2、1.3、1.5；同步只由用户运行 sync）----
+
+AUTO_ID = re.compile(r"f-[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{6}")
+
+
+def gen_id(rel: str) -> str:
+    """[sources] 登记的参考源编号：`f-<路径片段>-<小写路径的 sha256 前 6 位>`。
+    片段只留 a–z、0–9（其他字符变成 `-`），最多 40 个字符，为空时用 `x`。同一路径每次得到同一个编号。"""
+    import hashlib
+    low = rel.replace("\\", "/").lower()
+    words = "".join(c if ("a" <= c <= "z" or "0" <= c <= "9") else " " for c in low).split()
+    slug = "-".join(words)[:40].strip("-") or "x"
+    return f"f-{slug}-{hashlib.sha256(low.encode('utf-8')).hexdigest()[:6]}"
+
+
+def _walk_files(root) -> list[str]:
+    import os
+    from pathlib import Path
+    out = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in _WALK_SKIP]
+        out.extend((Path(dirpath) / f).relative_to(root).as_posix() for f in filenames)
+    return out
+
+
+def _spec_matches(store: Store, cfg: dict) -> tuple[dict, list]:
+    """[sources] 匹配到的文件 {相对路径: (适配器名, 编号)}，以及一条都没匹配到的通配符（配置问题）。
+    同一个文件只算第一条规则。没有 [sources] 时不遍历仓库。"""
+    from refcov.store import path_matches, source_specs
+    matched, empty = {}, []
+    specs = source_specs(cfg)
+    if not specs:
+        return matched, empty
+    files = _walk_files(store.root)
+    for name, patterns in specs:
+        for pattern in patterns:
+            hits = [rel for rel in files if path_matches(rel, [pattern])]
+            if not hits:
+                where = "sources.files" if name == "markdown" else f"sources.{name}.files"
+                empty.append({"where": where, "value": pattern, "note": "没有匹配到任何文件"})
+            for rel in hits:
+                matched.setdefault(rel, (name, gen_id(rel)))
+    return matched, empty
+
+
+def _last_sync(records: list) -> dict | None:
+    for r in reversed(records):
+        if r.get("type") == "sync":
+            return r
+    return None
+
+
+def _inactive_auto(store: Store, sources: list, records: list, cfg: dict) -> set[str]:
+    """不再必看的自动源（编号符合 AUTO_ID 的源）。规则见简化上手设计 1.5：配置没改过，记下的编号都必看；
+    配置改过了，只留下现在仍匹配的。没有 sync 记录时，自动源都不算。"""
+    auto = {s["id"] for s in sources if AUTO_ID.fullmatch(s["id"])}
+    if not auto:
+        return set()
+    rec = _last_sync(records)
+    if rec is None:
+        return auto
+    recorded = set(rec.get("ids") or [])
+    if store.config_mtime_ns() == rec.get("config_mtime_ns"):
+        active = recorded
+    else:  # 配置改过：只比对清单里记下的 origin 和现在的通配符，不遍历仓库，不读材料
+        from refcov.store import path_matches
+        patterns = _pattern_list(cfg)
+        active = {s["id"] for s in sources if s["id"] in recorded and path_matches(s.get("origin", ""), patterns)}
+    return auto - active
+
+
+def _pattern_list(cfg: dict) -> list[str]:
+    from refcov.store import source_specs
+    return [p for _, patterns in source_specs(cfg) for p in patterns]
+
+
+def plan_sync(store: Store) -> dict:
+    """`refcov sync` 会做什么，只读，不写任何文件。四组清单：新增、改动、文件已不在、已移出（简化上手设计 1.3）。"""
+    from refcov.sources import content_sha256
+    from refcov.store import source_specs
+    cfg = store.load_config()
+    records = store.records()
+    matched, empty = _spec_matches(store, cfg)
+    entries = {s["id"]: s for s in _manifest(store)}
+    new, changed, failed = [], [], []
+    for rel, (name, sid) in sorted(matched.items()):
+        item = {"file": rel, "id": sid, "adapter": name}
+        try:
+            text = (store.root / rel).read_bytes().decode("utf-8-sig")
+        except (OSError, UnicodeDecodeError) as e:
+            failed.append({**item, "error": str(e)})
+            continue
+        old = entries.get(sid)
+        if old is None:
+            new.append(item)
+        elif old.get("sha256") != content_sha256(text) or old.get("adapter") != name:
+            changed.append(item)
+    matched_ids = {sid for _, sid in matched.values()}
+    rec = _last_sync(records)
+    cur = store.config_mtime_ns()
+    base, missing, removed = set(), [], []
+    if rec is not None:
+        from refcov.store import path_matches
+        recorded = set(rec.get("ids") or [])
+        changed_cfg = cur != rec.get("config_mtime_ns")
+        patterns = _pattern_list(cfg)
+        for sid in sorted(recorded):
+            s = entries.get(sid)
+            if s is None:
+                continue
+            origin = s.get("origin", "")
+            if changed_cfg and not path_matches(origin, patterns):
+                removed.append(sid)
+                continue
+            base.add(sid)
+            if not (store.root / origin).is_file():
+                missing.append(sid)
+    return {"new": new, "changed": changed, "failed": failed, "empty": empty, "missing": missing,
+            "removed": removed, "base": sorted(base), "matched_ids": sorted(matched_ids),
+            "has_specs": bool(source_specs(cfg)), "has_record": rec is not None}
+
+
+def sync(store: Store) -> dict:
+    """`refcov sync`（只能由用户运行）：登记新增的文件，重新登记内容变了的文件，记一条 `sync` 记录。
+    没有 [sources]、也没有 sync 记录时什么都不写（简化上手设计 1.3、1.5）。"""
+    from refcov.sources import RegisterError, register
+    from refcov.store import StoreError
+    plan = plan_sync(store)
+    if not plan["has_specs"] and not plan["has_record"]:
+        return {**plan, "registered": [], "errors": [], "wrote": False}
+    registered, errors = [], []
+    for item in plan["new"] + plan["changed"]:
+        try:
+            register(store, item["file"], item["id"], adapter=item["adapter"])
+            registered.append(item)
+        except (RegisterError, StoreError) as e:
+            errors.append({**item, "error": str(e)})
+    bad = {x["id"] for x in errors + plan["failed"]}
+    ids = set(plan["base"]) | (set(plan["matched_ids"]) - bad)
+    store.append("sync", None, config_mtime_ns=store.config_mtime_ns(), ids=sorted(ids))
+    return {**plan, "registered": registered, "errors": errors, "wrote": True}
+
+
+def _sync_summary(store: Store) -> dict | None:
+    from refcov.store import source_specs
+    if not source_specs(store.load_config()):
+        return None
+    p = plan_sync(store)
+    return {k: p[k] for k in ("new", "changed", "failed", "empty", "missing", "removed")}
+
+
 def gather(store: Store) -> Inputs:
     from refcov import citations, coverage
 
@@ -277,7 +428,9 @@ def gather(store: Store) -> Inputs:
         phantom.extend((d, n) for n in res.phantom)
         invalid.extend((d, n, ref) for n, ref in res.invalid)
         unconverted.extend((d, n) for n in res.unconverted)
-    required = coverage.required_set(sources, _decls(store, sources), cfg["mode"], cfg["relax"], cited)
+    inactive = _inactive_auto(store, sources, records, cfg)
+    required = coverage.required_set([s for s in sources if s["id"] not in inactive], _decls(store, sources),
+                                     cfg["mode"], cfg["relax"], cited)
     return Inputs(cfg, sources, records, valid, docs, cited, tuple(phantom), tuple(invalid), tuple(unconverted),
                   required, tuple(empty))
 
@@ -327,6 +480,11 @@ def check(store: Store, path=None) -> dict:
 
 
 def _config_problems(inp: Inputs) -> list:
+    from refcov.store import sources_problems
+    return _config_problems_base(inp) + sources_problems(inp.cfg)
+
+
+def _config_problems_base(inp: Inputs) -> list:
     from refcov import coverage
 
     return list(coverage.config_problems(inp.sources, inp.cfg["scope"] or [], inp.cfg["relax"],
@@ -605,6 +763,15 @@ STATUS_FIRST = 5  # 状态行列出还差的前几个
 
 
 def report(store: Store, session: str | None = None) -> dict:
+    rep = _report_base(store, session)
+    summary = _sync_summary(store)
+    if summary is not None:  # 没有 [sources] 时报告的字段和以前一模一样
+        rep["sync"] = summary
+        rep["config_problems"] = list(rep["config_problems"]) + list(summary["empty"])
+    return rep
+
+
+def _report_base(store: Store, session: str | None = None) -> dict:
     """报告 JSON（设计 3.5）。`pass` 按全部参考源算（同 `check(store)`）。还没有的部分：
     tokens（任务 19）、blocks、writes、tasks_not_found、protected（任务 14–17）、files（任务 18）。
 
@@ -677,6 +844,20 @@ def _join(items, limit=None) -> str:
 
 
 def report_text(rep: dict) -> str:
+    return _with_sync_line(rep, _report_text_base(rep))
+
+
+def _with_sync_line(rep: dict, text: str) -> str:
+    s = rep.get("sync")
+    if not s or not any(s[k] for k in ("new", "changed", "missing", "removed", "failed")):
+        return text
+    line = ("[sources] 待同步：新增 {} 个、改动 {} 个（运行 refcov sync 登记）；"
+            "文件已不在 {} 个（仍必看）；已移出清单 {} 个（不再必看）。").format(
+        len(s["new"]), len(s["changed"]), len(s["missing"]), len(s["removed"]))
+    return text.rstrip("\n") + "\n" + line + "\n"
+
+
+def _report_text_base(rep: dict) -> str:
     """文字版报告，只从 JSON 生成（需求 12.3）。"""
     lines = [_head(rep)]
     if not rep["sources"]:

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RefCov: how much reference material the AI read</title>
+<meta name="description" content="Recorded runs of an AI coding assistant with and without RefCov: how much of the registered reference material it read before it wrote.">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main">
+
+<section id="s0" class="hero" aria-labelledby="s0-title">
+  <p class="kicker">RefCov demo</p>
+  <h1 id="s0-title">How much of your reference material did the AI actually read?</h1>
+  <p>Without RefCov, 13 of 16 runs wrote their code without opening any of the registered guides. With RefCov, all 16 runs read every required unit before they wrote.</p>
+
+  <figure class="grid-figure">
+    <figcaption>Without RefCov: lit cells opened a registered guide, grey cells opened none (3 of 16 lit)</figcaption>
+    <ol class="cells" aria-label="Without RefCov: 16 runs">
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 1: opened a registered guide</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 2: opened a registered guide</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 3: opened a registered guide</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 4: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 5: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 6: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 7: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 8: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 9: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 10: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 11: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 12: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 13: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 14: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 15: no registered guide opened</span></li>
+      <li class="cell off"><span aria-hidden="true">·</span><span class="sr">Run 16: no registered guide opened</span></li>
+    </ol>
+  </figure>
+
+  <figure class="grid-figure">
+    <figcaption>With RefCov: every lit cell read every required unit (16 of 16 lit)</figcaption>
+    <ol class="cells" aria-label="With RefCov: 16 runs">
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 1: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 2: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 3: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 4: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 5: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 6: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 7: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 8: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 9: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 10: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 11: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 12: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 13: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 14: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 15: read every required unit</span></li>
+      <li class="cell on"><span aria-hidden="true">✓</span><span class="sr">Run 16: read every required unit</span></li>
+    </ol>
+  </figure>
+
+  <p class="scope">Scope: five front-end tasks, claude-haiku-5.5 on kiro-cli 3.3.0 (the version of the first task is inferred), three or four runs per group per task. These are descriptions of 16 runs, not statistics. Sources: front-end trial, section 5 (first task) and front-end extension trial, section 7 (all five tasks).</p>
+</section>
+
+<section id="s1" aria-labelledby="s1-title">
+  <h2 id="s1-title">The same prompt and the same cheap model, with and without RefCov</h2>
+  <p>Both runs used claude-haiku-5.5 on the first task: an account settings page with a confirm dialog and form validation. Both are reruns from 15 November. Each side replays the events in the order the run produced them.</p>
+  <p class="motion-note">Motion is off because your system asks for reduced motion. Each replay shows its final state.</p>
+
+  <div class="pair-wrap">
+    <div class="pair">
+      <section class="side" aria-labelledby="w-title">
+        <h3 id="w-title">Without RefCov</h3>
+        <dl class="meta" id="w-meta"></dl>
+        <p class="status" id="w-status">Loading the replay.</p>
+        <button type="button" class="replay-button" id="w-button">Replay</button>
+        <div class="replay" id="w-replay"></div>
+      </section>
+      <section class="side" aria-labelledby="wb-title">
+        <h3 id="wb-title">With RefCov</h3>
+        <dl class="meta" id="wb-meta"></dl>
+        <p class="status" id="wb-status">Loading the replay.</p>
+        <button type="button" class="replay-button" id="wb-button">Replay</button>
+        <div class="replay" id="wb-replay"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="table-wrap" role="region" tabindex="0" aria-labelledby="needles-caption">
+  <table class="needles responsive">
+    <caption id="needles-caption">Guide practices in each run's index.html</caption>
+    <thead>
+      <tr><th scope="col">Practice</th><th scope="col">Without RefCov</th><th scope="col">With RefCov</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">closedby="any": a click outside closes the dialog</th><td data-label="Without RefCov">not used</td><td data-label="With RefCov">used</td></tr>
+      <tr><th scope="row">:user-invalid: the error shows after the user edits the field</th><td data-label="Without RefCov">not used</td><td data-label="With RefCov">used</td></tr>
+      <tr><th scope="row">commandfor: a button opens the dialog</th><td data-label="Without RefCov">not used</td><td data-label="With RefCov">not used</td></tr>
+      <tr><th scope="row">overscroll-behavior: the page behind the dialog does not scroll</th><td data-label="Without RefCov">not used</td><td data-label="With RefCov">used</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>With RefCov, the run used three of the four practices and did not use commandfor. The table shows that as recorded.</p>
+  <p>How the guides were picked: for this first task, Claude picked the eight guides and knew which four practices the check would look for. For the four later tasks, the guide pack's own search rules picked the guides.</p>
+</section>
+
+<section id="s2" aria-labelledby="s2-title">
+  <h2 id="s2-title">Five front-end tasks</h2>
+  <p>Each task ran three or four times per group with claude-haiku-5.5 on kiro-cli 3.3.0. "Practices" are the guide patterns that each task's check looks for: four for the first task, three for the FAQ accordion, five for the dropdown menu, and three each for the dark-mode switch and the long article page.</p>
+
+  <div class="table-wrap" role="region" tabindex="0" aria-labelledby="tasks-caption">
+    <table class="tasks responsive">
+      <caption id="tasks-caption">Results per task, all with claude-haiku-5.5</caption>
+      <thead>
+        <tr>
+          <th scope="col">Task</th>
+          <th scope="col">Without RefCov: runs that opened a registered guide</th>
+          <th scope="col">Without RefCov: practices used</th>
+          <th scope="col">With RefCov: runs that read every required unit</th>
+          <th scope="col">With RefCov: practices used</th>
+          <th scope="col">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Account settings page (first trial)</th>
+          <td data-label="Without RefCov: runs that opened a registered guide">0 of 4</td>
+          <td data-label="Without RefCov: practices used">0 / 16</td>
+          <td data-label="With RefCov: runs that read every required unit">4 of 4 (82 units)</td>
+          <td data-label="With RefCov: practices used">14 / 16</td>
+          <td data-label="Notes">Version inferred. Source: front-end trial, section 5.</td>
+        </tr>
+        <tr>
+          <th scope="row">FAQ accordion</th>
+          <td data-label="Without RefCov: runs that opened a registered guide">0 of 3</td>
+          <td data-label="Without RefCov: practices used">0 / 9</td>
+          <td data-label="With RefCov: runs that read every required unit">3 of 3 (117 units)</td>
+          <td data-label="With RefCov: practices used">7 / 9</td>
+          <td data-label="Notes">The gate blocked two runs mid-read; both read the rest of the units, then wrote. One run chose hidden="until-found" over details after reading.</td>
+        </tr>
+        <tr>
+          <th scope="row">Dropdown menu</th>
+          <td data-label="Without RefCov: runs that opened a registered guide">0 of 3</td>
+          <td data-label="Without RefCov: practices used">0 / 15</td>
+          <td data-label="With RefCov: runs that read every required unit">3 of 3 (92 units)</td>
+          <td data-label="With RefCov: practices used">5 / 15</td>
+          <td data-label="Notes">After reading, two runs built the menu in JavaScript (a conservative choice). The gate blocked one run.</td>
+        </tr>
+        <tr>
+          <th scope="row">Dark-mode switch</th>
+          <td data-label="Without RefCov: runs that opened a registered guide">2 of 3</td>
+          <td data-label="Without RefCov: practices used">7 / 9</td>
+          <td data-label="With RefCov: runs that read every required unit">3 of 3 (101 units)</td>
+          <td data-label="With RefCov: practices used">7 / 9</td>
+          <td data-label="Notes">Two runs without RefCov opened the dark-mode guide themselves. The gate blocked one run.</td>
+        </tr>
+        <tr>
+          <th scope="row">Long article page</th>
+          <td data-label="Without RefCov: runs that opened a registered guide">1 of 3</td>
+          <td data-label="Without RefCov: practices used">2 / 9</td>
+          <td data-label="With RefCov: runs that read every required unit">3 of 3 (54 units)</td>
+          <td data-label="With RefCov: practices used">6 / 9</td>
+          <td data-label="Notes">After reading, one run used JavaScript for the progress bar, the header and the sticky headings (a conservative choice).</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">All five tasks</th>
+          <td data-label="Without RefCov: runs that opened a registered guide">3 of 16 runs</td>
+          <td data-label="Without RefCov: practices used">9 / 58</td>
+          <td data-label="With RefCov: runs that read every required unit">16 of 16 runs</td>
+          <td data-label="With RefCov: practices used">39 / 58</td>
+          <td data-label="Notes">13 of 16 runs opened no guide without RefCov.</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p>Under the rule written before the runs, two of the five tasks show a clear difference: the first task and the FAQ accordion. In the dropdown and article tasks, the runs with RefCov read the guides and then several chose conservative browser-support code. In the dark-mode task, the runs without RefCov read the guide themselves.</p>
+  <p>Not in this table: the automatic model selection and claude-sonnet-5.5 groups of the first trial. Their results are in front-end trial, section 3. The claude-haiku-5.5 numbers for the first task are in section 5. Totals: front-end extension trial, section 7, and the story document, section 2.</p>
+</section>
+
+<section id="s3" aria-labelledby="s3-title">
+  <h2 id="s3-title">The gate: a write waits until the required units are read</h2>
+  <p>Run G-01 (folder gis-20261115-213112) is the first formal run of the group where only the gate was on. That group had the per-message status line removed, so the gate was the only RefCov part active. The question asks for a total area, and the answer goes into answer.md.</p>
+  <p class="gate-message"><span class="label">Gate message, translated:</span> <span id="gate-text">Write blocked by the RefCov gate: required units not read yet.</span></p>
+
+  <dl class="meta" id="gate-meta"></dl>
+  <p class="status" id="gate-status">Loading the replay.</p>
+  <button type="button" class="replay-button" id="gate-button">Replay</button>
+  <div class="replay" id="gate-replay"></div>
+
+  <p class="fixed">answer.md written. Graded outside this repository: within ±3% of the reference answer.</p>
+  <p>Without RefCov, the model also looked up the dictionary on this dataset. RefCov adds a count you can check, and here the answer file could not be written until all 24 units had been read.</p>
+  <p>The answer's number is not shown. Three GIS rounds did not show that reading changes the answer.</p>
+</section>
+
+<section id="s4" aria-labelledby="s4-title">
+  <h2 id="s4-title">Splitting material into units</h2>
+  <p>The video app cuts a reference video into shots. The GIS app splits a layer's manifest and a data dictionary into units.</p>
+
+  <h3>Video: 46 shots</h3>
+  <dl class="meta" id="shots-meta"></dl>
+  <p class="status" id="shots-status">Loading the shot strip.</p>
+  <ol class="strip" id="strip" aria-label="46 shots in order"></ol>
+  <p class="axis"><span>0.0 s</span><span id="axis-end"></span></p>
+  <p>Shots are split at hard cuts. Soft transitions stay inside one shot, so this does not claim that every frame was read. No key frames or on-screen text are shown.</p>
+
+  <h3>GIS: 24 units</h3>
+  <p class="status" id="fields-status">Loading the field units.</p>
+  <h4 id="fields-manifest-title">Layer manifest</h4>
+  <ol class="fields" id="fields-manifest" aria-label="Layer manifest units"></ol>
+  <h4 id="fields-dictionary-title">NYC building dictionary</h4>
+  <ol class="fields" id="fields-dictionary" aria-label="Dictionary units"></ol>
+</section>
+
+<section id="s5" aria-labelledby="s5-title">
+  <h2 id="s5-title">We used it on ourselves</h2>
+  <p>From 15 November, claude-haiku-5.5 built the layer-coverage app under RefCov, which required the specs and data notes to be read before each write. The ledger below is the project's own record, one row per piece of work. Credits show as unknown where the Kiro panel did not show the number.</p>
+
+  <p>33 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 904.</p>
+  <details>
+    <summary>Show the build ledger, row by row</summary>
+    <div class="table-wrap" role="region" tabindex="0" aria-labelledby="ledger-caption">
+    <table class="ledger responsive">
+      <caption id="ledger-caption">Build ledger, rows in order, copied from the repository's ledger file</caption>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Task</th>
+          <th scope="col">Model</th>
+          <th scope="col">Credits</th>
+          <th scope="col">Tests</th>
+          <th scope="col">Units read before writing</th>
+          <th scope="col">Gate blocks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Take over RefCov: read the docs, check the MCP report, draft the scope config and registration commands for the user to run; create the branch and this ledger</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 742 passed</td><td data-label="Units read before writing">0 (no MCP unit reads this session; the report showed 114/114 earlier)</td><td data-label="Gate blocks">2 (two shell commands stopped by the protection check; not bypassed)</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Checkpoints 3 and 4: three wording fixes (team conventions marked, 4 runs per group, browser limit); night DEVLOG entry; read the 36 newly registered units before merging main</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 742 passed</td><td data-label="Units read before writing">37 (session total: 1 earlier plus 36 new)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Merge main (two documents only, no conflicts)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 742 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Checkpoint 3 decision written into the simplified setup design, section 0</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 742 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Setup step 1: store reads [sources]; sources_problems; six property tests (S1–S6)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">6 targeted tests pass; full suite 748 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Setup step 2: gen_id, plan_sync and sync in api; gather's automatic source rule; report lines for pending sync; seven tests (Y1–Y7)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">7 targeted tests pass; full suite 755 passed (one report-field assertion failed first; fixed)</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Setup step 3: refcov sync subcommand (user only); add rejects f- IDs; sync added to USER_ONLY in the CLI and the hook; protection test expectations updated; two tests (Y8–Y9)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">2 targeted tests pass; full suite 757 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">1 (the commit message named the subcommand; reworded before committing)</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Setup step 4: integrations/kiro/setup.py (standalone, standard library only); --root for the hook; eight tests (U1–U7 and two properties)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">8 targeted tests pass; full suite 765 passed (a subprocess output encoding problem was fixed)</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">1 (the commit message named the config file; reworded before committing)</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Setup step 5: README Setup section rewritten in English (editable install, run setup.py, list material under [sources], sync)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 765 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Performance change after review: the moved-out check compares only the origin recorded in the manifest; no repository walk, no material reads; tests Y10 and Y11; design 1.5 reworded</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">2 targeted tests pass; full suite 767 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">README Setup gets two sentences: setup writes the template only when there is no refcov.toml; the hooks point at the clone, so re-run setup after moving it</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 767 passed</td><td data-label="Units read before writing">37 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">GIS requirements draft (checkpoint 1): seven requirements, 13 cited units; check-spec 0 phantom, 0 invalid, 0 unconverted; all 82 units of the scope read through MCP before writing</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 767 passed</td><td data-label="Units read before writing">82 (session total, whole scope)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Requirements second draft: three changes after user review (6.3 standard library only; 7.2 standing rule; new requirement 8 for the demo); check-spec 0 phantom, 0 invalid, 0 unconverted; Bayside code distribution matches step 0</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 767 passed</td><td data-label="Units read before writing">82 (as above; no new reads)</td><td data-label="Gate blocks">1 (a shell command that read the records was stopped by the protection check; not bypassed)</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Task 1: apps/layer-coverage/stats.py (standard library only) and tests/test_layer_stats.py; one @given each for P1–P5 (200 examples) plus seven fixed examples; 12 in all</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">12 targeted tests pass; full suite 779 passed</td><td data-label="Units read before writing">82 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Task 2: apps/layer-coverage/adapter.py (name layer, three kinds, import guard); 22 tests (16 adapter tests including property A1, 3 import guard, 3 standard library)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">22 targeted tests pass; full suite 801 passed</td><td data-label="Units read before writing">82 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Task 3: apps/layer-coverage/build.py (pure function build_manifest; command line reads and writes only; generated manifest passed through the adapter first); 18 tests. The first run had 12 failures: the alias check treated SHAPE_AREA and shape_area as two rows with the same name; fixed</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">18 targeted tests pass; full suite 820 passed</td><td data-label="Units read before writing">82 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Task 4: apps/layer-coverage/fetch.py (paging; checks the total and group counts before writing; retries wait 2, 4 and 8 seconds; output inside the repository refused before any network call; --check); 12 tests, one more standard-library check</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">12 targeted tests pass; full suite 833 passed</td><td data-label="Units read before writing">82 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Task 5: cli.py (fields lists field units only; show prints a unit's body; read-only; does not import refcov) and an English README.md (mechanism and limits only); design section 8 aligned with requirement 6.1; 14 tests (CLI 8, standard library 6)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">14 targeted tests pass; full suite 842 passed</td><td data-label="Units read before writing">82 (as above)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Live run (task 6): fetch.py --check against the live interface, 6018 rows, group counts match step 0; build.py makes the manifest from the local extract and the live dictionary (17 units); three manifest regression tests</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">3 targeted tests pass; full suite 845 passed</td><td data-label="Units read before writing">82 (this step also read one data-quality unit through MCP; still within 82)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Wrote design.md and tasks.md; two Attribute-table units of the dictionary read through MCP; read-only check of Bayside's fields and code distribution</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 767 passed</td><td data-label="Units read before writing">82 (two dictionary units read again through MCP; still within 82)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Requirements completed: 1.4 README use terms not yet read; 2.3 units for fields missing from the dictionary; 3.1, 3.2 and 3.3 coordinate-system and scope units quote the dictionary's data-quality section; manifest regenerated; lookup accepts two row styles; a missed ledger row added</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed (23 build tests)</td><td data-label="Units read before writing">82 (one data-quality unit read again through MCP; still within 82)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Checkpoint 2 stop: ledger rows for f73a639 and 9c49d99 added; DEVLOG checkpoint entry; demo not run; kiro-cli not started</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">82 (as above; no new reads in this step)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Design changes after review: templates renamed GIS-template and GIS-N-template; template gains geojson; all groups use identical files; group N added; grading script written outside the repository and run; task 7 done; task 8 changed to probe, then set the count, then the formal run</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">82 (as above; no new reads in this step)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-15</td><td data-label="Task">Sync (written by Claude, forwarded by the user): GIS trial results in design section 10 (probe, count, reference IDs, the absolute path setup wrote); task 8 ticked; product.md gains "do not say" and "must state" items; main evidence changed to five tasks; three outdated claims corrected</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">82 (as above; no new reads in this step)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-16</td><td data-label="Task">Corrections after Claude's review of 4d945e8: gate order, English summary, FAQ added to the conservative-choice note, first-trial labels, design 10.4 kiro-cli check sentence; ledger row for 4d945e8 added</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">82 (as above; no new reads in this step)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-16</td><td data-label="Task">Demo-page requirements first draft (16 requirements, no site/ folder yet): check-spec 0 phantom, 0 invalid, 9 unconverted</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">82 (report check: 82 this session; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-16</td><td data-label="Task">Demo-page requirements revised per Claude's review of 878deaa: 8.6, replay version, 2.2, 2.5, 3.5, source line 5, 6.3, 7.1, 9.5; check-spec 0 phantom, 0 invalid, 9 unconverted</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">82 (report check: 82 this session; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Demo-page design draft and source conversion: six project documents and app-positioning cited as [ref:…]; check-spec 0 phantom, 0 invalid, 0 unconverted</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 850 passed</td><td data-label="Units read before writing">142 (check: 142 of 384 this session)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Converter script, its tests and the four replay JSON files: standard library only; 17 tests including one property test</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">17 targeted tests pass; full suite 867 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Display names for read events (unit ID with layout tags and entities removed, hyphens as spaces, cut to 80 characters); G-01 and WB-H-03 JSON regenerated; two converter tests added</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">19 converter tests pass; full suite 869 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Demo page: index.html, style.css and app.js (English, eight sections); three page test files (page 12, numbers 9, contrast 3); Pages workflow pages.yml uploads site/ only; design sections 3.2 and 3.4 define the display field; design section 8 steps 4 and 5 done</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">24 new tests pass; full suite 893 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">1 (a shell command that read the RefCov log was stopped by the protection check; the report tool was used instead)</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Steering: product.md says RefCov records workspace MCP reads without saying which agent made them; tech.md adds a rule that required units are read by the writing agent through MCP, not by sub-agents</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 893 passed</td><td data-label="Units read before writing">316 (report check: session total; the 82 guide units read before this step did not change the count)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Review fixes: 82 guide units read and the page checked against them (pause control, press state, keyboard-reachable table regions, flash on reveal); nine page text changes; bold markers removed from display names and the four JSON files regenerated (only the G-01 table-of-contents name changed)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">site and converter tests pass; full suite 904 passed</td><td data-label="Units read before writing">316 (report check: session total; the 82 catch-up reads did not change the count)</td><td data-label="Gate blocks">0</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </details>
+
+  <h3>Same task, two models</h3>
+  <p>Two re-implementation tasks, each done by claude-haiku-5.5 and by Opus 5.5 from the same specs and tests (kiro-cli 3.3.0, one run each, 2026-11-15). Both copies had the same single failure, in test_gitignore.py, caused by an empty .git folder in the copy.</p>
+  <div class="table-wrap" role="region" tabindex="0" aria-labelledby="comparison-caption">
+    <table class="responsive">
+      <caption id="comparison-caption">Credits and seconds for the same task</caption>
+      <thead>
+        <tr><th scope="col">Task</th><th scope="col">claude-haiku-5.5</th><th scope="col">Opus 5.5</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">T1: the two unit-list functions of the shot app</th><td data-label="claude-haiku-5.5">0.18 credits, 150 s</td><td data-label="Opus 5.5">4.77 credits, 304 s</td></tr>
+        <tr><th scope="row">T2: the adapter loader in the core layer</th><td data-label="claude-haiku-5.5">0.37 credits, 232 s</td><td data-label="Opus 5.5">9.31 credits, 432 s</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Haiku's code still needs review. Claude reviews it at checkpoints, and the review findings are recorded in the ledger.</p>
+  <p>Commits made with claude-haiku-5.5 carry a Kiro-Model trailer. To list them:</p>
+  <pre><code>git log before-haiku.. --grep "Kiro-Model: claude-haiku-5.5"</code></pre>
+</section>
+
+<section id="s6" aria-labelledby="s6-title">
+  <h2 id="s6-title">What this does not show</h2>
+  <ul>
+    <li>Reading is not following. A guide that the model read did not always lead to its practices. After reading, several runs chose conservative browser-support code.</li>
+    <li>The GIS app does not show that reading changes the answer. Three GIS rounds, including a published benchmark task, did not measure that.</li>
+    <li>RefCov adds information the model lacks or does not use: project standards, newer practices it knows but skips, and team conventions. It does not add skill for long workflows or hard libraries.</li>
+    <li>It helps most where the material is large or costly to read in full, and where the material is a means rather than the task. For a short document that the prompt names, the model often reads it anyway, and RefCov only adds a record.</li>
+    <li>The numbers are small: three or four runs per group, one task at a time. They describe those runs and are not statistics.</li>
+    <li>Test conditions: the front-end and GIS results are claude-haiku-5.5 on kiro-cli 3.3.0. The first front-end task also had automatic model selection and claude-sonnet-5.5 groups. The video trial used claude-sonnet-5.5 on two batches, kiro-cli 3.1.0 and 3.3.0.</li>
+    <li>A person registers the materials. RefCov does not look up the latest guides by itself.</li>
+    <li>RefCov records that a unit was read, not that it was understood.</li>
+    <li>RefCov records that a unit was read in this workspace, not which agent read it. While this page was being built, Kiro had sub-agents read 174 guide units for it, and the gate let the next write through. Kiro reported this itself.</li>
+  </ul>
+</section>
+
+<section id="s7" aria-labelledby="s7-title">
+  <h2 id="s7-title">Try it yourself</h2>
+  <p>Install RefCov from its clone first: <code>python -m pip install -e ".[dev]"</code> (README, Setup, step 1). Then:</p>
+  <ol>
+    <li>Run <code>setup.py</code> from your project root: <code>python &lt;RefCov clone&gt;/integrations/kiro/setup.py</code>.</li>
+    <li>List the reference files under <code>[sources]</code> in <code>refcov.toml</code>.</li>
+    <li>Run <code>refcov sync</code>.</li>
+  </ol>
+  <p>The full steps are in the <a href="https://github.com/3322jj/refcov#setup">Setup section of the README</a>.</p>
+</section>
+
+</main>
+
+<footer>
+  <p>Built for Kiroween 2026, Skeleton Crew category. The replays come from the JSON files in <code>site/data</code>, written by <code>site/convert_runs.py</code> from four recorded runs.</p>
+  <p>Sources and licenses: NYC Building Footprints from NYC Open Data (no use restrictions; not affiliated with the City of New York); field names and section titles from CityOfNewYork/nyc-geo-metadata (Apache-2.0); guide titles from Chrome's modern web guidance (Apache-2.0).</p>
+</footer>
+</body>
+</html>

@@ -29,7 +29,7 @@ MCP_TOOL = re.compile(r"^mcp_refcov_")  # 和 hooks/refcov-post-mcp.json 的 mat
 
 # ---- 保护检查（任务 14，需求 14.1–14.5，设计 8 第 2 步）：不 import 核心层 ----
 
-USER_ONLY = ("add", "confirm")  # 和 refcov/cli.py 的 USER_ONLY 一致（tests/test_protect.py 检查）
+USER_ONLY = ("add", "confirm", "sync")  # 和 refcov/cli.py 的 USER_ONLY 一致（tests/test_protect.py 检查）
 WRITE_TOOLS = frozenset({"fs_write", "str_replace", "fs_append"})  # 和 hooks/refcov-pre-write.json 一致
 SHELL_TOOLS = frozenset({"execute_pwsh", "control_pwsh_process", "execute_bash"})  # 和 hooks/refcov-pre-shell.json 一致
 _I = re.IGNORECASE
@@ -294,8 +294,23 @@ def pretask_main(event: str) -> int:
     return 2
 
 
+def _take_root(argv: list) -> tuple[list, str | None]:
+    """`--root <仓库根>` 放在事件名前面时取出来，返回 (去掉它以后的参数, 仓库根或 None)。
+    setup.py 写进用户仓库的钩子命令带这个参数（简化上手设计 2.2）；没有它时仍用脚本自己的位置算出的根。"""
+    if "--root" in argv:
+        i = argv.index("--root")
+        if i + 1 < len(argv):
+            return argv[:i] + argv[i + 2:], argv[i + 1]
+    return argv, None
+
+
 def main() -> int:
-    event = sys.argv[1] if len(sys.argv) > 1 else ""
+    global ROOT, ERRORS_LOG
+    rest, root = _take_root(sys.argv[1:])
+    if root:
+        ROOT = Path(root).resolve()
+        ERRORS_LOG = ROOT / ".refcov" / "errors.log"
+    event = rest[0] if rest else ""
     if event in ("pre-write", "pre-shell"):
         return protect_main(event)  # 出错一律拦，和下面"出错放行"相反（需求 14.5）
     if event == "pretask":

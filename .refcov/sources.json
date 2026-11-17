@@ -878,6 +878,2156 @@
           "chars": 71
         }
       ]
+    },
+    {
+      "id": "nyc-bldg-dict",
+      "origin": "https://raw.githubusercontent.com/CityOfNewYork/nyc-geo-metadata/main/Metadata/Metadata_BuildingFootprints.md",
+      "fetched": "2026-11-15T17:18:15+08:00",
+      "sha256": "7a7c3df3bde8bccf5f0219fe829cdf380702699c8854298c6c6d8b1e2b5cb407",
+      "adapter": "markdown",
+      "registered_seq": 256,
+      "units": [
+        {
+          "id": "Building-Footprints",
+          "title": "Building Footprints",
+          "kind": "section",
+          "sha256": "c71eb8435c916adf8fc671d4a205ca972f98c93ed9fd03d614f210993518ae11",
+          "chars": 136
+        },
+        {
+          "id": "Table-of-Contents<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**1.-Identification**-(#1-identification)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**2.-Data-Quality-and-Specifications**-(#2-data-quality-and-specifications)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**3.-Attribute-Information**-(#3-attribute-information)<br><br>",
+          "title": "Table of Contents<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**1. Identification**](#1-identification)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2. Data Quality and Specifications**](#2-data-quality-and-specifications)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**3. Attribute Information**](#3-attribute-information)<br><br>",
+          "kind": "section",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "chars": 0
+        },
+        {
+          "id": "1.-Identification",
+          "title": "1. Identification",
+          "kind": "section",
+          "sha256": "c5d92b7f5fb5e8833844891ee0c868c4241507b7e9a1ef0599d3cf0c8fc42185",
+          "chars": 2174
+        },
+        {
+          "id": "2.-Data-Quality-and-Specifications",
+          "title": "2. Data Quality and Specifications",
+          "kind": "section",
+          "sha256": "12f32b0b3e8e7b229cc994bce0a0b60518c0661a1e7d9e140746c7b0bc6498bf",
+          "chars": 4000
+        },
+        {
+          "id": "2.-Data-Quality-and-Specifications@2",
+          "title": "2. Data Quality and Specifications (2)",
+          "kind": "section",
+          "sha256": "5476807dff8a8e739448892b60c0340382fd52ae49f27d10d620c342ac0dfc53",
+          "chars": 417
+        },
+        {
+          "id": "3.-Attribute-Information",
+          "title": "3. Attribute Information",
+          "kind": "section",
+          "sha256": "29f887cdfa7db0c512d7ccbf19f0760572e1329456206e5e49068c8bb6156e02",
+          "chars": 4000
+        },
+        {
+          "id": "3.-Attribute-Information@2",
+          "title": "3. Attribute Information (2)",
+          "kind": "section",
+          "sha256": "fc0c6c6428b7aa0884e014853dff63d0c5a18ce0756f6cacc894f4b33c30c135",
+          "chars": 1690
+        }
+      ]
+    },
+    {
+      "id": "app-positioning",
+      "origin": "docs/应用定位和陷阱试验.md",
+      "fetched": "2026-11-15T17:18:22+08:00",
+      "sha256": "d882f62b0d1df66008500b38775e4aa21f7dce179809ec210e5419942f5c8dba",
+      "adapter": "markdown",
+      "registered_seq": 257,
+      "units": [
+        {
+          "id": "两个应用的定位、证据和演示（第二版）",
+          "title": "两个应用的定位、证据和演示（第二版）",
+          "kind": "section",
+          "sha256": "65a693e5303247b02de6d98e828106210e6b03eb273ddad8cde97a16a5c04fbd",
+          "chars": 700
+        },
+        {
+          "id": "1.-结论",
+          "title": "1. 结论",
+          "kind": "section",
+          "sha256": "7c52f3c1a2428a2bd8d86c5b5d471808c848771c30c13c33ce5b7693ce95aeea",
+          "chars": 220
+        },
+        {
+          "id": "2.-为什么改：这两天的四个发现",
+          "title": "2. 为什么改：这两天的四个发现",
+          "kind": "section",
+          "sha256": "0c191852beaaf9deeb4bead7105c2630fde148d4649285c0788ecb81b9bac67a",
+          "chars": 716
+        },
+        {
+          "id": "3.-对外讲法",
+          "title": "3. 对外讲法",
+          "kind": "section",
+          "sha256": "4f5dfbe6fd60d3a83c3fd04b8b1c2e4889752e6fd464ed95e3d4cce7387ba60f",
+          "chars": 363
+        },
+        {
+          "id": "4.-镜头覆盖率-`apps/shot-coverage`：拆和读",
+          "title": "4. 镜头覆盖率 `apps/shot-coverage`：拆和读",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "要做的",
+          "title": "要做的",
+          "kind": "section",
+          "sha256": "c302c291c569d43f558cdc29e63a7f0b5ef170e6b68d44a28e7ddf081eacbf3d",
+          "chars": 315
+        },
+        {
+          "id": "对比试验（主要证据）",
+          "title": "对比试验（主要证据）",
+          "kind": "section",
+          "sha256": "aac72a8565b9acf519364182167c97c45366901f4196df887a2d72e6e544ab9c",
+          "chars": 675
+        },
+        {
+          "id": "5.-图层覆盖率-`apps/layer-coverage`：拦和出处",
+          "title": "5. 图层覆盖率 `apps/layer-coverage`：拦和出处",
+          "kind": "section",
+          "sha256": "3b6ac6a74de6e54340ee0d0fc37408724c2bf477f67b025e91da6fea87b0d948",
+          "chars": 438
+        },
+        {
+          "id": "6.-证据清单",
+          "title": "6. 证据清单",
+          "kind": "section",
+          "sha256": "edb241948edf5ffc8cc03c92618996574e43320c221e9dcb1ba0d3a3a6b3361c",
+          "chars": 382
+        },
+        {
+          "id": "7.-视觉语言",
+          "title": "7. 视觉语言",
+          "kind": "section",
+          "sha256": "da95bfe21edec672f16fadba160cbb4f021d84b76801742ca32beae2d6c672c8",
+          "chars": 81
+        },
+        {
+          "id": "8.-视频分镜（3-分钟以内，英文）",
+          "title": "8. 视频分镜（3 分钟以内，英文）",
+          "kind": "section",
+          "sha256": "6ec6705d410da3cff84abf7205ea03c563ef0a1d7e2d1621f282df60659cd88f",
+          "chars": 420
+        },
+        {
+          "id": "9.-风险和待验证",
+          "title": "9. 风险和待验证",
+          "kind": "section",
+          "sha256": "4f5374e74882e9e2d8545ba6be2b4cc5b488428e16e9753a1aa62aa6776b1db8",
+          "chars": 361
+        },
+        {
+          "id": "附录：纽约建筑轮廓数据",
+          "title": "附录：纽约建筑轮廓数据",
+          "kind": "section",
+          "sha256": "5ea71449cc6c393019987b3ed7b86bbb42b98ef38a7c9724a8ae75763d338f14",
+          "chars": 431
+        }
+      ]
+    },
+    {
+      "id": "shot-design",
+      "origin": ".kiro/specs/shot-coverage/design.md",
+      "fetched": "2026-11-15T17:18:43+08:00",
+      "sha256": "a8c56735f74ec0d17813d2f0b269f4ac790103ea4623df07f168c06df69aa2eb",
+      "adapter": "markdown",
+      "registered_seq": 258,
+      "units": [
+        {
+          "id": "设计文档：镜头覆盖率应用-`apps/shot-coverage`（初稿，等审阅）",
+          "title": "设计文档：镜头覆盖率应用 `apps/shot-coverage`（初稿，等审阅）",
+          "kind": "section",
+          "sha256": "8e234e3ac057ab3a4a259457b1db9e02f767096bbbb4ba6e344a45db651fd767",
+          "chars": 978
+        },
+        {
+          "id": "1.-总览",
+          "title": "1. 总览",
+          "kind": "section",
+          "sha256": "809a18fa58b21178fe85493fd3c37651357ff633a96c992d0e66d374040594f1",
+          "chars": 1162
+        },
+        {
+          "id": "2.-镜头清单格式（需求-1.2）",
+          "title": "2. 镜头清单格式（需求 1.2）",
+          "kind": "section",
+          "sha256": "4be5eb9a92496ad72d50355d68a54392dc766883bf82937605fcb6b73c321ff1",
+          "chars": 991
+        },
+        {
+          "id": "3.-适配器-`adapter.py`",
+          "title": "3. 适配器 `adapter.py`",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "3.1-对核心层的接口",
+          "title": "3.1 对核心层的接口",
+          "kind": "section",
+          "sha256": "00acb953e64a767a3a548ee932e3abf4f3572280eebf63ed7f8f1e624afee21d",
+          "chars": 646
+        },
+        {
+          "id": "3.1.1-导入-`adapter.py`-时不做任何耗时的事（用户-2026-11-14-审阅补）",
+          "title": "3.1.1 导入 `adapter.py` 时不做任何耗时的事（用户 2026-11-14 审阅补）",
+          "kind": "section",
+          "sha256": "d9b10eec6d265889f65ba0a6351462b8263167bd71797fe299d8f93b465d4bd9",
+          "chars": 760
+        },
+        {
+          "id": "3.2-`read`-的步骤",
+          "title": "3.2 `read` 的步骤",
+          "kind": "section",
+          "sha256": "32f0b5879d59d1d26455e62e403ba7a6c6840fc819fea7c8b3293c5c63b89e7d",
+          "chars": 1367
+        },
+        {
+          "id": "3.3-为什么不把取帧放进登记",
+          "title": "3.3 为什么不把取帧放进登记",
+          "kind": "section",
+          "sha256": "0ddb5504f20b54e6a64e253e58fd171d5cbd88c1fca7cae6a4b1befe979daa0a",
+          "chars": 116
+        },
+        {
+          "id": "4.-检测-`detect`（需求-1、4）",
+          "title": "4. 检测 `detect`（需求 1、4）",
+          "kind": "section",
+          "sha256": "2dfb9076537bedbec303e2dd4c616dd272811ef3767e6ebad6ce431c7f8a92e3",
+          "chars": 1262
+        },
+        {
+          "id": "5.-镜头条页面-`page.py`（需求-5）",
+          "title": "5. 镜头条页面 `page.py`（需求 5）",
+          "kind": "section",
+          "sha256": "9b91bbcbf28bc5f78d2391f9e32fbc6f21c505a9b565ad0a66f60bf7821ae29b",
+          "chars": 846
+        },
+        {
+          "id": "6.-配置、保护和安全",
+          "title": "6. 配置、保护和安全",
+          "kind": "section",
+          "sha256": "aa219feac385f4328700075c36998bbe5303dcdc007e59f1ebe2deaa6d77e8b6",
+          "chars": 644
+        },
+        {
+          "id": "7.-测试",
+          "title": "7. 测试",
+          "kind": "section",
+          "sha256": "5a2de4b36c1322123035346ebe58cac5f8e6cd4b0babbc41b11fe4aff820ca06",
+          "chars": 1152
+        },
+        {
+          "id": "8.-参数初值（实测后定）",
+          "title": "8. 参数初值（实测后定）",
+          "kind": "section",
+          "sha256": "4dfe08095856226c9c385030a731d6af454c050a3013d583738a32e43a214e81",
+          "chars": 304
+        },
+        {
+          "id": "9.-需求和设计对照",
+          "title": "9. 需求和设计对照",
+          "kind": "section",
+          "sha256": "dc95abc8ae51cd809e40e604c2cacaad3b4eb08bd1ab6025a1d7184e463fd1ef",
+          "chars": 413
+        },
+        {
+          "id": "10.-需要用户看的几点",
+          "title": "10. 需要用户看的几点",
+          "kind": "section",
+          "sha256": "269736176b011a6f49f46cdcdf25c08dd7cc8275b0cd0a63923fa75cbda7971f",
+          "chars": 620
+        },
+        {
+          "id": "11.-给对比试验用（用户-2026-11-14-审阅补）",
+          "title": "11. 给对比试验用（用户 2026-11-14 审阅补）",
+          "kind": "section",
+          "sha256": "f9da782ea6294ce951c469d31821368edfe9eb5189f06dfd99cc5e8eed7c3187",
+          "chars": 1222
+        }
+      ]
+    },
+    {
+      "id": "demo-plan",
+      "origin": "docs/演示页方案.md",
+      "fetched": "2026-11-17T00:10:44+09:00",
+      "sha256": "c5c2e4eced1426a02f82d5f2d0c989fea440bf8e12c17d32b2c94bdabe4c248b",
+      "adapter": "markdown",
+      "registered_seq": 450,
+      "units": [
+        {
+          "id": "演示页方案（用户-2026-11-16-拍板）",
+          "title": "演示页方案（用户 2026-11-16 拍板）",
+          "kind": "section",
+          "sha256": "99ca91c742850acfc11208e5322400b2d71996bfbf1e5b7ad2261efa0fbbc9de",
+          "chars": 1242
+        },
+        {
+          "id": "1.-目标",
+          "title": "1. 目标",
+          "kind": "section",
+          "sha256": "e57ed1898be3c24fa0eeec9ff05368eca200d1b53c3e445221d471d49fe4f840",
+          "chars": 183
+        },
+        {
+          "id": "2.-页面结构（一页，从上往下）",
+          "title": "2. 页面结构（一页，从上往下）",
+          "kind": "section",
+          "sha256": "cab45c9281a0b92a58ca254c2f96c521a00a67194dfa9c5508510ec7969eb467",
+          "chars": 1013
+        },
+        {
+          "id": "3.-回放的数据从哪来",
+          "title": "3. 回放的数据从哪来",
+          "kind": "section",
+          "sha256": "5cd69f182b94255bc95b3edf03c3be50389d148556ac764455e6255cc23b08b6",
+          "chars": 386
+        },
+        {
+          "id": "4.-怎么做",
+          "title": "4. 怎么做",
+          "kind": "section",
+          "sha256": "1cbfd17ba2ddc765e95c208b0b0ba1abef1f161eb5430b1b76c143b7b59e5109",
+          "chars": 498
+        },
+        {
+          "id": "5.-要用户拍板的",
+          "title": "5. 要用户拍板的",
+          "kind": "section",
+          "sha256": "dcfcbc54c4562da45fec0b5cd0784be851406c49f90661bc657fd2e7b87edf3d",
+          "chars": 288
+        },
+        {
+          "id": "6.-不做的",
+          "title": "6. 不做的",
+          "kind": "section",
+          "sha256": "94267729e0b22b5513cab6cbe72437d73a5160aa7631dc0c9a5bbed55d0f95e9",
+          "chars": 101
+        },
+        {
+          "id": "7.-拍板结果和回放用的运行（用户-2026-11-16-定）",
+          "title": "7. 拍板结果和回放用的运行（用户 2026-11-16 定）",
+          "kind": "section",
+          "sha256": "19fa5d6ae2c735becb51f5107551fa5890a638278d9dd4dc019dc5b0ec12e7fc",
+          "chars": 623
+        }
+      ]
+    },
+    {
+      "id": "story",
+      "origin": "docs/故事构思.md",
+      "fetched": "2026-11-17T00:10:44+09:00",
+      "sha256": "4c77043063ec52f230655893ece4d9d0668b36e4db734fe97590313898438618",
+      "adapter": "markdown",
+      "registered_seq": 451,
+      "units": [
+        {
+          "id": "故事构思：前半程-Opus-造-RefCov，后半程-RefCov-指挥-Haiku-做应用",
+          "title": "故事构思：前半程 Opus 造 RefCov，后半程 RefCov 指挥 Haiku 做应用",
+          "kind": "section",
+          "sha256": "45b03091cb3c13a8da5c6d603ab748272e171c529b00f36db3c4fd3d3fed64eb",
+          "chars": 1669
+        },
+        {
+          "id": "1.-一句话",
+          "title": "1. 一句话",
+          "kind": "section",
+          "sha256": "1db713d02aba90e8753828d3860775102a3c5a5fd8a2c7aa0b0d51feb2397388",
+          "chars": 54
+        },
+        {
+          "id": "2.-三幕",
+          "title": "2. 三幕",
+          "kind": "section",
+          "sha256": "3a63fff46554c003556677900d8ef8dfb5b79d4839be1a1e5069fc8160dac1ae",
+          "chars": 1030
+        },
+        {
+          "id": "2.1-前端试验和两个应用各证明什么",
+          "title": "2.1 前端试验和两个应用各证明什么",
+          "kind": "section",
+          "sha256": "f5d6a577c8877e33594a29e755fb29dd8f6b6ef73276c5ce187ff3c7775d56d1",
+          "chars": 544
+        },
+        {
+          "id": "3.-对应评分",
+          "title": "3. 对应评分",
+          "kind": "section",
+          "sha256": "aceeef7c4dbfee359d9b0be3a9bcb820e4dbd8f605ebd34f39526bfc1ad12618",
+          "chars": 225
+        },
+        {
+          "id": "4.-让第三幕成为真的：后半程怎么做",
+          "title": "4. 让第三幕成为真的：后半程怎么做",
+          "kind": "section",
+          "sha256": "230a54a45fb31f6edc43b77800101a2a233a3a6186bf53edf971de30cec1ac1b",
+          "chars": 492
+        },
+        {
+          "id": "5.-同题对照：同一件活，Opus-和-Haiku-各花多少",
+          "title": "5. 同题对照：同一件活，Opus 和 Haiku 各花多少",
+          "kind": "section",
+          "sha256": "3c446c007e3fe4f730393209046823f72ede30c870948321f475ffc7644cb473",
+          "chars": 526
+        },
+        {
+          "id": "6.-必须照实交代",
+          "title": "6. 必须照实交代",
+          "kind": "section",
+          "sha256": "fdbcad2a490a5b7b40da9e8dd1c8fc4a01541b362932da85786429281adfe244",
+          "chars": 625
+        },
+        {
+          "id": "7.-可用的真实例子：最强的模型读了一半，最便宜的模型读完了",
+          "title": "7. 可用的真实例子：最强的模型读了一半，最便宜的模型读完了",
+          "kind": "section",
+          "sha256": "467083f6fc70b963d1e2c0f0be56689987d5b8453cd229fc637e7efa45291f1d",
+          "chars": 278
+        }
+      ]
+    },
+    {
+      "id": "fe-results",
+      "origin": "docs/前端指南试验结果.md",
+      "fetched": "2026-11-17T00:10:44+09:00",
+      "sha256": "635c67c1b4b5cf4cae864cc23006ebe93a6cfd5c31942edd699da1379ccc984b",
+      "adapter": "markdown",
+      "registered_seq": 452,
+      "units": [
+        {
+          "id": "前端指南试验：测出了漏读，也测出了-RefCov-的作用",
+          "title": "前端指南试验：测出了漏读，也测出了 RefCov 的作用",
+          "kind": "section",
+          "sha256": "318b5e87c299211581fb449da8a56a1a965fb16bb2d7bae88b172cf2e44c125a",
+          "chars": 1141
+        },
+        {
+          "id": "1.-为什么前面测不出来",
+          "title": "1. 为什么前面测不出来",
+          "kind": "section",
+          "sha256": "9320b73c48aaf303840b8fdc2c8b423f312df3222966fe427dbcaabf404fec16",
+          "chars": 197
+        },
+        {
+          "id": "2.-材料和任务",
+          "title": "2. 材料和任务",
+          "kind": "section",
+          "sha256": "4ea09e1a4cd440deb63dae83e6b2c219ecbb3a07112a664a4e486885f2d85776",
+          "chars": 798
+        },
+        {
+          "id": "3.-结果（kiro-cli-3.3.0，各-4-次）",
+          "title": "3. 结果（kiro-cli 3.3.0，各 4 次）",
+          "kind": "section",
+          "sha256": "c268e37990086122e9c9afcb003d7528422e4275e8d2a2bba37be9cd41f76169",
+          "chars": 680
+        },
+        {
+          "id": "4.-能说什么、不能说什么",
+          "title": "4. 能说什么、不能说什么",
+          "kind": "section",
+          "sha256": "014601283cc932ebc19b58e3cfdbb0430cddb59920d818d789d339abceb5666b",
+          "chars": 430
+        },
+        {
+          "id": "5.-补测：最便宜的模型装上-RefCov（2026-11-14-夜）",
+          "title": "5. 补测：最便宜的模型装上 RefCov（2026-11-14 夜）",
+          "kind": "section",
+          "sha256": "7796d51fbd3935ef4d95052e282738a55e7fc15d00d5d9304864d210fd51e00e",
+          "chars": 1008
+        },
+        {
+          "id": "5b.-补测：页面在浏览器里好不好用（2026-11-15）",
+          "title": "5b. 补测：页面在浏览器里好不好用（2026-11-15）",
+          "kind": "section",
+          "sha256": "b8e20dfa601a72af9dea87934f49d9795c591be50335d5898f7612f3d8eef48c",
+          "chars": 847
+        },
+        {
+          "id": "6.-补测：它们本来知不知道这些新写法（2026-11-15）",
+          "title": "6. 补测：它们本来知不知道这些新写法（2026-11-15）",
+          "kind": "section",
+          "sha256": "8cde84130303f5bab887a74e58381a7d3a34d45ac8f6c970d2fb5e6b5dee4b7a",
+          "chars": 796
+        },
+        {
+          "id": "7.-下一步建议",
+          "title": "7. 下一步建议",
+          "kind": "section",
+          "sha256": "a24d4473a95e221bf1c3f2bb96f93920c9741ab4cbb88cd9d5e35c8e0ccb485f",
+          "chars": 140
+        }
+      ]
+    },
+    {
+      "id": "fe-ext-results",
+      "origin": "docs/前端扩展试验结果.md",
+      "fetched": "2026-11-17T00:10:44+09:00",
+      "sha256": "06dded3b71eede2fa1674be237723e0f2a1c0624bb584b067b3534f8a7d9beba",
+      "adapter": "markdown",
+      "registered_seq": 453,
+      "units": [
+        {
+          "id": "前端扩展试验结果：漏读普遍，读完稳定；用不用新写法要看模型的取舍",
+          "title": "前端扩展试验结果：漏读普遍，读完稳定；用不用新写法要看模型的取舍",
+          "kind": "section",
+          "sha256": "97fa93b8ceabe94307a49db67aeae6ff1131bf9aa7ec248c58bf56db02e06856",
+          "chars": 1369
+        },
+        {
+          "id": "1.-一句话",
+          "title": "1. 一句话",
+          "kind": "section",
+          "sha256": "cab47de82e02016cad5c6382486b9d169ace0623d423f93d40280ef709b40f51",
+          "chars": 96
+        },
+        {
+          "id": "2.-结果",
+          "title": "2. 结果",
+          "kind": "section",
+          "sha256": "f3bdeac0c5aa4976fecd8c97e99a3533a801c52078df559d61a31005e1f6abf2",
+          "chars": 797
+        },
+        {
+          "id": "3.-按事先的规则判",
+          "title": "3. 按事先的规则判",
+          "kind": "section",
+          "sha256": "80198d28f40af8a47299fecdd97dbe54377ee65f9a8bfd351be93a37b85b5f6a",
+          "chars": 351
+        },
+        {
+          "id": "4.-为什么-T2、T4-没达到门槛：读完了，但选了保守写法",
+          "title": "4. 为什么 T2、T4 没达到门槛：读完了，但选了保守写法",
+          "kind": "section",
+          "sha256": "9bc849d745e5d9bd7174b72761298b31609dc48610995c8ae9533e49c17ef697",
+          "chars": 504
+        },
+        {
+          "id": "5.-为什么-T3-没测出：不装的自己就读了",
+          "title": "5. 为什么 T3 没测出：不装的自己就读了",
+          "kind": "section",
+          "sha256": "698f4afb7cdb394fb0cb95e9c8b07ea573b0c331d3a996e600f91e09b88064f0",
+          "chars": 167
+        },
+        {
+          "id": "6.-关卡",
+          "title": "6. 关卡",
+          "kind": "section",
+          "sha256": "77379538256961b1a6cd5d175fc0a2caa6e0deded2e806df815a6fb86ae6d10b",
+          "chars": 139
+        },
+        {
+          "id": "7.-连同第一轮的任务一起看（5-个任务，Haiku-5.5）",
+          "title": "7. 连同第一轮的任务一起看（5 个任务，Haiku 5.5）",
+          "kind": "section",
+          "sha256": "c780e07b39d600cfe16390d31b893d8c13aeeeecb40ee9f251810b3a6b5b8a2d",
+          "chars": 295
+        },
+        {
+          "id": "8.-能说什么、不能说什么",
+          "title": "8. 能说什么、不能说什么",
+          "kind": "section",
+          "sha256": "66f06b72b5537d2a2a47cd64da257fca3f42fe10018afaae49dc3ff880f504d3",
+          "chars": 457
+        },
+        {
+          "id": "9.-成本和记录",
+          "title": "9. 成本和记录",
+          "kind": "section",
+          "sha256": "2f1d69513ce6ee35be870ae09513fd201333adf66937343ba225917135af16d4",
+          "chars": 312
+        }
+      ]
+    },
+    {
+      "id": "gis-results",
+      "origin": "docs/GIS试验结果.md",
+      "fetched": "2026-11-17T00:10:44+09:00",
+      "sha256": "58b44ee678ccb74c46fb64811bc2b89d725d05a50917fe221b12c827c109691a",
+      "adapter": "markdown",
+      "registered_seq": 454,
+      "units": [
+        {
+          "id": "GIS-试验结果：拦住了、记下了，但没测出\"读了才做对\"",
+          "title": "GIS 试验结果：拦住了、记下了，但没测出\"读了才做对\"",
+          "kind": "section",
+          "sha256": "979f60ad67b3e22cc8e93c712283012ae81d732a0b3d9147d7be83978dddfbfe",
+          "chars": 1513
+        },
+        {
+          "id": "1.-一句话",
+          "title": "1. 一句话",
+          "kind": "section",
+          "sha256": "ef2713a71a51149d47d4b2ca454ca8063904c176fd00fd34f9fa2bbc7d538693",
+          "chars": 86
+        },
+        {
+          "id": "2.-第一版：设计第-10-节的演示题",
+          "title": "2. 第一版：设计第 10 节的演示题",
+          "kind": "section",
+          "sha256": "6976aaccab74d6b42974e55217b6adcdfa5af94cc35baee1377cfead77855f28",
+          "chars": 1047
+        },
+        {
+          "id": "3.-第二版：不提车库",
+          "title": "3. 第二版：不提车库",
+          "kind": "section",
+          "sha256": "154a9888b53592cb2e1257513a5b575e053263a1a25fb9cb72b5b21686cd0d24",
+          "chars": 564
+        },
+        {
+          "id": "4.-第三版：公认的-GIS-基准题",
+          "title": "4. 第三版：公认的 GIS 基准题",
+          "kind": "section",
+          "sha256": "ad829cfc672d5879f9a4db07075c9ecc805e68a976df4351ccb4ad0c09ffbb66",
+          "chars": 1162
+        },
+        {
+          "id": "5.-为什么-GIS-上测不出来",
+          "title": "5. 为什么 GIS 上测不出来",
+          "kind": "section",
+          "sha256": "a58e69d923135cad52842d9f17a579b372c2f179c35685d489e279c8e4ee0490",
+          "chars": 548
+        },
+        {
+          "id": "6.-能说什么、不能说什么",
+          "title": "6. 能说什么、不能说什么",
+          "kind": "section",
+          "sha256": "43afcd4d8b059a1d19b0d4a4d7c3a9e5c820aa91a7fde09b776debcb7e28533d",
+          "chars": 372
+        },
+        {
+          "id": "7.-运行记录",
+          "title": "7. 运行记录",
+          "kind": "section",
+          "sha256": "b2b6b8e0cca82ca59b485eb95e2574d20acf8a52388134198be597bf6d5bd00a",
+          "chars": 436
+        },
+        {
+          "id": "8.-以后可以做的",
+          "title": "8. 以后可以做的",
+          "kind": "section",
+          "sha256": "2fec39adff26cf417fffc04402b60abff3cc4cea88cf499c72d4ad4fcbc8812d",
+          "chars": 237
+        }
+      ]
+    },
+    {
+      "id": "layer-readme",
+      "origin": "apps/layer-coverage/README.md",
+      "fetched": "2026-11-17T00:10:44+09:00",
+      "sha256": "039e5d1fe9b59f6aa324bb5cd66b128f43d88d399977cfa5df53ebdd241cec36",
+      "adapter": "markdown",
+      "registered_seq": 455,
+      "units": [
+        {
+          "id": "Layer-coverage-app:-NYC-building-footprints,-Bayside-subset",
+          "title": "Layer coverage app: NYC building footprints, Bayside subset",
+          "kind": "section",
+          "sha256": "14044e6fd7a6f851bf9e1093d6ab9cd21989ed40e7c951ef58d7c65e83033d27",
+          "chars": 271
+        },
+        {
+          "id": "What-it-does",
+          "title": "What it does",
+          "kind": "section",
+          "sha256": "b1f765075e2770489697e88037a1b91ae079091b831bccdc34f2103279fa0152",
+          "chars": 466
+        },
+        {
+          "id": "Source-and-terms-of-use",
+          "title": "Source and terms of use",
+          "kind": "section",
+          "sha256": "23cc132c56d88cfcce9f5aeeaff5dbb1a7763f7cc30cd51402500be9a33356fc",
+          "chars": 412
+        },
+        {
+          "id": "Files",
+          "title": "Files",
+          "kind": "section",
+          "sha256": "723594ddf83f79f22638546e96aa7411166c6e78dc97a11ca96a57954aee41a8",
+          "chars": 781
+        },
+        {
+          "id": "Rebuilding-the-manifest",
+          "title": "Rebuilding the manifest",
+          "kind": "section",
+          "sha256": "f208fe99ef5c5668512bd2bab2fa7aa4047cafdd28c110d34dc97b1f937ad8c6",
+          "chars": 316
+        },
+        {
+          "id": "How-RefCov-uses-the-manifest",
+          "title": "How RefCov uses the manifest",
+          "kind": "section",
+          "sha256": "f56c5256ef555291d44c8ff26c8db38b1f4f5fa84b1fd707e54ca512b0b86b0c",
+          "chars": 719
+        },
+        {
+          "id": "Limits",
+          "title": "Limits",
+          "kind": "section",
+          "sha256": "d7ce992d1c574389d04b0f2b734e07ef3cd75b8642986a17f579a708e476c4c2",
+          "chars": 562
+        }
+      ]
+    },
+    {
+      "id": "g-dark-mode-toggle",
+      "origin": "docs/reference/chrome-guides/ui-components/dark-mode-toggle.md",
+      "fetched": "2026-11-17T00:10:45+09:00",
+      "sha256": "2a99ef825c4a67a75c2b48f8c1e364bdcc59e5ab2ef0345688a8515b44856211",
+      "adapter": "markdown",
+      "registered_seq": 456,
+      "units": [
+        {
+          "id": "Dark-mode-toggles",
+          "title": "Dark mode toggles",
+          "kind": "section",
+          "sha256": "6b99adde3c49f1b15e3ed37ce336ba8ee57ea98070b4e16e43d427574cc6570e",
+          "chars": 475
+        },
+        {
+          "id": "Persistent-toggle,-settings-control,-or-no-toggle-at-all?",
+          "title": "Persistent toggle, settings control, or no toggle at all?",
+          "kind": "section",
+          "sha256": "90dd01d091ab1e9c57678e8869d588a9688ea52ae03877b3e02bfc35cbef3c79",
+          "chars": 786
+        },
+        {
+          "id": "Implementation",
+          "title": "Implementation",
+          "kind": "section",
+          "sha256": "49597946a2f0acba866b316e87d2590874ce430ae407a5adbeafc8b505db69de",
+          "chars": 166
+        },
+        {
+          "id": "Data-model",
+          "title": "Data model",
+          "kind": "section",
+          "sha256": "568eb6ebb3ae81a80eebcad6bb124f1b50af1fb695a135caffe284353cf5a7d0",
+          "chars": 501
+        },
+        {
+          "id": "Reflect-the-override-in-CSS",
+          "title": "Reflect the override in CSS",
+          "kind": "section",
+          "sha256": "c7d6c5dd11a9b6a178e5f400cb115120614a96cb4d36b76f54ba10a8977bfb01",
+          "chars": 856
+        },
+        {
+          "id": "Persistence-and-FOUC-prevention",
+          "title": "Persistence and FOUC prevention",
+          "kind": "section",
+          "sha256": "a7ff4a33cd96a5f6560ba12ecc025e4be2ff65a85a52aef9549565f11b71d58d",
+          "chars": 1271
+        },
+        {
+          "id": "Branching-for-HTML-and-non-color-values",
+          "title": "Branching for HTML and non-color values",
+          "kind": "section",
+          "sha256": "5d09746c783a053e817840d84626d7c10d586507fc93119e2d8bc999644f5b93",
+          "chars": 1547
+        },
+        {
+          "id": "User-Interface",
+          "title": "User Interface",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Two-or-three-states?",
+          "title": "Two or three states?",
+          "kind": "section",
+          "sha256": "23845150490e164035b644a573893c51da3b1692fc231d672537bbeec7db9d38",
+          "chars": 804
+        },
+        {
+          "id": "Two-state-toggles",
+          "title": "Two-state toggles",
+          "kind": "section",
+          "sha256": "79c5abf1d533356fc99f6201bf48824ace39e680b3f8edb8cb3e80674c6382c7",
+          "chars": 2198
+        },
+        {
+          "id": "Three-state-toggles",
+          "title": "Three-state toggles",
+          "kind": "section",
+          "sha256": "06da430a4ddd6d0c35620bb244f19403474052427e3b56acf5743b589eb8a6ad",
+          "chars": 458
+        }
+      ]
+    },
+    {
+      "id": "g-color",
+      "origin": "docs/reference/chrome-guides/visual-design/color.md",
+      "fetched": "2026-11-17T00:10:45+09:00",
+      "sha256": "6fd4045e552d04b1881bce444cd0306339cb561d18df03da464035ce309b1e7b",
+      "adapter": "markdown",
+      "registered_seq": 457,
+      "units": [
+        {
+          "id": "Color",
+          "title": "Color",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Accessible-color",
+          "title": "Accessible color",
+          "kind": "section",
+          "sha256": "b5e200ab03baa057a4705f8353a8382de8c19730c25fad49bf1a19a28cfa283d",
+          "chars": 419
+        },
+        {
+          "id": "Contrast",
+          "title": "Contrast",
+          "kind": "section",
+          "sha256": "370371dd48c1c24f26a3e6708c03c259c7f977dd0d1a790076f5ab706605d85a",
+          "chars": 1359
+        },
+        {
+          "id": "Light-and-dark-color-schemes",
+          "title": "Light and dark color schemes",
+          "kind": "section",
+          "sha256": "2ab2c93eb0c78842e3b5e411f6ffb56553ece9ede211f258b2b79a708e9946ca",
+          "chars": 304
+        },
+        {
+          "id": "Forced-Colors-Mode",
+          "title": "Forced Colors Mode",
+          "kind": "section",
+          "sha256": "c9c82937be5b055a790ff92b4ccff9ef4b6d5236f307aea875c0358cecf90c0e",
+          "chars": 1370
+        },
+        {
+          "id": "Generating-tints",
+          "title": "Generating tints",
+          "kind": "section",
+          "sha256": "2fccba2889fbab8dae360ad24e71af3d12a7a7043f5a69b7c83fe4025ec93109",
+          "chars": 909
+        }
+      ]
+    },
+    {
+      "id": "g-component-specific-light-dark-theme",
+      "origin": "docs/reference/chrome-guides/ui-atoms/component-specific-light-dark-theme.md",
+      "fetched": "2026-11-17T00:10:45+09:00",
+      "sha256": "ef4217e0d0bba4fa5c986543d8c8b4fe5c8997f15ec24373ca1157b2a70b2d3f",
+      "adapter": "markdown",
+      "registered_seq": 458,
+      "units": [
+        {
+          "id": "Component-specific-light/dark-themes",
+          "title": "Component-specific light/dark themes",
+          "kind": "section",
+          "sha256": "a7a30b42fa96bb235c98ba8bf8b896c289a2d4a8322770e28719bc41ad38b076",
+          "chars": 843
+        },
+        {
+          "id": "When-to-change-colors-vs.-when-to-force-`color-scheme`?",
+          "title": "When to change colors vs. when to force `color-scheme`?",
+          "kind": "section",
+          "sha256": "6887adeae557453225abae96799d088baeffb96f934524a4c74ad332a0d3f153",
+          "chars": 986
+        },
+        {
+          "id": "Basic-implementation",
+          "title": "Basic implementation",
+          "kind": "section",
+          "sha256": "b99fcb9a9655f215bdaa627d14f985afe3a74ba32dcd250c2617de9da6a36f92",
+          "chars": 783
+        },
+        {
+          "id": "Adapting-non-color-values",
+          "title": "Adapting non-color values",
+          "kind": "section",
+          "sha256": "c5710d5efa729feca39d407c9c52f072266de4e2193878071588a4e5a0fd16a4",
+          "chars": 50
+        },
+        {
+          "id": "Best-practices",
+          "title": "Best practices",
+          "kind": "section",
+          "sha256": "ba18ffca51c2c2578942d2635a72832d885df3c669a241f5617ad00031e37b8f",
+          "chars": 530
+        },
+        {
+          "id": "Known-issues-to-be-aware-of",
+          "title": "Known issues to be aware of",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Important-gotcha:-Inheritance-of-`light-dark()`-colors",
+          "title": "Important gotcha: Inheritance of `light-dark()` colors",
+          "kind": "section",
+          "sha256": "a240308385fac48a3e6b9782c2fd4db616e8679284e13a30fe51f3674003e376",
+          "chars": 2334
+        },
+        {
+          "id": "Issues-to-be-aware-of-when-using-color-scheme",
+          "title": "Issues to be aware of when using color-scheme",
+          "kind": "section",
+          "sha256": "b32fb89d7b3a7066f8915eebb710fbda638964bc01316639dff47ab06a5ddce4",
+          "chars": 992
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-color-scheme",
+          "title": "Fallbacks & browser support for color-scheme",
+          "kind": "section",
+          "sha256": "ba7198f2c8cea99b2a14b739ac09920788aa19c58df37f27f9ec7d6069bd5e98",
+          "chars": 1388
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-light-dark()",
+          "title": "Fallbacks & browser support for light-dark()",
+          "kind": "section",
+          "sha256": "194e06ab5958a7c179c11f09b9e29a6a2aee0254512e1516be0f812cb0dec56e",
+          "chars": 1394
+        }
+      ]
+    },
+    {
+      "id": "g-css-layout",
+      "origin": "docs/reference/chrome-guides/css/css-layout.md",
+      "fetched": "2026-11-17T00:10:45+09:00",
+      "sha256": "c5c8cd89b7fa3a6030b0775bbc8c120efc07aa7a603dc850c73214cc8e8468fe",
+      "adapter": "markdown",
+      "registered_seq": 459,
+      "units": [
+        {
+          "id": "CSS-Layouts-and-Responsive-Design",
+          "title": "CSS Layouts and Responsive Design",
+          "kind": "section",
+          "sha256": "e15229c0f1fbdcb1c86157db3b85efa18989f1c2137c1b562ff5b673426bb81b",
+          "chars": 847
+        },
+        {
+          "id": "1-Fundamentals",
+          "title": "1 Fundamentals",
+          "kind": "section",
+          "sha256": "7119952132b764cfe14bdec6801d5d87f96ad3b64b486ee5d8c8cae4d73b649f",
+          "chars": 214
+        },
+        {
+          "id": "1.1-Which-layout-mode-to-use?",
+          "title": "1.1 Which layout mode to use?",
+          "kind": "section",
+          "sha256": "8712e9f9c32a70c9f521da8abea5debeb09e21d177c03628de8c4d399d579663",
+          "chars": 1332
+        },
+        {
+          "id": "1.2-Working-principles",
+          "title": "1.2 Working principles",
+          "kind": "section",
+          "sha256": "c0034268d51ae83a8722c97f22268d7a68d5d9ca512dfa242375e459c1015ac6",
+          "chars": 1699
+        },
+        {
+          "id": "2-Flexbox",
+          "title": "2 Flexbox",
+          "kind": "section",
+          "sha256": "3df4454f8cee6534232732445ef8aca07cddc3dba702beee22e1a69cefb2e88c",
+          "chars": 3427
+        },
+        {
+          "id": "3-Grid-and-subgrid",
+          "title": "3 Grid and subgrid",
+          "kind": "section",
+          "sha256": "b80a7f6520f3af441700fa89b88b2b827b4b185a0ff2e6d3053a9452717e4bc4",
+          "chars": 3647
+        },
+        {
+          "id": "3.1-Code-example:-grid-and-subgrid",
+          "title": "3.1 Code example: grid and subgrid",
+          "kind": "section",
+          "sha256": "3a9cec947cb067314bf8bd09e4b7792717db34df9afffaef2a40a46834136666",
+          "chars": 902
+        },
+        {
+          "id": "4-Container-queries",
+          "title": "4 Container queries",
+          "kind": "section",
+          "sha256": "c56b4bad8d8a399e8ec37e30855b4ceb49bef8113da7a2ec10b309fc7b7a0a8d",
+          "chars": 1558
+        },
+        {
+          "id": "4.1-Code-example:-fluid-typography-using-container-query-units",
+          "title": "4.1 Code example: fluid typography using container query units",
+          "kind": "section",
+          "sha256": "8dd0781446e72618f8e0587f400c4346aa02a6788e0e6ac5f7b0d062609f0ea7",
+          "chars": 565
+        },
+        {
+          "id": "5-Native-overlays,-anchor-positioning,-and-stacking-contexts",
+          "title": "5 Native overlays, anchor positioning, and stacking contexts",
+          "kind": "section",
+          "sha256": "64a62e818b118a5760b46acb800adb5517df4fa2fdb0c67f3c48ff66b15c249a",
+          "chars": 2097
+        },
+        {
+          "id": "6-Overflow-tracking-and-layout-stability",
+          "title": "6 Overflow tracking and layout stability",
+          "kind": "section",
+          "sha256": "2874e55964dcca020bc1e85ab7170cb04ffe017257a76869cafac1dc7acd679f",
+          "chars": 3031
+        },
+        {
+          "id": "7-Viewport-mechanics-and-track-distribution",
+          "title": "7 Viewport mechanics and track distribution",
+          "kind": "section",
+          "sha256": "05d175683d0fa0b10e8b5f6e175e0a3951c99852f66dac50d6eeba7e7b4e456b",
+          "chars": 700
+        },
+        {
+          "id": "8-Grid-lanes-(aka-masonry)",
+          "title": "8 Grid lanes (aka masonry)",
+          "kind": "section",
+          "sha256": "bc81499268974129bda3ccf94d471826286e70c4b0e96979186be74a1ac3c374",
+          "chars": 1088
+        }
+      ]
+    },
+    {
+      "id": "g-responsive-design",
+      "origin": "docs/reference/chrome-guides/css/responsive-design.md",
+      "fetched": "2026-11-17T00:10:45+09:00",
+      "sha256": "4bd7f40d677cbaeaebddac90aa2b23a81701ef6c2215b689148906f8d4d2da8f",
+      "adapter": "markdown",
+      "registered_seq": 460,
+      "units": [
+        {
+          "id": "Responsive-design",
+          "title": "Responsive design",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Overall-best-practices",
+          "title": "Overall best practices",
+          "kind": "section",
+          "sha256": "ff3364461a697713531f0accf74db0b0768b1fe10199f3b5b7fb6fba6ddf168e",
+          "chars": 754
+        },
+        {
+          "id": "Responsive-typography",
+          "title": "Responsive typography",
+          "kind": "section",
+          "sha256": "0cfc499c6caf105001f4b4faa241c177190676259835a859674ac070b6025b2c",
+          "chars": 1059
+        }
+      ]
+    },
+    {
+      "id": "g-responsive-table",
+      "origin": "docs/reference/chrome-guides/ui-atoms/responsive-table.md",
+      "fetched": "2026-11-17T00:10:45+09:00",
+      "sha256": "b1b1c84034398b83cda29a04fbd152c94aced38b11151791b3eb1c9d05af7666",
+      "adapter": "markdown",
+      "registered_seq": 461,
+      "units": [
+        {
+          "id": "Responsive-tables",
+          "title": "Responsive tables",
+          "kind": "section",
+          "sha256": "e93f404ddf2f17549788d4bfcb04a1406cfacc351eaeb424956c61d522f1caa4",
+          "chars": 303
+        },
+        {
+          "id": "Recommended-Approach",
+          "title": "Recommended Approach",
+          "kind": "section",
+          "sha256": "0eb8540eecc21b7961be9713cdd203e62671d7abb1d345a8702d56fa57d4a1d0",
+          "chars": 1141
+        },
+        {
+          "id": "Implementation-Steps",
+          "title": "Implementation Steps",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "1.-Markup-and-Layout",
+          "title": "1. Markup and Layout",
+          "kind": "section",
+          "sha256": "d74bffa78de7c648f11065c2ce9f5f3ece560dfdefeeaef2e3b3870bf06e2c59",
+          "chars": 1098
+        },
+        {
+          "id": "2.-Configure-Sticky-Headers",
+          "title": "2. Configure Sticky Headers",
+          "kind": "section",
+          "sha256": "ba82603e05c52c97ebe482a1c227f313f958ec0e8be33414f0c90a1703acd97b",
+          "chars": 628
+        },
+        {
+          "id": "3.-Responsive-Stacked-Layout",
+          "title": "3. Responsive Stacked Layout",
+          "kind": "section",
+          "sha256": "22502a8a464a658cf8667571773dd8d1cddff7c50d136b939234dc44562e73fd",
+          "chars": 1227
+        }
+      ]
+    },
+    {
+      "id": "g-accessibility",
+      "origin": "docs/reference/chrome-guides/accessibility/accessibility.md",
+      "fetched": "2026-11-17T00:10:46+09:00",
+      "sha256": "752d3998044bbcdd2736262906ba0951fd6e334efeb52ebf1f8f54cbb6e21217",
+      "adapter": "markdown",
+      "registered_seq": 462,
+      "units": [
+        {
+          "id": "Accessibility-Coding-Guidelines",
+          "title": "Accessibility Coding Guidelines",
+          "kind": "section",
+          "sha256": "b2c77e4186fa0d7cb63af5384315f612830c45e9155fc8110d5045663e7cf16c",
+          "chars": 2969
+        },
+        {
+          "id": "1.-Content-Navigability-and-Structure",
+          "title": "1. Content Navigability and Structure",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Landmarks",
+          "title": "Landmarks",
+          "kind": "section",
+          "sha256": "c2440301f0c5823d54c53a55751c7a862f95c7309442789bea0ca3309a3329c5",
+          "chars": 1499
+        },
+        {
+          "id": "Headings",
+          "title": "Headings",
+          "kind": "section",
+          "sha256": "37d4142c9d279549ae49c74fcb17b546f03344b1d924af5139121407759a3132",
+          "chars": 1637
+        },
+        {
+          "id": "Lists",
+          "title": "Lists",
+          "kind": "section",
+          "sha256": "30613379152814d1d1dccfd9cde4c54bb581d2e264355e8512388927b170614e",
+          "chars": 1244
+        },
+        {
+          "id": "Tables",
+          "title": "Tables",
+          "kind": "section",
+          "sha256": "afd2fdd9cb8a5eb322b4fcf2be2b1044b6d01989e6558b03c18697d7da1bcc39",
+          "chars": 1350
+        },
+        {
+          "id": "Skip-links",
+          "title": "Skip links",
+          "kind": "section",
+          "sha256": "1cb2e96722811017c02d89441b4e6c4b27ee7b6f19e4368f742f347260f92ba4",
+          "chars": 1798
+        },
+        {
+          "id": "Code-Example:-good-use-of-landmarks,-headings,-lists,-tables,-and-a-skip-link",
+          "title": "Code Example: good use of landmarks, headings, lists, tables, and a skip link",
+          "kind": "section",
+          "sha256": "4964f253a5ed0d762cd2b064f2b316962d210582df8928a6bb49b79e3f47cf40",
+          "chars": 893
+        },
+        {
+          "id": "2.-Semantic-HTML-and-ARIA",
+          "title": "2. Semantic HTML and ARIA",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Prefer-native-HTML",
+          "title": "Prefer native HTML",
+          "kind": "section",
+          "sha256": "166e0b0d03ea02531889a1643ec51cccd7f85bf99da4e9c9563c8c8b143d3880",
+          "chars": 1531
+        },
+        {
+          "id": "ARIA-roles-and-states",
+          "title": "ARIA roles and states",
+          "kind": "section",
+          "sha256": "9a59be295e9a4aa9099ab14f7f4799f696f519df1ea74a106df8aa01d109fc71",
+          "chars": 1881
+        },
+        {
+          "id": "3.-Accessible-Names-and-Descriptions",
+          "title": "3. Accessible Names and Descriptions",
+          "kind": "section",
+          "sha256": "473cd8056aab540c09e979f21dde589cd64b1e46dd46eb22aae808155f6270b4",
+          "chars": 189
+        },
+        {
+          "id": "Naming-mechanisms",
+          "title": "Naming mechanisms",
+          "kind": "section",
+          "sha256": "18ec84fd6eb3e89f88b7a577ef17fc70e01a3064945d0d290c5ffe51a6303a10",
+          "chars": 2389
+        },
+        {
+          "id": "Choosing-the-name",
+          "title": "Choosing the name",
+          "kind": "section",
+          "sha256": "4d9b99d19540a0ab9d586c89cb4f653d5deee0f1e7d5e4218dd8ece623b4f202",
+          "chars": 4000
+        },
+        {
+          "id": "Choosing-the-name@2",
+          "title": "Choosing the name (2)",
+          "kind": "section",
+          "sha256": "44b06a602c3ca70b5af3c01559e67800e29da25504e3fc415995f05d65cc37fe",
+          "chars": 861
+        },
+        {
+          "id": "Descriptions",
+          "title": "Descriptions",
+          "kind": "section",
+          "sha256": "23df2d0963213a15d8b80f835e3220d6efaf91c3bd189ef84691143faa3610aa",
+          "chars": 3095
+        },
+        {
+          "id": "Code-Example:-Visually-Hidden-Utility",
+          "title": "Code Example: Visually Hidden Utility",
+          "kind": "section",
+          "sha256": "29043398103bb225a6b883bb06f0d3b9bcdd1a31689f69b3ebb634e37192ff43",
+          "chars": 1039
+        },
+        {
+          "id": "4.-Document-Metadata-and-Language",
+          "title": "4. Document Metadata and Language",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Language",
+          "title": "Language",
+          "kind": "section",
+          "sha256": "96831347f5f90ef82b1f3fb5a2f10a72e1f3dece257380be6be04b4f03a45f79",
+          "chars": 978
+        },
+        {
+          "id": "Titles",
+          "title": "Titles",
+          "kind": "section",
+          "sha256": "0914dd29cb83390e38ad2c7717439a2fea1204728278de3d85750bf6276ecee8",
+          "chars": 1353
+        },
+        {
+          "id": "Iframes",
+          "title": "Iframes",
+          "kind": "section",
+          "sha256": "83753b0077997c63c593e466263e047e3cdc9589381adb8e123a7289a6407abd",
+          "chars": 483
+        },
+        {
+          "id": "Code-Example:-using-the-`<title>`-and-`<iframe>`-elements",
+          "title": "Code Example: using the `<title>` and `<iframe>` elements",
+          "kind": "section",
+          "sha256": "4cad4fab1872f20ee5283ba46b5a9dc390e502a145fc0776cad79e0c83ba454b",
+          "chars": 303
+        },
+        {
+          "id": "5.-Keyboard-and-Focus-Management",
+          "title": "5. Keyboard and Focus Management",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Tab-order-and-focusability",
+          "title": "Tab order and focusability",
+          "kind": "section",
+          "sha256": "31cf3e5c9e428571480582b55d74eb76aeb5cd566947d1e54b32906e3f437f37",
+          "chars": 1922
+        },
+        {
+          "id": "Keyboard-handlers",
+          "title": "Keyboard handlers",
+          "kind": "section",
+          "sha256": "82f0ef602874ce21c8b682609b7ade2c7e29ab7245eea4c984c968ea79842fcb",
+          "chars": 1906
+        },
+        {
+          "id": "Focus-indicators",
+          "title": "Focus indicators",
+          "kind": "section",
+          "sha256": "a68079fca0259cca9a4f6ec5bb0d79f09d89d6057ac3827b4b5256d2b95cd617",
+          "chars": 1314
+        },
+        {
+          "id": "Target-sizes",
+          "title": "Target sizes",
+          "kind": "section",
+          "sha256": "d12aa15f9776a44224ec6c61a2dc65a96444375c9f84b5cf5b341f96c7329bc6",
+          "chars": 1127
+        },
+        {
+          "id": "6.-Alternate-Text-and-Media",
+          "title": "6. Alternate Text and Media",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Images",
+          "title": "Images",
+          "kind": "section",
+          "sha256": "051fccdefb39fce5c776a34ee0b26fe2b0d362200122d81f3cc349b77d23b385",
+          "chars": 960
+        },
+        {
+          "id": "Inline-SVGs",
+          "title": "Inline SVGs",
+          "kind": "section",
+          "sha256": "fb2ba0e0952ca3691cac34e5db31cfad1ca5f91a1dbf35e454a8ea9780c872e6",
+          "chars": 1573
+        },
+        {
+          "id": "Complex-images-and-charts",
+          "title": "Complex images and charts",
+          "kind": "section",
+          "sha256": "4e4f53f661d8f4e69eacf192442fa6292c5fc07c0f9912f9f6f9236870356155",
+          "chars": 610
+        },
+        {
+          "id": "Audio-and-video",
+          "title": "Audio and video",
+          "kind": "section",
+          "sha256": "5f9a0eb60200f188af2114fb5d6057dcc660f6912874a0adacafb9a98565ecba",
+          "chars": 2283
+        },
+        {
+          "id": "CSS-generated-content",
+          "title": "CSS generated content",
+          "kind": "section",
+          "sha256": "bff3f0d47fe7e460ba37489941d2c359474cd0202693cb674de64aea72665c70",
+          "chars": 340
+        },
+        {
+          "id": "Content-Visibility-Decision-Matrix",
+          "title": "Content Visibility Decision Matrix",
+          "kind": "section",
+          "sha256": "2a200c828d1df90033bd20bc78b3639b37f9ab3f6ad9a1f04edb0ee7851f55cb",
+          "chars": 655
+        },
+        {
+          "id": "7.-Forms-and-Input-Controls",
+          "title": "7. Forms and Input Controls",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Labels-and-hints",
+          "title": "Labels and hints",
+          "kind": "section",
+          "sha256": "e29c99abb0486bcb8eed29d3048febe3a4048bddd53286354c890b8378a5cfc8",
+          "chars": 1113
+        },
+        {
+          "id": "Input-assistance-and-validation",
+          "title": "Input assistance and validation",
+          "kind": "section",
+          "sha256": "b7c52eaba601c3f34caf636cfe29afdba376f8ba1b0547d29c0bf159613ae902",
+          "chars": 688
+        },
+        {
+          "id": "8.-Live-Regions",
+          "title": "8. Live Regions",
+          "kind": "section",
+          "sha256": "f1254a6aa7db110721abfd7b0eb23a0d9bcfe41ae94f1cbd047d773cb4201abc",
+          "chars": 211
+        },
+        {
+          "id": "Live-Region-Urgency-Table",
+          "title": "Live Region Urgency Table",
+          "kind": "section",
+          "sha256": "2a2302eddad233548079e3e7cd9b278aefaebdb910da08b04a4428998d8ddf96",
+          "chars": 664
+        },
+        {
+          "id": "When-to-announce-live-regions",
+          "title": "When to announce live regions",
+          "kind": "section",
+          "sha256": "15bb250a55e8661f361000f8cfb88c4dfab94163e55628deb441c4e5b33d4b11",
+          "chars": 622
+        },
+        {
+          "id": "Managing-announcements",
+          "title": "Managing announcements",
+          "kind": "section",
+          "sha256": "868e1ddaac1bc2ab5c4e96c6488465ad48334d69ebbadd55befdbc48b4ec6d02",
+          "chars": 1012
+        },
+        {
+          "id": "9.-Color",
+          "title": "9. Color",
+          "kind": "section",
+          "sha256": "ab99dfc366d24a3468695a0bb977116f289ee3ccd88c8a86f4b88881f178b4a5",
+          "chars": 174
+        },
+        {
+          "id": "10.-Typography",
+          "title": "10. Typography",
+          "kind": "section",
+          "sha256": "c66ee1d5ddb5a05dae5ccc9ff3625b510a2c9fa5370fb81ad10617ab1bb6c8db",
+          "chars": 108
+        },
+        {
+          "id": "11.-Motion-and-Preferences",
+          "title": "11. Motion and Preferences",
+          "kind": "section",
+          "sha256": "85fa0d3dc7a37f29b0a1b47df461dd2f2b75ab98f91aa7841ebdc405b2d70850",
+          "chars": 76
+        },
+        {
+          "id": "12.-Modals-and-Native-Dialogs",
+          "title": "12. Modals and Native Dialogs",
+          "kind": "section",
+          "sha256": "01e440a74ef650d3f774fc096fe7d95d18adc09783b8c548a58e36d3ffc75f2a",
+          "chars": 310
+        },
+        {
+          "id": "Native-`<dialog>`",
+          "title": "Native `<dialog>`",
+          "kind": "section",
+          "sha256": "d8018b3fac923f2b403ae30febd0ecffd338ebea6a9765aa00faa50cdaa7fd34",
+          "chars": 1329
+        },
+        {
+          "id": "Custom-overlays",
+          "title": "Custom overlays",
+          "kind": "section",
+          "sha256": "73de37aea284e55027c1b1bc3dddebd5a4e756ac8d9b119d25952905319bcfe7",
+          "chars": 1107
+        },
+        {
+          "id": "13.-Testing-Validations",
+          "title": "13. Testing Validations",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Automated-checks",
+          "title": "Automated checks",
+          "kind": "section",
+          "sha256": "6305422728268b1246f52f681b104764d49598e4882db71e6b783d3afbb00971",
+          "chars": 235
+        },
+        {
+          "id": "Manual-testing",
+          "title": "Manual testing",
+          "kind": "section",
+          "sha256": "3ceb5dd466457a13403e20be63ab9d28f61a6b8e865a8cfc1f8c42c4ff3c3b17",
+          "chars": 535
+        }
+      ]
+    },
+    {
+      "id": "g-2d-panning",
+      "origin": "docs/reference/chrome-guides/ui-behaviors/2d-panning.md",
+      "fetched": "2026-11-17T00:10:46+09:00",
+      "sha256": "c1bf693ba5eb1ac7a912be1d46f921d5ba38ea9b79011121661a12cd6841f9d5",
+      "adapter": "markdown",
+      "registered_seq": 463,
+      "units": [
+        {
+          "id": "Two-Dimensional-Panning",
+          "title": "Two-Dimensional Panning",
+          "kind": "section",
+          "sha256": "86db359f1b6df5f103c826fb231aa4544f658bc469629ff4e222962584791e7e",
+          "chars": 1132
+        },
+        {
+          "id": "Implementation",
+          "title": "Implementation",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "1.-Disable-axis-locking-and-contain-overscroll-on-the-two-dimensional-scroll-container",
+          "title": "1. Disable axis-locking and contain overscroll on the two-dimensional scroll container",
+          "kind": "section",
+          "sha256": "239ca0d96e09f2eabb0d67e99edb89ba4c3b0de84c6422c5017f1238a61cb92f",
+          "chars": 807
+        },
+        {
+          "id": "2.-Preserve-keyboard-focusability-and-accessibility",
+          "title": "2. Preserve keyboard focusability and accessibility",
+          "kind": "section",
+          "sha256": "556deeca0168da898fe98f99eeb837952f79c43ede64dda122686b2b90f7941b",
+          "chars": 295
+        },
+        {
+          "id": "Example-Code",
+          "title": "Example Code",
+          "kind": "section",
+          "sha256": "8564da323a49f1e30671cf3703b7d5dd76495dad5485bc27294cde41d11d4357",
+          "chars": 1227
+        },
+        {
+          "id": "Best-Practices-&-Constraints",
+          "title": "Best Practices & Constraints",
+          "kind": "section",
+          "sha256": "7a36c4a1b14ba62a83fa65ae0356e576c7a32bd3799101e8fe82de5cd0f9d23a",
+          "chars": 1637
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "f9aa47b797b843032b62b04497765a3b3d11bfe5cd6dc449c3efd5c3ac4ec6a0",
+          "chars": 258
+        },
+        {
+          "id": "Option-1:-Progressive-Enhancement-(No-JavaScript)",
+          "title": "Option 1: Progressive Enhancement (No JavaScript)",
+          "kind": "section",
+          "sha256": "510a633eff6dcf73bb99bfeaa66bb8d0327b05e020d47b26f7c908497ff81cb3",
+          "chars": 621
+        },
+        {
+          "id": "Option-2:-JavaScript-Fallback-(`wheel`-+-`pointermove`-with-`scrollLeft`/`scrollTop`)",
+          "title": "Option 2: JavaScript Fallback (`wheel` + `pointermove` with `scrollLeft`/`scrollTop`)",
+          "kind": "section",
+          "sha256": "2215e5b558a3c7b9b3a0f6ad35a5cb3991808e0dba02b67d381f5cf9645bb630",
+          "chars": 3035
+        }
+      ]
+    },
+    {
+      "id": "g-natural-interactions",
+      "origin": "docs/reference/chrome-guides/user-experience/natural-interactions.md",
+      "fetched": "2026-11-17T00:10:46+09:00",
+      "sha256": "0bcfc962459dee7865ac16ac2056aee7c7a510934bcaf355900fcbb4a2ff5dcd",
+      "adapter": "markdown",
+      "registered_seq": 464,
+      "units": [
+        {
+          "id": "Implement-natural-interactions",
+          "title": "Implement natural interactions",
+          "kind": "section",
+          "sha256": "488c6a6c64f80269268956800a3a43897c4cb14a7cc4135570ffc997aaccad47",
+          "chars": 177
+        },
+        {
+          "id": "Implementation",
+          "title": "Implementation",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Give-every-control-hover,-press,-and-focus-feedback",
+          "title": "Give every control hover, press, and focus feedback",
+          "kind": "section",
+          "sha256": "281726b72b26b7d0d2f4a9fadd0c4a8c98fede2d70a3b1fc01b2a8ceeea16fc2",
+          "chars": 1287
+        },
+        {
+          "id": "Open-disclosures-from-their-trigger",
+          "title": "Open disclosures from their trigger",
+          "kind": "section",
+          "sha256": "53dc6e7638ce1c19543b3f4972407e0fcced183d854a279640c82f402ed00e8d",
+          "chars": 2241
+        },
+        {
+          "id": "Make-horizontal-scrollers-swipeable",
+          "title": "Make horizontal scrollers swipeable",
+          "kind": "section",
+          "sha256": "c4ab3b2e3d50f6ae0b1353c643a184482a4b95d54d2bcceb2c5872a5625a7818",
+          "chars": 1430
+        },
+        {
+          "id": "Add-motion-blur-to-large,-fast-movements-(optional)",
+          "title": "Add motion blur to large, fast movements (optional)",
+          "kind": "section",
+          "sha256": "6826e27fb74e36eb999d6f424ecec1620d655832c8a00a48030c35bc58148a9d",
+          "chars": 563
+        },
+        {
+          "id": "Make-every-action-reachable-without-a-mouse",
+          "title": "Make every action reachable without a mouse",
+          "kind": "section",
+          "sha256": "de671749beba38167bcdeca0b7e9ba17e53261eec37f53fc27ccb5fd0d958874",
+          "chars": 1010
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-Popover",
+          "title": "Fallbacks & browser support for Popover",
+          "kind": "section",
+          "sha256": "0b4202bdd09f65fcf195f74a3fc98e30d2e8f53be2e213b737a16578d757536d",
+          "chars": 1885
+        },
+        {
+          "id": "Anchor-positioning",
+          "title": "Anchor positioning",
+          "kind": "section",
+          "sha256": "41df5c132908e404f5a13d9f0af081f5067625c8dab58523034375b8dff70ee6",
+          "chars": 523
+        },
+        {
+          "id": "Linear-easing",
+          "title": "Linear easing",
+          "kind": "section",
+          "sha256": "9b89a7daa564ff054b3f6f916bb7eb82c0ca51cb76c64f7c2fdc5e51fd6eb1ee",
+          "chars": 458
+        }
+      ]
+    },
+    {
+      "id": "g-contrast-color",
+      "origin": "docs/reference/chrome-guides/visual-design/contrast-color.md",
+      "fetched": "2026-11-17T00:10:46+09:00",
+      "sha256": "85a8d26a47550aa89cd62809dd3e1a84d360adc69fe246d81a10a86f86499927",
+      "adapter": "markdown",
+      "registered_seq": 465,
+      "units": [
+        {
+          "id": "Ensure-text-readability-with-dynamic-background-colors",
+          "title": "Ensure text readability with dynamic background colors",
+          "kind": "section",
+          "sha256": "6be2c1681c8b7a171f354d07ae619abebac20c9a0698b40602793c31c4ce3118",
+          "chars": 432
+        },
+        {
+          "id": "Determine-optimal-text-color",
+          "title": "Determine optimal text color",
+          "kind": "section",
+          "sha256": "a2c14dfcad826b4f7af22156c38095f06cdfbdec39c5f77e52e5c6afa531c31b",
+          "chars": 686
+        },
+        {
+          "id": "Integrate-with-theming",
+          "title": "Integrate with theming",
+          "kind": "section",
+          "sha256": "1a27f1de9ff971f3c0e2f67c8b0a7699c4a7d251377917c2a1b1001e395039da",
+          "chars": 1000
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "6ee397c3e5650cde089a2dd38db502913ce1d463fdbdc1fd092d1c5df7f50a24",
+          "chars": 1405
+        },
+        {
+          "id": "Recommended:-Calculate-contrast-with-`color(xyz)`",
+          "title": "Recommended: Calculate contrast with `color(xyz)`",
+          "kind": "section",
+          "sha256": "8c0a6a3967976d8c00555c7e8333ac91df1231455a4a12ea997d2fc415221e13",
+          "chars": 675
+        },
+        {
+          "id": "Alternative-CSS-Fallbacks",
+          "title": "Alternative CSS Fallbacks",
+          "kind": "section",
+          "sha256": "f1ad201e559dca585d7072dedc5136f1b560fe97b5b79de7dcd1efdf43a81d7e",
+          "chars": 2839
+        }
+      ]
+    },
+    {
+      "id": "g-highlight-text-ranges",
+      "origin": "docs/reference/chrome-guides/ui-behaviors/highlight-text-ranges.md",
+      "fetched": "2026-11-17T00:10:46+09:00",
+      "sha256": "5d769ceba3ede009799820c5a2fed9656ca06c6ed7038ef85afbf40fcb3d402d",
+      "adapter": "markdown",
+      "registered_seq": 466,
+      "units": [
+        {
+          "id": "Highlight-Text-Ranges",
+          "title": "Highlight Text Ranges",
+          "kind": "section",
+          "sha256": "5ff7ed391cc270b5d188221687ba47ff674864bbd6dfc3cd979b93bf3113148a",
+          "chars": 322
+        },
+        {
+          "id": "Core-implementation",
+          "title": "Core implementation",
+          "kind": "section",
+          "sha256": "0ccad1b04209bad27ee4bd5c83b174676edb757beb59899d582bf594687c3460",
+          "chars": 211
+        },
+        {
+          "id": "1.-Collect-text-nodes-and-create-ranges",
+          "title": "1. Collect text nodes and create ranges",
+          "kind": "section",
+          "sha256": "cf9ac4015e2bcae533406e399ba7640531ab6cbf2a210bd3d8982a3556422d79",
+          "chars": 848
+        },
+        {
+          "id": "2.-Create-a-Highlight-from-the-ranges",
+          "title": "2. Create a Highlight from the ranges",
+          "kind": "section",
+          "sha256": "bcadf1699c064a86265af16fbac764a095061c2cb7cbfaa2f8f4d951a4e0a2db",
+          "chars": 205
+        },
+        {
+          "id": "3.-Register-the-highlight-in-the-registry",
+          "title": "3. Register the highlight in the registry",
+          "kind": "section",
+          "sha256": "e1fb739b6f8d72db38db8bcb89e1dd17f4fe1d8911f6a39798d60ae6d69dc317",
+          "chars": 749
+        },
+        {
+          "id": "4.-Style-with-`::highlight()`",
+          "title": "4. Style with `::highlight()`",
+          "kind": "section",
+          "sha256": "6f01f3e57eab92e89f484c8b69dc4f7ff4da7e1db73930e9bd55ebfeae77beb8",
+          "chars": 493
+        },
+        {
+          "id": "Accessibility",
+          "title": "Accessibility",
+          "kind": "section",
+          "sha256": "7a0d92b9a6099abc75107cffe8c0c5064c525d4ae99fe642bec3a6ecfca9a1be",
+          "chars": 1684
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "4e6e993991616e9207bb6d44d8bc19779b06c50f6f0acd9d36564ca06d7a877c",
+          "chars": 1758
+        }
+      ]
+    },
+    {
+      "id": "g-tabs",
+      "origin": "docs/reference/chrome-guides/ui-components/tabs.md",
+      "fetched": "2026-11-17T00:10:46+09:00",
+      "sha256": "9621168dd25f18a89e2018d18de4af5ef7658f8074d0b3247415bc28b4470ae8",
+      "adapter": "markdown",
+      "registered_seq": 467,
+      "units": [
+        {
+          "id": "Tabbed-interfaces",
+          "title": "Tabbed interfaces",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Basic-markup",
+          "title": "Basic markup",
+          "kind": "section",
+          "sha256": "42582191f8714e21bde690f7bbe191454df9c228219a011cf7f54dc9496d4fff",
+          "chars": 2438
+        },
+        {
+          "id": "Keyboard-interaction",
+          "title": "Keyboard interaction",
+          "kind": "section",
+          "sha256": "b8871f6c4d1d4b9bd8d308248e88ec7db1793a3709a0889f80818165ecc32eed",
+          "chars": 1317
+        },
+        {
+          "id": "Styling",
+          "title": "Styling",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Indicating-the-selected-tab",
+          "title": "Indicating the selected tab",
+          "kind": "section",
+          "sha256": "54c60eac2aa65daf0fb0cc2c5db09cc4de9e72c24ff15daf44234a3005ac1364",
+          "chars": 1711
+        },
+        {
+          "id": "Handling-tabs-that-don’t-fit",
+          "title": "Handling tabs that don’t fit",
+          "kind": "section",
+          "sha256": "1c216d1c636ddfa152ba8c9256635c332bc4504905fb33ac44096ae63b6af98a",
+          "chars": 1005
+        },
+        {
+          "id": "Strategy-1:-scrolling",
+          "title": "Strategy 1: scrolling",
+          "kind": "section",
+          "sha256": "db09545f88972bb03754fe6be89e12e228ec447566d2233310a44c470a038154",
+          "chars": 3777
+        },
+        {
+          "id": "Strategy-2:-overflow-menu",
+          "title": "Strategy 2: overflow menu",
+          "kind": "section",
+          "sha256": "9539d2f3c4999a1ea173b9436e7abb71f2654ac549b56aacaa9a4cd38d7e1ea6",
+          "chars": 3677
+        },
+        {
+          "id": "Strategy-2:-overflow-menu@2",
+          "title": "Strategy 2: overflow menu (2)",
+          "kind": "section",
+          "sha256": "c32209f1860e357bf523e9d5cbd8a89a32d6ac98326cbc88d347058db0eac5fe",
+          "chars": 607
+        },
+        {
+          "id": "Strategy-3:-Making-inactive-tabs-smaller",
+          "title": "Strategy 3: Making inactive tabs smaller",
+          "kind": "section",
+          "sha256": "b8d9d0829b40417bc8167c3490134d15a146aaffed6a24c9b04be6bd70535f0a",
+          "chars": 1833
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-focusgroup",
+          "title": "Fallbacks & browser support for focusgroup",
+          "kind": "section",
+          "sha256": "f97d729a77fa53adf30381de0cb31ce542a576ff7740e2e01c1ce3aed2b7c3b8",
+          "chars": 625
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-`hidden=until-found`",
+          "title": "Fallbacks & browser support for `hidden=until-found`",
+          "kind": "section",
+          "sha256": "cb463bd8b62c65b7cbb029929c7d86efb978025c334aff33b99e63690a248ec3",
+          "chars": 491
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-`interpolate-size`",
+          "title": "Fallbacks & browser support for `interpolate-size`",
+          "kind": "section",
+          "sha256": "c026a763e1e66e8ca29c449421a65257a350267d63f9cf198151bb57cad1ebce",
+          "chars": 259
+        },
+        {
+          "id": "Fallbacks-&-browser-support-for-scroll-driven-animations",
+          "title": "Fallbacks & browser support for scroll-driven animations",
+          "kind": "section",
+          "sha256": "909ce2975e9693a3722915b50bf4456f2ef0df0c5ca38dec1ec612b066f7d7dc",
+          "chars": 3944
+        }
+      ]
+    },
+    {
+      "id": "g-motion",
+      "origin": "docs/reference/chrome-guides/ui-behaviors/motion.md",
+      "fetched": "2026-11-17T00:10:47+09:00",
+      "sha256": "332a13a46a95bcea8f20385f95c19c0eda49aeeb613c29acdde4f11a9ce76824",
+      "adapter": "markdown",
+      "registered_seq": 468,
+      "units": [
+        {
+          "id": "Motion",
+          "title": "Motion",
+          "kind": "section",
+          "sha256": "60832a7af28d4bdd7be39dc7738ce1ee8d0bed859df994be986216de8775c829",
+          "chars": 529
+        },
+        {
+          "id": "Performance",
+          "title": "Performance",
+          "kind": "section",
+          "sha256": "fc6388de19a168333ba73648031f8af7f79cee60c08b4df262f9c907eafa5423",
+          "chars": 940
+        },
+        {
+          "id": "Accessibility",
+          "title": "Accessibility",
+          "kind": "section",
+          "sha256": "c577e757e55a3956480fcfb2aac0843784c238adfba8d9e03f5543eb80c0fa51",
+          "chars": 1401
+        },
+        {
+          "id": "Respect-reduced-motion",
+          "title": "Respect reduced motion",
+          "kind": "section",
+          "sha256": "a9e6679a47f1a084e56898d911cc1f64245069f7804fdb3a11b5373ba2d4bff5",
+          "chars": 2113
+        },
+        {
+          "id": "Working-with-animation-and-transition-events-in-JavaScript",
+          "title": "Working with animation and transition events in JavaScript",
+          "kind": "section",
+          "sha256": "80346858c48cf47bc8c28a717042ee25807f7bf37040f4ac6c3b891d8c09353a",
+          "chars": 2672
+        }
+      ]
+    },
+    {
+      "id": "g-dynamic-sibling-animations",
+      "origin": "docs/reference/chrome-guides/ui-behaviors/dynamic-sibling-animations.md",
+      "fetched": "2026-11-17T00:10:47+09:00",
+      "sha256": "cbe8b5078c2b5450af5fb405ea037a733a8fa0e471c8e4fa4a4123e897cd19d8",
+      "adapter": "markdown",
+      "registered_seq": 469,
+      "units": [
+        {
+          "id": "Creating-a-stagger-animation",
+          "title": "Creating a stagger animation",
+          "kind": "section",
+          "sha256": "df11859d306f21bcac845d9f88f435eda27fc19cc01a380ed514a2f501174b63",
+          "chars": 318
+        },
+        {
+          "id": "Stagger-animations-with-`sibling-index()`",
+          "title": "Stagger animations with `sibling-index()`",
+          "kind": "section",
+          "sha256": "f576809e03c49e6401e202bc68fd7c07eff36b85356da5d85e1585b4be0ee2d6",
+          "chars": 838
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "d6c51bb73cd6525694ab01e84a59c1c3b252959edaf5373c4b922ed1b1eb8e78",
+          "chars": 1427
+        }
+      ]
+    },
+    {
+      "id": "g-scrollytelling",
+      "origin": "docs/reference/chrome-guides/ui-behaviors/scrollytelling.md",
+      "fetched": "2026-11-17T00:10:47+09:00",
+      "sha256": "7f3a25a84f74a1e31f5a3d9fc1fb93d4b80a24b4e822b59614ed9433f114032d",
+      "adapter": "markdown",
+      "registered_seq": 470,
+      "units": [
+        {
+          "id": "Scrollytelling",
+          "title": "Scrollytelling",
+          "kind": "section",
+          "sha256": "ae2b9cf5fd8fd4d1681b30f12bdae0edaa2c796d1950e6acba191d4845af8aca",
+          "chars": 486
+        },
+        {
+          "id": "How-to-implement",
+          "title": "How to implement",
+          "kind": "section",
+          "sha256": "5d3a3fb4013261cd2cceb3f7c96ce94640c4b598f2633a181adb72a422f226cc",
+          "chars": 1858
+        },
+        {
+          "id": "Example-code",
+          "title": "Example code",
+          "kind": "section",
+          "sha256": "7315473ad3f94bc3f71784d53e679d51ffd88efb46611e1ed99883ea9a2adcec",
+          "chars": 1428
+        },
+        {
+          "id": "Best-Practices",
+          "title": "Best Practices",
+          "kind": "section",
+          "sha256": "cad7e13ef836f4507fc5fcd5c5f7f26b059a463f752aeb8163d5d525e6799801",
+          "chars": 2037
+        },
+        {
+          "id": "Fallback-strategies",
+          "title": "Fallback strategies",
+          "kind": "section",
+          "sha256": "e437cda794079d9d3489ca26a60edc81881875dff5239460953925a2caf9cdf6",
+          "chars": 3108
+        }
+      ]
+    },
+    {
+      "id": "g-sortable-table",
+      "origin": "docs/reference/chrome-guides/ui-behaviors/sortable-table.md",
+      "fetched": "2026-11-17T00:10:47+09:00",
+      "sha256": "61f402c7b4b409ae0a2b6eee6a208e3723b09138381c3995e179c9bb1bb3558a",
+      "adapter": "markdown",
+      "registered_seq": 471,
+      "units": [
+        {
+          "id": "Sortable-Table",
+          "title": "Sortable Table",
+          "kind": "section",
+          "sha256": "ffac6d1863c9a9a5fad59c825157451857f48b121b694c33ad5dbdd71f9361d8",
+          "chars": 742
+        },
+        {
+          "id": "Header-markup",
+          "title": "Header markup",
+          "kind": "section",
+          "sha256": "5cfbeaf12d44d34e4f97c6a0946daa58818d11abaf79efd7b262486a2a80a4d6",
+          "chars": 1237
+        },
+        {
+          "id": "Wire-buttons-with-invoker-commands",
+          "title": "Wire buttons with invoker commands",
+          "kind": "section",
+          "sha256": "d8a605657139d11128aebd3f2c6704276583168ca20ffe0a4cebb81e584ff05a",
+          "chars": 1235
+        },
+        {
+          "id": "Compare-values-correctly",
+          "title": "Compare values correctly",
+          "kind": "section",
+          "sha256": "9334da5c629ebaf095156d1008e7fd1daa7cd0e00f293c0d97cf40e2d04f474f",
+          "chars": 1083
+        },
+        {
+          "id": "Reorder-the-existing-rows",
+          "title": "Reorder the existing rows",
+          "kind": "section",
+          "sha256": "cd9d4b9d05a1f6079d20eacb895a7ba7ca6ca35bcc5af0010d25cd30cb937828",
+          "chars": 627
+        },
+        {
+          "id": "Optionally-animate-the-reorder",
+          "title": "Optionally animate the reorder",
+          "kind": "section",
+          "sha256": "ed16dd753eae54819046877108b7d4b02157ea0d808ea4ee455c6a5e6b3cb0d5",
+          "chars": 938
+        },
+        {
+          "id": "Narrow-screens",
+          "title": "Narrow screens",
+          "kind": "section",
+          "sha256": "ea98814296ea15c116e8d3f30797fa88904d6010d66f7a7215f85bc4f1bf32a5",
+          "chars": 273
+        },
+        {
+          "id": "Common-mistakes",
+          "title": "Common mistakes",
+          "kind": "section",
+          "sha256": "9dac7096a0cb693c7ade8588fe3407ffe069a3dfd48b66e4452fc519d18589ec",
+          "chars": 455
+        },
+        {
+          "id": "Fallbacks",
+          "title": "Fallbacks",
+          "kind": "section",
+          "sha256": "6728f6826404080e73db2c60fb006e4bdcdd20a981d09dd92e669fc5f6dd2e38",
+          "chars": 1090
+        }
+      ]
+    },
+    {
+      "id": "g-card",
+      "origin": "docs/reference/chrome-guides/ui-components/card.md",
+      "fetched": "2026-11-17T00:10:47+09:00",
+      "sha256": "18099aaca072463e69ad356a1bc4840002d566d4c13e3fa615e0bb899924d3e5",
+      "adapter": "markdown",
+      "registered_seq": 472,
+      "units": [
+        {
+          "id": "Build-a-Card",
+          "title": "Build a Card",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Overview",
+          "title": "Overview",
+          "kind": "section",
+          "sha256": "42af7b3c2aff89246542d0413f54b12337b9c26d1bcb7183b2d7ad8ddd156b2a",
+          "chars": 218
+        },
+        {
+          "id": "Guidelines",
+          "title": "Guidelines",
+          "kind": "section",
+          "sha256": "a0e8f0c2b387f3a3b703c0b64c2423ecaf39466d609fec6d034ffa286ee783dd",
+          "chars": 775
+        },
+        {
+          "id": "Implementation",
+          "title": "Implementation",
+          "kind": "section",
+          "sha256": "472b73ea02f346fe75d888d1823007deed92de015d8412695144cce0aaee9306",
+          "chars": 2283
+        },
+        {
+          "id": "Adapt-to-available-space",
+          "title": "Adapt to available space",
+          "kind": "section",
+          "sha256": "9e7b6f96c59fce9830645cb2158f18bd1ea5e1798dca3b28a0769e8907de616f",
+          "chars": 845
+        },
+        {
+          "id": "Align-cards-in-a-grid",
+          "title": "Align cards in a grid",
+          "kind": "section",
+          "sha256": "2edd14339229c631c673c0829056d5160402178b1deb2196532d7d767f8eb4ba",
+          "chars": 597
+        },
+        {
+          "id": "Interaction-models",
+          "title": "Interaction models",
+          "kind": "section",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "chars": 1
+        },
+        {
+          "id": "Content-cards",
+          "title": "Content cards",
+          "kind": "section",
+          "sha256": "c7f30f8b3dbc31f89ae846e307ce3d08c17d81bfc016fc7c1c1aa104b582b2e2",
+          "chars": 91
+        },
+        {
+          "id": "Single-destination-cards",
+          "title": "Single-destination cards",
+          "kind": "section",
+          "sha256": "6eb7b0fef2259d2b3cbd1f24f815972ccebc4f13ff792f470b10cc2ae7c37dfd",
+          "chars": 630
+        },
+        {
+          "id": "Clickable-cards-with-independent-actions",
+          "title": "Clickable cards with independent actions",
+          "kind": "section",
+          "sha256": "2caed953544ca33d8173e6012152e95fb0370ace26c26f4b7de2dc28c579a695",
+          "chars": 1487
+        },
+        {
+          "id": "Choice-cards",
+          "title": "Choice cards",
+          "kind": "section",
+          "sha256": "44ae4b5413ea470286fe14664f63bd575cf0d59f208d5788a942a751db8a5b69",
+          "chars": 1240
+        }
+      ]
     }
   ]
 }

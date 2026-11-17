@@ -154,7 +154,7 @@ def test_bad_input_raises(data):
 
 def test_user_only_matches_core():
     """设计 6：只能用户跑的子命令，核心层和 hook.py 各一份，必须一致。"""
-    assert hook.USER_ONLY == cli.USER_ONLY == ("add", "confirm")
+    assert hook.USER_ONLY == cli.USER_ONLY == ("add", "confirm", "sync")
 
 
 # ---- 经 subprocess 跑 hook.py（临时目录当仓库根目录）----
