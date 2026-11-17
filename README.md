@@ -5,6 +5,7 @@ Coverage for reference material. Code has test coverage; the documents, videos a
 **How much reference material the AI read should be a number, not a sentence like "I read the docs".**
 
 - Live demo, with replays of recorded runs: https://3322jj.github.io/refcov/
+- How we used Kiro (specs, hooks, steering, MCP, permissions, property tests): [docs/how-we-used-kiro.md](docs/how-we-used-kiro.md)
 - Built for Kiroween 2026, Skeleton Crew category: one skeleton, two apps (a video app and a GIS app, below).
 
 > Status (2026-11-18): the skeleton, both apps, the demo page, the install layer (`refcov init`, `refcov doctor`) and registering material from inside Kiro are built and tested. The last two were checked by hand in Kiro on 2026-11-17 and 2026-11-18. Known gaps are listed under "What it does not do" and "Limits of the install".
