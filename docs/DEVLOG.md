@@ -2287,3 +2287,21 @@
   EN: RefCov blocks in this step: 0. Reads: 8 of 384 this session, 384 of 384 historically, nothing outstanding; no new MCP reads in this step. Nothing was missed.
 - 没有推送。这次只改文档、台账和演示页，没有改代码，所以提交后不再单独跑干净安装测试。
   EN: Nothing was pushed. Only documents, the ledger and the demo page changed, not code, so no clean-install run follows this commit.
+
+## 2026-11-18（两处小修：快进合并 main，README 批准框的说法，施工账审阅栏）
+- 先 `git merge --ff-only main`：phase2-haiku 从 af79db8 快进到 main 的 4c38aed。4c38aed 是把 phase2-haiku 合进 main 的合并提交，文件树和 af79db8 完全相同，所以这次合并没有带进新内容。
+  EN: First, git merge --ff-only main: phase2-haiku fast-forwarded from af79db8 to main's 4c38aed. 4c38aed is the merge commit that brought phase2-haiku into main; its file tree is identical to af79db8's, so the merge brought in no new content.
+- 问题（Claude 审出，文档与实测不一致）：README 状态段写"批准框显示了提议编号、path、sha256 和 source ID"。实测（与 docs/权限实测结果.md 第 4 节一致）：批准框只显示工具名，参数在它上方的工具卡片里。状态段已改成"工具卡片显示……；批准框本身没有 Always allow"。README 限制段第 146 行原来就是对的。
+  EN: Problem found by Claude (documentation against observed behaviour): the README status paragraph said the approval prompt showed the proposal ID, path, sha256 and source ID. Observed behaviour, which matches section 4 of docs/权限实测结果.md: the prompt shows only the tool name, and the arguments are in the tool card above it. The status paragraph now credits the tool card and says the prompt itself offered no Always allow. The limits paragraph at line 146 was already correct.
+- 施工账：a4969bc 和 2ed1abd 两行的审阅栏改成"通过（Claude 2026-11-18 审）"；补 af79db8 一行，审阅栏写待审（Claude 这次没有给它结论）；演示页同步，摘要改成 47 件，全量到 996。
+  EN: Build ledger: the review cells of the rows for a4969bc and 2ed1abd now read "passed (Claude 2026-11-18)". The row for af79db8 was added with its review cell as pending, because Claude gave no conclusion for it. The demo page was synced; its summary reads 47 pieces, with the full suite at 996.
+- 全量测试：`python -m pytest -q` 结果 996 通过、10 跳过（没有改代码，和 af79db8 相同）。
+  EN: Full suite: python -m pytest -q gave 996 passed and 10 skipped (no code changed; the same as af79db8).
+- 属性测试：这一步没有新增属性测试。
+  EN: Property tests: none added in this step.
+- 用到的 Kiro 功能：PowerShell 工具（git、pytest、文本查找），read_file 和 str_replace 改文件。没有调用 MCP 工具。
+  EN: Kiro features used: the PowerShell tool (git, pytest, text searches), and read_file and str_replace for editing files. No MCP tool was called.
+- RefCov 拦自己的次数（本步）：0。读取：状态行显示本会话 8/384，历史 384/384，没有还差的单元；本步没有新的 MCP 读。差点漏掉什么：没有。
+  EN: RefCov blocks in this step: 0. Reads: the status line showed 8 of 384 this session, 384 of 384 historically, with nothing outstanding; no new MCP reads in this step. Nothing was missed.
+- 没有推送。origin/phase2-haiku 指向 af79db8，origin/main 指向 4c38aed，这两次推送不是这一步做的。
+  EN: Nothing was pushed. origin/phase2-haiku points at af79db8 and origin/main at 4c38aed; those pushes were not made in this step.
