@@ -26,6 +26,19 @@ LOCK_FILE = "log.lock"
 CACHE_DIR = "cache"
 PROPOSALS_DIR = "proposals"  # 第二层的资料提议，只在本机（设计 2）
 
+# 状态目录里的 .gitignore（设计 1 节，检查点 3）。RefCov 写状态目录时，如果这个文件不存在就写下；已经存在就不动。
+# 只列本机使用的文件：cache/ 是参考材料的原文（可能有版权），proposals/ 是提议。sources.json 和 log.jsonl
+# 要提交，这里不忽略它们。
+STATE_GITIGNORE = (
+    "# 本机使用的文件，不进仓库。由 RefCov 写下；这个文件已存在时不覆盖。\n"
+    "# cache/ 是参考材料的原文（可能有版权），proposals/ 是提议。sources.json 和 log.jsonl 要提交，这里不忽略它们。\n"
+    "cache/\n"
+    "proposals/\n"
+    "errors.log\n"
+    "log.lock\n"
+    "report-last.json\n"
+)
+
 GENESIS = "0" * 64
 LOCK_TIMEOUT = 2.0
 LOCK_RETRY = 0.05
@@ -204,7 +217,18 @@ class Store:
     # ---- 目录和路径 ----
 
     def ensure_state_dir(self) -> Path:
+        """建状态目录。`.gitignore` 不存在时写下 STATE_GITIGNORE（设计 1 节）；存在就不动。
+
+        不存在时用排他方式创建，所以不会覆盖用户改过的内容，也不会和别的进程互相覆盖。
+        """
         self.state_dir.mkdir(parents=True, exist_ok=True)
+        ignore = self.state_dir / ".gitignore"
+        if not ignore.exists():
+            try:
+                with open(ignore, "x", encoding="utf-8", newline="\n") as f:
+                    f.write(STATE_GITIGNORE)
+            except FileExistsError:
+                pass
         return self.state_dir
 
     def rel(self, path) -> str:

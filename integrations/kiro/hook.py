@@ -197,7 +197,9 @@ def log_error(event: str, reason: str, exc: BaseException | None = None, **extra
         entry["error"] = type(exc).__name__
         entry["traceback"] = "".join(traceback.format_exception(exc))[-2000:]
     try:
-        ERRORS_LOG.parent.mkdir(parents=True, exist_ok=True)
+        from refcov.store import Store
+
+        Store(ROOT).ensure_state_dir()  # 建状态目录，并写它的 .gitignore（设计 1 节）
         with open(ERRORS_LOG, "a", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(entry, ensure_ascii=True) + "\n")
     except Exception:

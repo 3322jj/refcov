@@ -20,6 +20,7 @@ Kiro 文档单元，经 MCP 的 `read_unit` 读过（2026-11-17）：`kiro-permi
 | `integrations/kiro/init.py` | 打印两条权限规则（第 5 节） |
 | `integrations/kiro/doctor.py` | 两条规则分别做文本查找（第 5 节） |
 | `.gitignore` | 加 `.refcov/proposals/`（第 9 节第 2 条，Claude 同意） |
+| `refcov/store.py`（`STATE_GITIGNORE`、`ensure_state_dir`） | 第一次写状态目录时写下状态目录里的 `.gitignore`，列出 `cache/`、`proposals/`、`errors.log`、`log.lock`、`report-last.json`；不列 `sources.json` 和 `log.jsonl`；已经存在就不动（排他创建，不覆盖）。锁、清单、提议写盘和 `errors.log` 写入都经过它。这一行是 16d07b8 验收后补的，Claude 2026-11-17 提出 |
 | `tests/test_proposals.py`（新） | P1–P6、M1（手动删除）和固定例子（第 6 节） |
 | `tests/test_permission_rules.py`（新） | 两条规则的打印、doctor 的提示 |
 | `tests/test_mcp_server.py`（改） | 工具清单从四个变成六个；新增提议到执行的往返 |

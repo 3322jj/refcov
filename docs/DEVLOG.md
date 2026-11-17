@@ -2184,3 +2184,38 @@
 - 没有推送。提交后单独跑干净安装测试。
   EN: Nothing was pushed. The clean-install tests run after the commit.
 
+## 2026-11-17（深夜续：状态目录的 .gitignore，16d07b8 的验收结果）
+- Claude 审了 16d07b8（检查点 3），通过。Claude 自己核对：全量 985 通过；在临时仓库里手工试了提议和执行，参数不一致、第二次执行、提议后改文件都被拒，且什么都不写；仓库外、已登记、非 Markdown 的文件都提议不了；执行后日志有 register 和 apply 两条，写文件关卡马上要求先读新资料。
+  EN: Claude reviewed 16d07b8 (checkpoint 3) and passed it. Claude's own checks: the full suite passed with 985 and 10 skipped; by hand in a temporary repository, mismatched arguments, a second apply and a file changed after proposing were all refused with nothing written; files outside the repository, files already registered and non-Markdown files could not be proposed; after an apply the log had register and apply records, and the write gate asked for the new material to be read first.
+- 干净安装测试（`REFCOV_CLEAN_INSTALL=1`，在 16d07b8 提交之后单独跑）：10 个通过，包括新增的项目路径带空格和中文的变体。
+  EN: Clean-install tests (REFCOV_CLEAN_INSTALL=1, run after commit 16d07b8): 10 passed, including the new variant with spaces and Chinese in the project path.
+- 问题（审阅发现，第一层就有）：用户项目的状态目录里，`cache/`、`errors.log`、`log.lock`、`report-last.json` 和新加的 `proposals/` 都没有被 git 忽略。只有 RefCov 仓库自己的根 `.gitignore` 列了它们。新用户的 git status 会出现一堆状态文件，缓存里是资料原文，可能被误提交。
+  EN: Problem found by review, present since the first layer: in a user's project the state directory's cache/, errors.log, log.lock, report-last.json and the new proposals/ were not ignored by git. Only RefCov's own root .gitignore listed them, so a new user's git status would show state files, and the cache holds source text that could be committed by mistake.
+- 改法：`store.py` 新增 `STATE_GITIGNORE`；`ensure_state_dir` 在 `.gitignore` 不存在时用排他方式写下它，已存在就不动。所有写状态目录的路径都经过 `ensure_state_dir`：锁、清单写入、提议写盘（`proposals.py` 原来直接建目录，改成先调它），以及钩子的 `errors.log` 写入（`hook.py` 的 `log_error` 原来直接建目录，改成调它）。`sources.json` 和 `log.jsonl` 不在忽略列表里。
+  EN: Change: store.py adds STATE_GITIGNORE, and ensure_state_dir writes that file when it is missing, using exclusive creation so that an existing file is never overwritten. Every path that writes into the state directory now goes through ensure_state_dir: the lock, manifest writes, proposal writes (proposals.py used to create the folder directly), and the hook's errors.log writer (hook.py's log_error used to create the folder directly). sources.json and log.jsonl are not in the ignore list.
+- 测试：`tests/test_state_gitignore.py` 5 个。第一次写时文件内容正好是那 5 项；`git check-ignore` 确认 cache、proposals、errors.log、log.lock、report-last.json 被忽略，sources.json 和 log.jsonl 没被忽略；已有的 `.gitignore` 在写清单、追加日志之后都不变；追加日志和写清单都会创建它；提议写盘也会创建它。
+  EN: Tests: tests/test_state_gitignore.py has five tests. The first write creates the file with exactly the five entries; git check-ignore confirms that cache, proposals, errors.log, log.lock and report-last.json are ignored, and that sources.json and log.jsonl are not; an existing .gitignore is unchanged after manifest and log writes; appending a log record and writing the manifest both create it; and writing a proposal creates it.
+- 文档：README 里说哪些状态文件被 git 忽略的那句改成了现在的说法：RefCov 写 `.refcov/.gitignore`，列出的 5 项，已有的不覆盖。RefCov 仓库自己的 `.gitignore` 没改。
+  EN: Documentation: the README sentence about git-ignored state files now describes the file RefCov writes, its five entries, and that an existing file is never overwritten. RefCov's own repository .gitignore is unchanged.
+- 这个仓库里，第一次写状态目录时会生成 `.refcov/.gitignore`（如果还没有）。它在 `.refcov` 下，我不能提交这个路径，所以由 Claude 和读取记录一起提交，本次提交里没有它。
+  EN: In this repository, .refcov/.gitignore is created the first time the state directory is written, if it does not exist yet. It sits under .refcov, which I cannot commit, so Claude commits it with the read records; it is not in this commit.
+- 施工账和演示页台账：补 16d07b8 一行，演示页同步，摘要改成 44 件，全量到 985。
+  EN: Build ledger and demo page ledger: the row for 16d07b8 was added and mirrored on the page; the summary reads 44 pieces, with the full suite at 985.
+- 全量测试：新增 5 个测试。`python -m pytest -q` 的结果：990 通过、10 跳过，1 条警告（来自站点包里 anyio 的 pytest 插件）。
+  EN: Full suite: five new tests were added. python -m pytest -q gave 990 passed, 10 skipped and one warning from the anyio pytest plugin in site-packages.
+- 用到的 Kiro 功能：PowerShell 工具（`git diff` 看改动，`git commit -F` 从临时文件提交，`python -m pytest -q` 跑全量，几次只读的文本查找），read_file 和 str_replace 读写文件。本步没有调用 MCP 工具。RefCov 的写文件和 shell 保护钩子按配置在这些调用前运行；写这条时，还没有调用被拦下。
+  EN: Kiro features used: the PowerShell tool for git diff, git commit -F from a message file, python -m pytest -q for the full suite, and a few read-only text searches; read_file and str_replace for reading and editing files. No MCP tool was called in this step. RefCov's write-file and shell protection hooks run before these calls, as configured; no call had been blocked when this line was written.
+- 规格流程和这次的差别：这条要求来自 Claude 的审阅，没有先写进设计，代码、测试和 README 直接改了。store.py 的注释引用了"设计 1 节"，但设计第 1 节的表当时只有根 `.gitignore` 那一行，注释引用的内容对不上。这一步在设计第 1 节补了 `STATE_GITIGNORE`、`ensure_state_dir` 那一行，所以注释和设计现在一致。
+  EN: Spec flow against this change: the requirement came from Claude's review. It was not written into the design first; the code, tests and README changed directly. The comment in store.py cites design section 1, but that section's table had only the root .gitignore row at the time. This step adds a row for STATE_GITIGNORE and ensure_state_dir to design section 1, so the comment and the design now agree.
+- 问题（文档和代码不一致，没有改）：旧规格 `refcov-skeleton` 的 design.md（`watch` 那一行）和 tasks.md 任务 7 写，`report` 会存下 `.refcov/report-last.json` 作为 watch 组的基准，并标红 changed、new、removed。代码里没有这段：`report-last.json` 只出现在忽略列表里，`watch` 只作为配置里的范围键名出现，没有读写基准的代码。忽略列表里的 `report-last.json` 照 Claude 的要求保留。补功能还是从规格里删，待定。
+  EN: Problem (documentation against code, not changed): the older refcov-skeleton spec (the watch row in design.md, and tasks.md task 7) says report saves .refcov/report-last.json as the baseline for the watch group and flags changed, new and removed files. The code has no such logic: report-last.json appears only in the ignore list, and watch appears only as a scope key in the config. The ignore entry stays, as Claude asked. Whether to build the baseline or cut it from the spec is open.
+- 问题（README 渲染）：状态文件那段紧跟在列表项后面，中间没有空行，Markdown 会把它并进上一条列表项。这一步在它前面加了空行。
+  EN: Problem (README rendering): the state-file paragraph came right after a list item with no blank line, so Markdown would merge it into that item. This step added a blank line before it.
+- 属性测试：这一步没有新增 Hypothesis 属性测试。新加的 5 个测试都用固定输入，文档字符串里的"性质"指各自检查的那条不变式。没有抓到反例。
+  EN: Property tests: this step added no Hypothesis property tests. The five new tests use fixed inputs; "property" in their docstrings names the invariant each one checks. No counterexample was found.
+- 干净安装测试：要装 HEAD，所以在这次提交之后单独跑（见 tests/test_clean_install.py 的说明）。结果写进下一条 DEVLOG。
+  EN: Clean-install tests: they install HEAD, so they run after this commit (see the note in tests/test_clean_install.py). The result goes into the next DEVLOG entry.
+- RefCov 拦自己的次数（本步）：0。读取：本会话 8/384，没有新的 MCP 读，历史 384/384，没有还差的单元。差点漏掉什么：没有。
+  EN: RefCov blocks in this step: 0. Reads: 8 of 384 this session, with no new MCP reads, and 384 of 384 historically; nothing outstanding. Nothing was missed.
+- 没有推送。
+  EN: Nothing was pushed.

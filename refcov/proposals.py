@@ -82,6 +82,7 @@ def _read_proposal(store: Store, pid) -> dict:
 def _write_proposal(store: Store, rec: dict) -> None:
     """整份写入：先写临时文件再替换，写一半出错不留坏文件（设计 2）。"""
     path = _proposal_file(store, rec["id"])
+    store.ensure_state_dir()  # 建状态目录和它的 .gitignore（设计 1 节）
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
     tmp.write_text(json.dumps(rec, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

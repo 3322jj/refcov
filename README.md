@@ -148,7 +148,8 @@ Because of these hooks, the AI cannot `git add` files under `.refcov/` or `.kiro
 - `Approve for me` judges only actions that no rule covers. The explicit `ask` rule for `apply_proposal` still prompts.
 - A proposal does not check what the material says. Registered material enters the AI's context, so the user decides whether a file can be trusted.
 
-`.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). `.refcov/cache/`, `errors.log`, `log.lock` and `report-last.json` are git-ignored. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
+
+`.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). The first time RefCov writes to the state directory, it writes `.refcov/.gitignore` if that file is missing. That file ignores `cache/` (the cached text of your sources, which may be copyrighted), `proposals/` (local proposals for registering material), `errors.log`, `log.lock` and `report-last.json`. RefCov never overwrites an existing `.refcov/.gitignore`. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
 
 ## License
 
