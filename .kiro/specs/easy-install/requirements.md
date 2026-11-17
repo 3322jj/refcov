@@ -2,7 +2,7 @@
 
 EN summary: Requirements for the first layer of the usability plan. RefCov installs as a package without a source clone; `refcov init` writes the Kiro MCP entry and five hooks with absolute paths and never overwrites valid configuration; a read-only `refcov doctor` reports each configuration problem with a fix; `init` is user-only under the protection checks; the template example that pointed at videos is corrected; and acceptance is tested in a temporary directory and a clean virtual environment. The second layer (natural-language source management) is outside this document.
 
-状态：**第一稿，2026-11-17。** 依据 `docs/易用性改造方案.md` 第 2 节（用户 2026-11-17 指示做第一层）。第 3 节的第二层不在本文档。设计写在 `design.md`。检查点 3：规格和设计写完，停下等 Claude 审，审过以后才实现。
+状态：**第二稿，2026-11-17。** 依据 `docs/易用性改造方案.md` 第 2 节（用户 2026-11-17 指示做第一层）。第 3 节的第二层不在本文档。设计写在 `design.md`。第一稿经 Claude 检查点 3 审过，方向同意；第二稿按审阅意见改，改完直接实现。第二稿改动的条目：2.6、3.3、3.6、5.2、5.10、6.2 至 6.8、8.1 至 8.6，以及"已定和还没定的"。
 
 文字出处（未登记，待转换）：`docs/易用性改造方案.md`（没有登记为参考源，所以没有单元 ID；登记以后改成 `[ref:…]`）、`docs/简化上手设计.md`（上一版设计，已实现）、用户在聊天里的指示（2026-11-17，还没有存成 `docs/decisions/` 下的文件，等用户过目以后再转换）、`.kiro/steering/tech.md`（钩子脚本、Windows 编码和持续集成的规定）。Kiro 文档的单元和 2026-11-10 的决定已登记，出处写成 `[ref:…]`。
 
@@ -31,7 +31,7 @@ EN: As a developer who wants to use RefCov, I want to install it with one comman
 1. THE 安装包 SHALL 包含接入层的钩子脚本（`integrations/kiro/hook.py`）和 `integrations/kiro/hooks/` 下的 5 个模板。装好以后，这些文件从安装包里找到，不依赖克隆目录。
 2. THE 安装包 SHALL NOT 包含 `apps/`、`site/`、`tests/`、`docs/` 和 `.kiro/`。应用的依赖（ffmpeg、geopandas）不进安装包。
 3. THE 安装包的运行时依赖 SHALL 只有 `mcp` 及它的依赖。核心层和接入层只用标准库。
-4. WHEN 在没有克隆的 Windows 机器上运行 `uv tool install git+https://github.com/3322jj/refcov`，THE 安装 SHALL 完成，`refcov --version` SHALL 可用。这一条由用户在推送以后验收（需求 8.4）。
+4. WHEN 在没有克隆的 Windows 机器上运行 `uv tool install git+https://github.com/3322jj/refcov@phase2-haiku`（合并到 main 以后用 `main`），THE 安装 SHALL 完成，`refcov --version` SHALL 可用。这一条由用户在推送以后验收（需求 8.4）。
 
 出处：文字出处 `docs/易用性改造方案.md` 第 2 节（未登记，待转换）；`.kiro/steering/tech.md`（核心层只用标准库，只有 MCP 模块依赖 `mcp`）
 
@@ -50,6 +50,7 @@ EN: As a user, I want one command in the repository root to write the MCP entry,
 3. WHEN 要写钩子时，THE 命令 SHALL 先在仓库根目录里用子进程确认这个解释器能找到 `integrations.kiro.hook`（只做查找，不导入用户仓库里的任何东西）。找不到就一个钩子都不写，并说明要先用同一个解释器装好 RefCov。原因：找不到模块时，钩子的退出码是 1，既不拦也不报给 Kiro，保护会无声失效。
 4. THE 命令 SHALL NOT 创建、修改或删除 `.refcov/` 下的任何文件。
 5. IF 当前目录没有 `.git`，THE 命令 SHALL 不写任何文件，并说明要在仓库根目录运行。
+6. IF 接入层导入不了（例如 RefCov 装在别的解释器里），THE 命令 SHALL 说明"接入层没装上，用同一个解释器重新安装 RefCov"，以退出码 2 结束，不写任何文件。`refcov/cli.py` SHALL 只导入 `integrations/commands.py`，由它去导入接入层（设计第 4.1 节）。
 
 出处：文字出处 `docs/易用性改造方案.md` 第 2 节（未登记，待转换）；[ref:kiro-hooks/Hook-file-schema]（钩子文件的格式：`hooks` 数组里每一项的 `action.command`）；[ref:kiro-hooks/File-naming-and-location]（钩子放在仓库的 `.kiro/hooks/`）
 
@@ -63,9 +64,10 @@ EN: As a user, I want `init` to be safe to run again, so that it does not erase 
 
 1. IF `.kiro/settings/mcp.json` 是合法的 JSON 对象，THE 命令 SHALL 只添加 `mcpServers.refcov` 一项，其他服务器的配置不变。已有 `refcov` 项时 SHALL 不覆盖，`--force` 除外。
 2. IF `.kiro/settings/mcp.json` 不是合法的 JSON 对象，THE 命令 SHALL 不改这个文件，并打印要手工加入的内容。
-3. IF 同名钩子文件已存在，THE 命令 SHALL 不覆盖它，`--force` 除外。`--force` 的范围只有 `mcpServers.refcov` 一项和这 5 个钩子文件。
+3. IF 同名钩子文件已存在，THE 命令 SHALL 不覆盖它，`--force` 除外。`--force` 的范围是：`mcpServers.refcov` 的 `command` 和 `args`；这 5 个钩子文件。
 4. THE `refcov.toml` SHALL 只在不存在时写模板。它存在时，不论内容如何，`--force` 也不改它。
 5. WHEN 不带 `--force` 运行第二次，THE 命令 SHALL 不改任何已存在的文件（逐字节相同）。
+6. WHEN 用 `--force` 替换 `mcpServers.refcov` 时，THE 命令 SHALL 只换 `command` 和 `args`，该项的其他键（例如 `autoApprove`、`env`、`disabled`）保留。`init` 不改 `disabled`；`disabled` 为真时由 `doctor` 报问题（需求 5.2）。
 
 出处：文字出处 `docs/易用性改造方案.md` 第 2 节（未登记，待转换）；`docs/简化上手设计.md` 第 2.2 节（未登记，待转换）
 
@@ -95,7 +97,7 @@ EN: As a user, I want one read-only check that shows whether the installation is
 #### 验收标准
 
 1. THE `refcov doctor` SHALL 只读。运行前后，仓库里每个文件的存在与否和字节都相同；它不建 `.refcov/`，不拿锁，不写日志。
-2. THE doctor SHALL 检查 MCP 配置：文件存在，是合法 JSON，有 `mcpServers.refcov`，`command` 是存在的绝对路径，`args` 里的 `--root` 指向当前仓库根，并且这个解释器能找到 `refcov_mcp`（设计第 5.2 节）。
+2. THE doctor SHALL 检查 MCP 配置：文件存在，是合法 JSON，有 `mcpServers.refcov`，`command` 是存在的绝对路径，`args` 里的 `--root` 指向当前仓库根，并且这个解释器能找到 `refcov_mcp`（设计第 5.2 节）。`disabled` 为真时报问题；修法是手工把它改成假，`init` 不改这一项。
 3. THE doctor SHALL 检查 5 个钩子：5 个文件都在，每个是合法 JSON；命令的解释器是存在的绝对路径；这个解释器能找到 `integrations.kiro.hook`；`--root` 指向当前仓库根；文件名和事件名对应。没有 `--root` 的命令也要报告，因为它靠脚本自己的位置算根。
 4. THE doctor SHALL 检查配置文件 `refcov.toml`：存在，能解析（语法错要报出行号），并报出配置问题（沿用报告里的配置问题）。
 5. THE doctor SHALL 报告已登记的参考源（每个源的 ID 和单元数），和待同步的情况：匹配到但没登记的文件，内容变了但没同步的文件。
@@ -103,6 +105,7 @@ EN: As a user, I want one read-only check that shows whether the installation is
 7. THE doctor 的每个问题 SHALL 给出修法，修法是用户能照着做的一步（例如"在仓库根目录运行 `refcov init --force`"）。提示不算问题，不影响退出码。
 8. THE doctor 的退出码 SHALL 是：0 没有问题；1 有问题；2 不能检查（例如不在仓库根目录）。
 9. THE doctor SHALL NOT 列入 USER_ONLY。AI 可以运行它。
+10. THE doctor SHALL 比较路径时用 `os.path.normcase(os.path.realpath(...))`：Windows 上不分大小写，路径里有中文和空格时结果一样。
 
 出处：[ref:kiro-hooks/Hook-file-schema]；[ref:kiro-hooks/File-naming-and-location]；[ref:kiro-permissions/Defining-rules]（用户级权限文件的位置）；文字出处 `docs/易用性改造方案.md` 第 2 节（未登记，待转换）
 
@@ -117,11 +120,13 @@ EN: As a user, I want the AI unable to write Kiro configuration and hooks on its
 #### 验收标准
 
 1. THE `init` SHALL 加进 USER_ONLY，和 `add`、`confirm`、`sync` 同样处理。`refcov/cli.py` 和 `integrations/kiro/hook.py` 两处都改，`tests/test_protect.py` 里的期望同步改为 `("add", "confirm", "sync", "init")`。
-2. WHEN AI 在 shell 里运行 `refcov init`，保护检查 SHALL 拦下：退出码 2，原因写 stderr。
-3. WHEN AI 用 Python 运行 `integrations/kiro/setup.py`，或用 `-m integrations.kiro.setup`、`-m integrations.kiro.init` 运行，保护检查 SHALL 拦下。只写一个路径（例如 `git add integrations/kiro/setup.py`）SHALL NOT 被拦。
-4. WHEN 命令文本里有 `-m integrations.kiro.hook`，保护检查 SHALL 拦下，和现在拦截 `python … hook.py` 的规则一样。
-5. THE `doctor` SHALL NOT 被拦（需求 5.9）。
+2. WHEN AI 在 shell 里运行 `refcov init`、`sync`、`add` 或 `confirm`，包括带完整路径、带引号、带 `.exe` 的写法（例如 `C:\…\refcov.exe sync` 和 `& "C:\…\refcov.exe" add x.md --id a`），保护检查 SHALL 拦下：退出码 2，原因写 stderr。
+3. WHEN AI 用 Python 运行 `integrations/kiro/setup.py`（解释器名后面允许一个引号，例如 `"D:\pyth\python.exe" "…\setup.py"`），或用 `-m integrations.kiro.setup`、`-m integrations.kiro.init` 运行，保护检查 SHALL 拦下。只写一个路径（例如 `git add integrations/kiro/setup.py`）SHALL NOT 被拦。
+4. WHEN 命令文本里有 `-m integrations.kiro.hook`，或用 Python 运行 `hook.py`（解释器名后面允许一个引号，例如 `"D:\pyth\python.exe" "…\hook.py" --root "D:\x" pre-shell`），保护检查 SHALL 拦下。
+5. THE `doctor` SHALL NOT 被拦（需求 5.9），包括 `"C:\…\refcov.exe" doctor`。
 6. THE 文档 SHALL 写明：这是文本匹配，换写法能绕过；RefCov 的写文件保护不拦写 `.kiro/hooks/` 和 `.kiro/settings/mcp.json`。写 `.kiro/hooks/` 时 Kiro 要求每次确认（骨架设计里有这一条），`tests/test_protect.py` 的 `test_ordinary_writes_are_allowed` 也是这个期望。
+7. THE 钩子模板 `refcov-pre-shell.json` 的 `description` SHALL 列出 `add`、`confirm`、`sync`、`init` 和安装脚本；只改说明，不改 `command`。
+8. THE 测试 SHALL 覆盖：上面第 2、3、4 条的完整路径写法都被拦；init 实际写出的 5 条钩子命令和 MCP 那一行（拼成命令行）在 shell 文本里都被拦；`refcov doctor`、`"C:\…\refcov.exe" doctor`、`git add integrations/kiro/setup.py` 放行。
 
 出处：[ref:dec-design-review/1-shell-里拦-init，放行-add]（shell 里运行 `refcov init` 一律拦；该条里登记命令放行的部分已被后来的决定替代，见 `docs/简化上手设计.md` 第 6 节）；文字出处 `docs/易用性改造方案.md` 第 2 节（未登记，待转换）
 
@@ -148,23 +153,24 @@ EN: As a maintainer, I want repeatable acceptance steps that show the installati
 
 #### 验收标准
 
-1. THE 验收 SHALL 包含：在临时目录和干净的虚拟环境里，用从仓库导出的内容安装（不用克隆里的文件），运行 `refcov init` 和 `refcov doctor` 都成功；并且证明 `refcov` 和钩子模块都从虚拟环境导入，不从克隆导入。
+1. THE 验收 SHALL 包含一个默认跳过的测试（设 `REFCOV_CLEAN_INSTALL=1` 才跑，只在临时目录里做）：从提交的内容（`git archive HEAD`）打 wheel，用 `uv tool install` 装到临时的 `UV_TOOL_DIR` 和 `UV_TOOL_BIN_DIR`（找不到 uv 时退回 venv 加 pip）；证明 `refcov` 和钩子模块都从临时安装里导入，不从克隆导入；在临时项目里 `init` 和 `doctor` 都成功。
 2. THE 验收 SHALL 包含：`init` 第二次运行以后，写过的文件逐字节不变；已有合法配置时不覆盖（需求 3）。
 3. THE 验收 SHALL 包含：`doctor` 能发现这些人为制造的问题：缺一个钩子文件，钩子的 `--root` 指向别的目录，解释器路径不存在，配置文件有语法错，有待同步的文件。每个问题都有修法。
-4. THE 验收 SHALL 包含：推送以后，用户在没有克隆的 Windows 机器上运行 `uv tool install git+https://github.com/3322jj/refcov`，然后 `refcov init` 和 `refcov doctor` 都成功。这一条由用户做。
-5. THE 测试命令和测试的性质 SHALL 写在设计第 7 节。
+4. THE 用户验收 SHALL 在推送以后、在没有克隆的 Windows 机器上做，并满足三点：(a) 合并到 main 以前，地址用 `git+https://github.com/3322jj/refcov@phase2-haiku`，合并以后用 `main`；(b) 装完找不到 `refcov` 时，运行 `uv tool update-shell`，再开一个新终端（README 也写这一步）；(c) 不能只看 `doctor` 的退出码 0：在 Kiro 里打开那个项目，发一条消息能看到状态行；再让 Kiro 写 `.refcov/` 下的文件，应当被拦。只有这样才证明钩子在 Kiro 里真的跑起来了（设计第 10 节前两项）。
+5. THE 测试 SHALL 检查 wheel 的内容：有 `integrations/__init__.py`、`integrations/kiro/hook.py` 和 5 个模板，没有 `apps/`、`site/`、`tests/`、`docs/`；并且 init 写出的 `refcov-pre-write.json` 里的命令原样用 shell 跑一次，喂一个写 `.refcov/x` 的输入，退出码 SHALL 是 2。
+6. THE 测试命令和测试的性质 SHALL 写在设计第 7 节。
 
 出处：文字出处 `docs/易用性改造方案.md` 第 2 节（验收，未登记，待转换）；`.kiro/steering/tech.md`（CI 在 Linux 和 Windows 上跑测试）
 
 ## 已定和还没定的
 
 - 已定（用户 2026-11-17 指示）：做第一层，安装简化。第二层（自然语言管理资料）不在本文档。第 0 步的实测由用户在 Kiro 里做，不改仓库。
-- 设计里定，等 Claude 审（见 `design.md` 第 2 节）：
+- 已定（Claude 审过第一稿，2026-11-17；见 `design.md` 第 2 节）：
   - `setup.py` 保留，并调用 `init`（需求 4）；
   - 钩子命令用模块形式，并加 `-P`，不加控制台入口（需求 2.2）；
   - 包的位置留在 `integrations/`，不改名为 `refcov_kiro/`（设计第 2.3 节）。
 - 等用户决定：
-  - 登记 `docs/易用性改造方案.md` 为参考源（用户在终端运行登记命令），然后把文字出处改成 `[ref:…]`；
-  - 演示页第 7 段（已上线）和 README 的装法要跟着改（需求 4，以及演示页需求 7.3–7.4）。本步不改页面；
-  - 把这次的聊天指示存成 `docs/decisions/` 下的文件，先给用户过目。
+  - 登记 `docs/易用性改造方案.md` 为参考源：用户 2026-11-17 决定先不登记，出处保持文字（严格模式下未转换不拦）；
+  - 演示页第 7 段（已上线）的装法，等第一层验收完再和另外两处多余空白一起安排（需求 4，以及演示页需求 7.3–7.4）。本轮不改页面；
+  - 聊天指示起草成 `docs/decisions/` 下的文件，给用户过目后再存（用户 2026-11-17 同意起草）。
 - 范围冻结：这一步是用户 2026-11-17 指示的任务，按例外办理，DEVLOG 同日条目记下。

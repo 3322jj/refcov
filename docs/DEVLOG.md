@@ -1991,4 +1991,19 @@
   EN: Scope-freeze exception: on 2026-11-17 the user asked for layer 1 of the plan (section 2), so it is handled as an exception. Layer 2 has not been started.
 - 写文件关卡：到写本条为止，这一步的写入没有被写文件关卡拦下。
   EN: Write gate: up to this entry, none of this step's writes was stopped by the write gate.
+## 2026-11-17（夜：检查点 3 审阅后的规格第二稿）
+- Claude 审过第一稿（检查点 3）：方向同意。setup 包装、模块形式的钩子命令加 `-P`、包留在 `integrations/`、模板不改、hook.py 的 sys.path 改法、写钩子前的探测，都定下。要改的：核心层名字检查会因为 cli 里的接入层导入字符串失败；保护规则不认完整路径和引号；验收改用 uv；`--force` 要保留 MCP 项的其他键；测试不依赖 D:\pyth 的安装状态；doctor 比较路径用 normcase(realpath)。
+  EN: Claude reviewed the first draft at checkpoint 3 and agreed the direction: the setup wrapper, the module-form hook command with -P, the package location, the unchanged templates, the hook.py sys.path change, and the probe before writing hooks. Must-fix items: the core-name check fails on the integration import string in cli; the protection rules miss full paths and quotes; acceptance moves to uv; --force keeps the other MCP keys; tests must not depend on the D:\pyth install; doctor compares paths with normcase(realpath).
+- 更正：我之前写"本机没有 uv"，是按 PATH 判断的。uv 0.12.5 在用户目录的程序目录里，只是不在 PATH 上。设计 7.2 已改。
+  EN: Correction: I earlier wrote that this machine had no uv, judging by PATH. uv 0.12.5 is in the user's local program directory and is not on PATH. Design section 7.2 is corrected.
+- 规格第二稿改了：需求 1.4、2.6、3.3、3.6、5.2、5.10、6.2 至 6.8、8.1 至 8.6，以及"已定和还没定的"。设计第 2 节改成已定；第 4.1、4.2、5.2、6、7、8、9、10 节按审阅改。检查程序：8 条需求，幻影 0，无效引用 0，未转换 5。
+  EN: The second draft changes requirements 1.4, 2.6, 3.3, 3.6, 5.2, 5.10, 6.2 to 6.8, 8.1 to 8.6, and the open-items list. Design section 2 is marked decided, and sections 4.1, 4.2, 5.2, 6, 7, 8, 9 and 10 follow the review. Citation check: 8 requirements, 0 phantom, 0 invalid, 5 unconverted.
+- 保护规则的漏洞（Claude 审出）：现在的规则要求命令词前面是行首或空白，所以带完整路径的写法和用引号括起来的程序路径都放行；运行钩子脚本的规则也不认解释器名后面跟引号的写法。实现时用测试复现。
+  EN: Protection gap (found in review): the current rule requires the command word to follow the start of the line or a space, so commands written with a full path, and an executable path in quotes, pass. The rule for running hook scripts also misses the form with a quote after the interpreter name. The implementation step reproduces these in tests.
+- 施工账补了 d4ba991 一行；演示页的台账表加一行，摘要改成 35 件，全量测试仍到 905。
+  EN: The ledger got its d4ba991 row. The demo page's ledger table gained the matching row, and its summary now reads 35 pieces, still ending at 905.
+- 全量测试 905 通过。这一步只改了规格、台账和本日志，没有改代码。
+  EN: Full suite: 905 passed. This step changed only the specs, the ledger and this log; no code.
+- 用户决定：`docs/易用性改造方案.md` 先不登记。严格模式下未转换的出处不拦，检查程序报 5 条未转换。
+  EN: User decision: docs/易用性改造方案.md stays unregistered for now. Under strict mode, unconverted citations do not block; the checker reports 5 of them.
 
