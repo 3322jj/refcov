@@ -1,0 +1,30 @@
+# Publishes the demo page in site/ to GitHub Pages (design: .kiro/specs/demo-page/design.md, section 4).
+# Only uploads the site/ folder; there is no build step.
+# Runs on a push to main and on manual dispatch. Nothing runs on other branches.
+# One-time setup by the repository owner: Settings > Pages > Build and deployment > Source: GitHub Actions.
+name: pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

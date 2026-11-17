@@ -12,6 +12,12 @@
   EN: Check the key's white flashes: in 5 of 6 runs a white-flash row near 282.1 or 335.4 s was written, while the key has only 119.3 and 217.73 s (from scene detection at threshold 0.25). Not now: the rules were final and the results are in, so changing the key would look like changing the rules afterwards; Claude looks at the original frames first.
   2026-11-14 夜更新：已核实并补进标准答案，六次重判，见 DEVLOG 当天"补记"一节和 `docs/视频对比试验设计.md` 第 9.4 节。
   EN: 2026-11-14 night update: verified and added to the key, all six runs regraded; see the catch-up entry of that day in this log and section 9.4 of docs/视频对比试验设计.md.
+- 显示名保留 Markdown 符号和反引号：字典目录单元的 ID 里有 `**` 和布局标签残留，页面上会原样显示。
+  现在不做：显示名的规则写在设计第 2、3.2 节，改它要重生成 JSON 并改转换测试；先等 Claude 审阅页面。
+  EN: Display names keep Markdown markers and backticks from unit IDs (the dictionary table-of-contents unit shows bold markers on the page). Not now: the display rule is in design sections 2 and 3.2; changing it means regenerating the JSON and the converter tests, so it waits for the checkpoint review.
+- 把无界面 Chrome 的页面检查和截图放进持续集成。
+  现在不做：设计第 6 节定为手动检查、不进 CI；截图随平台和字体变化，要人看。
+  EN: Run the headless Chrome page check and screenshots in continuous integration. Not now: design section 6 keeps this check manual and out of CI; screenshots differ with platform and fonts, so a person has to look at them.
 - 清单生成（build.py）读字典只试一次。网络抖动时整次生成失败，只能重跑。
   现在不做：任务 3 的设计没有要求，且失败时不写文件，重跑即可；加重试是新功能，范围已冻结。
   EN: The manifest builder (build.py) fetches the dictionary once. A network drop fails the whole run, and the run must be repeated. Not now: the design does not ask for retries, a failed run writes nothing so a rerun is safe, and adding retries is a new feature under the scope freeze.
@@ -1845,4 +1851,35 @@
   EN: Property test: a Hypothesis property (truncation keeps at most 80 characters, ends with an ellipsis when cut, and keeps the prefix) passed with no counterexample. Each test docstring names the property it checks, per the testing rule.
 - 全量测试 867 通过（850 加新增的 17 个），有 1 个 anyio 插件的旧警告，和以前一样。RefCov 在这一步没有拦截。
   EN: Full suite: 867 passed (850 plus the 17 new tests), with the same old anyio plugin warning as before. RefCov blocked nothing in this step.
+## 2026-11-17（夜：演示页页面、测试和发布工作流）
+- Kiro 功能：按规格的设计第 8 节做第 4、5 步（页面和发布工作流）。MCP 的 check 显示严格模式全部参考源达标：必看 384 个，幻影 0，无效 0；report 显示本会话看过 316 个单元，被拦 0 次。写文件没有被关卡拦下。
+  EN: Kiro features: the demo-page spec, steps 4 and 5 of design section 8 (page and publish workflow). MCP check: strict mode green, 384 required units, 0 phantom, 0 invalid. MCP report: 316 units read this session, 0 gate blocks. No write was stopped by the gate.
+- 保护检查拦了一条 shell 命令：命令里写了 RefCov 状态目录的名字（我想看读取日志）。没有改写绕过，改用 report 工具看记录。这次算一次被拦。
+  EN: The protection check stopped one shell command whose text named the RefCov state folder, while I was reading the log. I did not rephrase it to get around the check; I used the report tool instead. That is one block.
+- 问题：转换脚本上一轮留下的显示名改动（没提交）与设计第 3.4 节"没有自由文字"冲突。先把显示名写进设计（3.2 和 3.4），再提交为 3ca4a03，施工账里有它的行。
+  EN: Problem: the display-name change that an earlier session left uncommitted contradicted design section 3.4, which said there is no free text. The design now defines the display field in section 3.2 and allows it in 3.4. The change is commit 3ca4a03, with its ledger row.
+- 问题：页面的英文表题里写了中文文件名，CJK 扫描抓到了。第一次修正时又把中文文件名写回去，第二次扫描再抓到，才改成英文说法。CJK 检查现在是 test_site_page.py 的一个测试。
+  EN: Problem: an English table caption named a Chinese file. A scan of the page files caught it. My first correction wrote the name back in, and a second scan caught that too. The English wording is in place now, and the CJK check is a test in test_site_page.py.
+- 问题：测试的正则只匹配紧跟在引号后面的文件名，漏了 app.js 里的 "data/g-01.json"，第一次运行失败。是测试写错，页面没错。改后站点测试全部通过。
+  EN: Problem: a test regex matched a file name only when it directly followed a quote, so it missed the "data/" prefix in app.js. The test was wrong, not the page. After the fix the site tests pass.
+- 问题：400 像素的截图看起来像文字溢出。无界面 Chrome 的窗口最小宽度约 503 CSS 像素，截图只截到左边 400 像素。量了一份临时复制的页面：scrollWidth 503，等于 clientWidth，没有横向溢出。
+  EN: Problem: a 400-pixel screenshot looked as if text overflowed. Headless Chrome keeps the window at least about 503 CSS pixels wide, so the capture cut the layout. A temporary copy measured scrollWidth 503, equal to clientWidth: no horizontal overflow.
+- 问题：窄屏下的表题（caption）被挤成很窄的一列，施工账的日期和模型名会断开换行。已改：窄屏时表题占满宽度，日期和模型列不换行。
+  EN: Problem: in narrow layouts the table captions were squeezed into a thin column, and ledger dates and model names broke across lines. Fixed: captions take the full width in narrow layouts, and the date and model columns do not wrap.
+- 手动检查（不进 CI，设计第 6 节）：无界面 Chrome 加载 site/index.html，渲染出 106 个读取格子（82 + 24）、46 个镜头和 24 个字段，没有页面脚本错误；桌面和窄屏截图看过。深色：无界面模式下浏览器的配色开关没有生效，所以在临时复制的页面上强制打开深色查询，背景 #161614，文字和亮格子都清楚。真实的 prefers-color-scheme 分支只由对比度测试覆盖。
+  EN: Manual check (outside CI, design section 6): headless Chrome rendered 106 read cells (82 + 24), 46 shots and 24 field units with no page script errors; desktop and narrow screenshots were viewed. Dark: the browser colour-scheme switch had no effect in headless mode, so a temporary copy had its dark query forced on; the background was #161614 and the text and lit cells read clearly. The real prefers-color-scheme branch is covered only by the contrast test.
+- 自动播放：截图时回放有时还没开始，因为 IntersectionObserver 没有触发（窗口矮的截图里更明显）。窗口够高、虚拟时间够长的一次运行里，三段回放的所有项目都显示出来了。
+  EN: Autoplay: in some captures the replays had not started, because the observer had not fired (more often in short windows). In a taller window with more virtual time, every replay item was revealed.
+- 属性测试：本步没有新增 Hypothesis 测试。页面测试检查源码文字和数字，不是核心计算；转换脚本的截短性质来自更早的一步。
+  EN: Property tests: none added in this step. The page tests check source text and numbers, not core calculations. The converter's truncation property comes from an earlier step.
+- 测试：新增三个测试文件，共 24 个测试（页面 12、数字 9、对比度 3），全量 893 通过（之前 869）。
+  EN: Tests: three new test files with 24 tests in all (page 12, numbers 9, contrast 3). The full suite passes with 893 tests, up from 869.
+- 施工账：补了 3ca4a03 一行。本步的行要等提交号出来，在下一次提交里补。
+  EN: Ledger: the row for 3ca4a03 was added. This step's row needs its commit number, so it goes in the next commit.
+- 模型：我无法从会话里看到自己运行的模型。施工账和提交尾注沿用阶段规定的 claude-haiku-5.5；用户需要确认，不对的话要改施工账的模型列和提交尾注。
+  EN: Model: I cannot see which model this session runs on. The ledger and the commit trailers follow the phase policy and use claude-haiku-5.5. The user should confirm this; if it is wrong, the model column and the trailers need correcting.
+- 没做的：发布。用户要在仓库设置里把 Pages 的 Source 选成 GitHub Actions，并合并到 main。工作流没有实跑过，只检查了 YAML 能解析，并核对了动作版本（upload-pages-artifact 的 README 写 v3，deploy-pages 写 v4）。README 的状态段还是 2026-11-11 的，这一步只改了目录和计划两处。
+  EN: Not done: publishing. The user sets Pages to GitHub Actions in the repository settings and merges to main. The workflow has not run; I checked that its YAML parses and that the action versions match their READMEs (upload-pages-artifact v3, deploy-pages v4). The README status paragraph still says 2026-11-11; this step changed only the layout and the planned list.
+- 工作区里 .kiro/steering/product.md 和 tech.md 有未提交的改动，不是这一步做的，所以没有暂存也没有提交。RefCov 的日志也没有碰。
+  EN: The working tree still has uncommitted edits to .kiro/steering/product.md and tech.md. They are not part of this step, so they were not staged or committed. The RefCov log was not touched.
 
