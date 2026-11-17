@@ -64,6 +64,10 @@
   现在不做：比对要先解析 README 的步骤，比对规则还没定；范围已冻结。
   EN: Add a test that compares the steps in demo page section 7 with the README Setup section (requirement 7.4 requires them to agree; for now a person checks). Not now: the test would have to parse the README steps, and the matching rule is not defined; scope is frozen.
 
+- `refcov init` 加 `--sources` 参数：写配置模板时顺手把要读的材料填进 `[sources]`，并自动同步一次。第一次上手只要装包加一条 init。
+  现在不做：第二层先做。init 只能由用户运行，加参数要先定清楚它和同步、权限规则打印怎么配合。
+  EN: Add a --sources option to refcov init that writes the given reference files into [sources] and runs one sync, so that a first setup is install plus one init. Not now: layer 2 goes first, and init is user-only, so how it combines with sync and with the printed permission rule needs a decision first.
+
 ## 待定
 
 已经在规格里、但要到某个任务时才定怎么做的事。定了以后在这里写结论和日期。
@@ -2112,4 +2116,36 @@
   EN: RefCov blocks in this step: one, the entry above. At that time the status line read 0 of 384 units this session and 384 of 384 historically, with nothing outstanding. Nothing was missed, because the blocked command only tried to read records.
 - 没有推送，也没有合并到 main。新点子两条记进了“以后再做”，没有动手做。
   EN: Nothing was pushed or merged into main. Two new ideas were recorded under "以后再做" and were not built.
+
+## 2026-11-17（夜：第二层规格，合并 main）
+- 范围冻结例外：用户 2026-11-17 决定做易用性改造第二层（`docs/易用性改造方案.md` 第 3 节），截止 11-22，没做完就砍。按例外办，这一条记作例外。
+  EN: Scope-freeze exception: on 2026-11-17 the user decided to build layer 2 of the usability plan (docs/易用性改造方案.md section 3), with a cut-off of 2026-11-22. This entry records the exception.
+- 合并 main：`git merge --ff-only main`，fast-forward，没有合并提交。只带进两份文档：`docs/权限实测结果.md`（新增，55 行），`docs/易用性改造方案.md`（第 3.1 节加了结果，2 行）。合并前 `git diff --stat` 列出的就是这两个文件。`phase2-haiku` 指向 `dba5a2e`。
+  EN: Merged main with git merge --ff-only, a fast-forward with no merge commit. Only two documents came in: docs/权限实测结果.md (new, 55 lines) and docs/易用性改造方案.md (2 lines added in section 3.1). git diff --stat before the merge listed exactly these two files. phase2-haiku now points at dba5a2e.
+- 用到的 Kiro 功能：权限规则（用户级 permissions.yaml 里 `capability: mcp` 加 `effect: ask`）和批准框（Allow、Always allow、Deny）。这一步只读它们的文档、写规格，没有在 Kiro 里实际设规则。Kiro 文档的权限单元经 MCP 读了 8 个：Defining-rules、Default-behavior、Approve-for-me、Interactive-approval-flow、Workspace-trust、CI-and-headless-environments、Approval-rule-tiers、Security-and-trust。
+  EN: Kiro features used: permission rules (a user-level permissions.yaml rule with capability mcp and effect ask) and the approval prompt (Allow, Always allow, Deny). This step only read their documentation and wrote the spec; no rule was set in Kiro. Eight Kiro permission units were read through the RefCov MCP tools: Defining-rules, Default-behavior, Approve-for-me, Interactive-approval-flow, Workspace-trust, CI-and-headless-environments, Approval-rule-tiers and Security-and-trust.
+- 规格流程和随口讨论的差别：先经 MCP 读完单元，再写规格。规格引用的 6 个单元都是读过的，另外 2 个读了但没有引用。随口讨论没有这一步，出处只能靠记忆。
+  EN: Spec flow against ad-hoc discussion: the units were read through MCP before the spec was written. The six units the spec cites were all read, and two more were read but not cited. Ad-hoc discussion has no such step, and its sources rest on memory.
+- 规格：`.kiro/specs/source-proposals/requirements.md`（6 条）和 `design.md`，只写第一版，没有写代码。check-spec：幻影需求 0 条，无效引用 0 条，未转换 5 条（需求 1、2、3、5、6 只有文字出处）。
+  EN: Spec: requirements.md (6 requirements) and design.md under .kiro/specs/source-proposals, first version only, no code. check-spec reports 0 phantom requirements, 0 invalid references and 5 unconverted (requirements 1, 2, 3, 5 and 6 cite text only).
+- 问题（文档与 README 不一致）：README 的局限段写 RefCov 不拦 `.kiro/settings/mcp.json` 的写入。Kiro 文档 `Default-behavior` 说 `.kiro/settings/` 下的写入一律拒绝；`Workspace-trust` 的表里 settings 那一行，信任和未信任的工作区都是拒绝。这一段要改。这一步没有改，等 Claude 定。
+  EN: Problem (documentation against the README): the README limits section says RefCov does not stop writes to .kiro/settings/mcp.json. Kiro's Default-behavior section says writes under .kiro/settings/ are always denied, and the Workspace-trust table marks settings as refused in trusted and untrusted workspaces alike. The paragraph needs changing; this step did not change it, and Claude decides.
+- 一致的一条：README 说未信任的工作区不加载 MCP 配置，`Workspace-trust` 一节写的是同一件事。上一步没找到这一节，这次找到了（`kiro-permissions/Workspace-trust`）。README 还没有引用它，要不要补，待定。
+  EN: One claim is consistent: the README says an untrusted workspace does not load MCP configuration, and the Workspace-trust section says the same. The previous step could not find that section; it is now found. The README does not cite it yet; whether to add the citation is open.
+- 问题（设计阶段发现）：`register` 对已有编号做替换，不能直接用在 MCP 执行上。设计把它的写入段抽成 `write_locked`，登记和执行共用。这是核心层改动，要 Claude 审（设计第 3.3 节）。
+  EN: Problem found in design: register replaces an existing entry with the same ID, so the MCP apply path cannot call it as is. The design extracts its locked write section into write_locked, shared by registration and apply. This touches the core layer and needs Claude's review (design section 3.3).
+- 问题（设计阶段发现）：哈希用原始字节时，同一份文件在 Windows（CRLF）和 CI（LF）上结果不同。设计用 `content_sha256`，和清单同一个算法。
+  EN: Problem found in design: a hash of raw bytes differs for the same file between CRLF on Windows and LF in CI. The design uses content_sha256, the same algorithm the manifest uses.
+- 没有删除命令：第一版误登记的参考源，要用户从状态目录里的 sources.json 手动删。这个缺口要用户决定（设计第 8、9 节）。
+  EN: No delete command in the first version: a source registered by mistake has to be removed by hand from sources.json in the state directory. The user decides whether this gap is acceptable (design sections 8 and 9).
+- 属性测试：这一步没有写测试，只写了规格。性质 P1 至 P6 写在设计第 6 节，实现时再测。目前没有抓到东西。
+  EN: Property tests: none written in this step, only the spec. Properties P1 to P6 are in design section 6 for the implementation step; nothing has been caught yet.
+- 施工账和演示页台账：补 236f747 和合并 dba5a2e 两行，演示页同步，摘要改成 42 件，全量测试到 950。全量测试 950 通过、9 跳过。
+  EN: Build ledger and demo page ledger: rows for 236f747 and the merge dba5a2e were added and mirrored on the page; the summary now reads 42 pieces, with the full suite at 950. Full suite: 950 passed, 9 skipped.
+- 本地的 origin/main 在这一步中间从 39b7969 变成了 dba5a2e。这一步没有推送。原因不明（推测：用户从 main 的工作树推送了）。
+  EN: During this step the local origin/main moved from 39b7969 to dba5a2e. This step did not push. The cause is not known; a likely explanation is that the user pushed main from the main worktree.
+- RefCov 拦自己的次数（本步）：0。读取：本会话 8/384（8 个 Kiro 权限单元，都经 MCP 的 read_unit 读的），历史 384/384，没有还差的单元。差点漏掉什么：没有。
+  EN: RefCov blocks in this step: 0. Reads: 8 of 384 this session (the eight Kiro permission units, all through read_unit), 384 of 384 historically, nothing outstanding. Nothing was missed.
+- 没有推送。新点子一条记进了“以后再做”，没有动手做。
+  EN: Nothing was pushed. One new idea was recorded under "以后再做" and not built.
 
