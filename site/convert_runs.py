@@ -141,6 +141,25 @@ def _truncate(text: str) -> str:
     return text[: MAX_UNIT_CHARS - 1] + "\u2026"
 
 
+LAYOUT_TAG_RE = re.compile(r"</?(?:br|hr|p|div|li|ul|ol)\s*/?>", re.IGNORECASE)
+ENTITY_RE = re.compile(r"&(?:[A-Za-z][A-Za-z0-9]*|#[0-9]+|#[xX][0-9A-Fa-f]+);")
+
+
+def _display(full_id: str) -> str:
+    """Name shown on the page: the unit part of the ID, layout tags and entities removed, hyphens as spaces.
+
+    Only layout tags (br, hr, p, div, li, ul, ol) and entities are removed. Element names such as
+    <dialog> in guide titles are part of the name, so they stay.
+    """
+    _, sep, unit = full_id.partition("/")
+    text = unit if sep else full_id
+    text = LAYOUT_TAG_RE.sub(" ", text)
+    text = ENTITY_RE.sub(" ", text)
+    text = text.replace("-", " ")
+    text = re.sub(r"\s+", " ", text).strip()
+    return _truncate(text)
+
+
 def _seq(record: dict) -> int:
     value = record.get("seq", 0)
     return value if isinstance(value, int) else 0
@@ -202,7 +221,10 @@ def _build_events(run_id: str, calls: list[dict], statuses: dict, final: bool):
             source = str(raw.get("source", ""))
             unit = str(raw.get("unit", ""))
             reads.append((source, unit))
-            events.append({"kind": "read", "label": "unit-read", "unit": _truncate(f"{source}/{unit}")})
+            full_id = f"{source}/{unit}"
+            events.append(
+                {"kind": "read", "label": "unit-read", "unit": _truncate(full_id), "display": _display(full_id)}
+            )
         elif title in WRITE_TITLES:
             name = _file_name(raw.get("path"))
             if name not in ALLOWED_FILES:
@@ -312,6 +334,8 @@ def _public(event: dict) -> dict:
     public = {"kind": event["kind"], "label": event["label"]}
     if "unit" in event:
         public["unit"] = event["unit"]
+    if "display" in event:
+        public["display"] = event["display"]
     return public
 
 
@@ -426,8 +450,8 @@ def _check_output(run_id: str, obj: dict, user: str) -> None:
     for event in obj.get("events", []):
         if (event["kind"], event["label"]) not in EVENT_KINDS:
             raise ConvertError(f"{run_id}: an event is outside the fixed vocabulary")
-        if len(event.get("unit", "")) > MAX_UNIT_CHARS:
-            raise ConvertError(f"{run_id}: a unit ID is longer than {MAX_UNIT_CHARS} characters")
+        if len(event.get("unit", "")) > MAX_UNIT_CHARS or len(event.get("display", "")) > MAX_UNIT_CHARS:
+            raise ConvertError(f"{run_id}: a unit ID or display name is longer than {MAX_UNIT_CHARS} characters")
     for shot in obj.get("shots", []):
         if not SHOT_ID_RE.fullmatch(shot["id"]):
             raise ConvertError(f"{run_id}: a shot ID has the wrong shape")

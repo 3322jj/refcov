@@ -302,8 +302,13 @@ def test_wb_h_03_reads_match_the_records(tmp_path):
     out = _convert(tmp_path, make_runs(tmp_path / "runs"))
     data = _load(out, "wb-h-03")
     assert [e["kind"] for e in data["events"]] == ["read", "read", "read", "write", "final"]
-    assert data["events"][0] == {"kind": "read", "label": "unit-read", "unit": "g-color/Color"}
-    assert {"kind": "read", "label": "unit-read", "unit": f"demo-plan/{CHINESE_UNIT}"} in data["events"]
+    assert data["events"][0] == {"kind": "read", "label": "unit-read", "unit": "g-color/Color", "display": "Color"}
+    assert {
+        "kind": "read",
+        "label": "unit-read",
+        "unit": f"demo-plan/{CHINESE_UNIT}",
+        "display": "演示页方案（用户 2026 11 16 拍板）",
+    } in data["events"]
     assert data["must_read"] == {"read": 3, "total": 3}
     assert data["tool_calls"] == 4
     assert data["blocks"] == 0
@@ -482,3 +487,30 @@ def test_main_returns_2_and_names_the_run_when_an_input_is_missing(tmp_path, mon
     assert convert_runs.main(["--runs", str(root)]) == 2
     assert "G-01" in capsys.readouterr().err
     assert not (tmp_path / "out").exists()
+
+
+TOC_ID = (
+    "nyc-bldg-dict/Table-of-Contents<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    "-**1.-Identification**-(#1-identification)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    "-**2.-Data-Quality-and-Specifications**-(#2-data-quality-and-specifications)<br>"
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**3.-Attribute-Information**-(#3-attribute-information)<br><br>"
+)
+
+
+def test_dictionary_table_of_contents_gets_a_clean_display_name():
+    """性质（设计第 3.3 节，显示名）：字典目录单元的显示名不含 <br> 和 &nbsp;，标题文字保留，连字符换成空格，不超过 80 个字符。"""
+    name = convert_runs._display(TOC_ID)
+    assert "<br" not in name
+    assert "&nbsp" not in name
+    assert name.startswith("Table of Contents")
+    assert "Identification" in name
+    assert name.endswith("\u2026")  # longer than 80 characters, so it is cut with an ellipsis
+    assert "-" not in name
+    assert len(name) <= 80
+
+
+def test_display_keeps_element_names_and_drops_the_source_prefix():
+    """性质（设计第 3.3 节，显示名）：元素名如 <dialog> 保留；连字符换成空格；来源前缀不进显示名；中文原样保留。"""
+    assert convert_runs._display("g-accessibility/Native-`<dialog>`") == "Native `<dialog>`"
+    assert convert_runs._display("g-color/Color") == "Color"
+    assert convert_runs._display(f"demo-plan/{CHINESE_UNIT}") == "演示页方案（用户 2026 11 16 拍板）"

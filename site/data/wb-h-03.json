@@ -31,411 +31,493 @@
       "label": "mcp-call"
     },
     {
+      "display": "Dialog",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Dialog"
     },
     {
+      "display": "Overview",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Overview"
     },
     {
+      "display": "Choose the overlay type",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Choose-the-overlay-type"
     },
     {
+      "display": "Rule 1: The overlay interrupts the user and blocks the page (default)",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Rule-1:-The-overlay-interrupts-the-user-and-blocks-the-page-(default)"
     },
     {
+      "display": "Rule 2: The user keeps working in the page while the panel is open",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Rule-2:-The-user-keeps-working-in-the-page-while-the-panel-is-open"
     },
     {
+      "display": "Rule 3: The overlay is not a dialog",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Rule-3:-The-overlay-is-not-a-dialog"
     },
     {
+      "display": "Choose how it can be dismissed",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Choose-how-it-can-be-dismissed"
     },
     {
+      "display": "Guidelines",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Guidelines"
     },
     {
+      "display": "Accessible name and initial focus",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Accessible-name-and-initial-focus"
     },
     {
+      "display": "Opening",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Opening"
     },
     {
+      "display": "Closing",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Closing"
     },
     {
+      "display": "Hooking into close",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Hooking-into-close"
     },
     {
+      "display": "Non modal dialogs",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Non-modal-dialogs"
     },
     {
+      "display": "Backdrop and styling",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Backdrop-and-styling"
     },
     {
+      "display": "Accessibility",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Accessibility"
     },
     {
+      "display": "Fallback strategies",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Fallback-strategies"
     },
     {
+      "display": "`closedby` (`dialog closedby`)",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/`closedby`-(`dialog-closedby`)"
     },
     {
+      "display": "`overscroll behavior`",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/`overscroll-behavior`"
     },
     {
+      "display": "Invoker Commands (`command` / `commandfor`)",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Invoker-Commands-(`command`-/-`commandfor`)"
     },
     {
+      "display": "Fallbacks & browser support for Popover",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-dialog/Fallbacks-&-browser-support-for-Popover"
     },
     {
+      "display": "Light Dismiss a Dialog",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Light-Dismiss-a-Dialog"
     },
     {
+      "display": "Implementation",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Implementation"
     },
     {
+      "display": "Attribute Values",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Attribute-Values"
     },
     {
+      "display": "Styling the Backdrop",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Styling-the-Backdrop"
     },
     {
+      "display": "Example",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Example"
     },
     {
+      "display": "Constraints & Accessibility",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Constraints-&-Accessibility"
     },
     {
+      "display": "Fallback strategies",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-light-dismiss-a-dialog/Fallback-strategies"
     },
     {
+      "display": "Platform Controls Dismiss Dialog",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-platform-controls-dismiss-dialog/Platform-Controls-Dismiss-Dialog"
     },
     {
+      "display": "Fallback strategies",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-platform-controls-dismiss-dialog/Fallback-strategies"
     },
     {
+      "display": "Declarative Dialog and Popover Control",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-declarative-dialog-popover-control/Declarative-Dialog-and-Popover-Control"
     },
     {
+      "display": "Implementing Declarative Popovers",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-declarative-dialog-popover-control/Implementing-Declarative-Popovers"
     },
     {
+      "display": "Implementing Declarative Modal Dialogs",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-declarative-dialog-popover-control/Implementing-Declarative-Modal-Dialogs"
     },
     {
+      "display": "Fallback strategies",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-declarative-dialog-popover-control/Fallback-strategies"
     },
     {
+      "display": "Polyfilling Invoker Commands",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-declarative-dialog-popover-control/Polyfilling-Invoker-Commands"
     },
     {
+      "display": "Fallbacks & browser support for Popover",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-declarative-dialog-popover-control/Fallbacks-&-browser-support-for-Popover"
     },
     {
+      "display": "Prevent the Page Underneath a Modal Dialog from Scrolling",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/Prevent-the-Page-Underneath-a-Modal-Di\u2026"
     },
     {
+      "display": "Implementation",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/Implementation"
     },
     {
+      "display": "1. Contain scroll chaining on the `<dialog>`",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/1.-Contain-scroll-chaining-on-the-`<di\u2026"
     },
     {
+      "display": "2. Turn `::backdrop` into a scroll container and contain its scroll",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/2.-Turn-`::backdrop`-into-a-scroll-con\u2026"
     },
     {
+      "display": "Example Code",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/Example-Code"
     },
     {
+      "display": "Best Practices & Constraints",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/Best-Practices-&-Constraints"
     },
     {
+      "display": "Fallback Strategies",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-prevent-page-scroll-under-modal-dialog/Fallback-Strategies"
     },
     {
+      "display": "Validate Input After Interaction",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Validate-Input-After-Interaction"
     },
     {
+      "display": "The Problem",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/The-Problem"
     },
     {
+      "display": "The Solution",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/The-Solution"
     },
     {
+      "display": "Implementation Strategy",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Implementation-Strategy"
     },
     {
+      "display": "Implementation Guide",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Implementation-Guide"
     },
     {
+      "display": "Use Case 1: Email Validation",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Use-Case-1:-Email-Validation"
     },
     {
+      "display": "Use Case 2: Password Complexity",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Use-Case-2:-Password-Complexity"
     },
     {
+      "display": "Fallbacking & Browser Support",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Fallbacking-&-Browser-Support"
     },
     {
+      "display": "Fallbacks & browser support for :user valid and :user invalid",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Fallbacks-&-browser-support-for-:user-valid-\u2026"
     },
     {
+      "display": "CSS for Fallback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/CSS-for-Fallback"
     },
     {
+      "display": "JavaScript Fallback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/JavaScript-Fallback"
     },
     {
+      "display": "Other Considerations",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Other-Considerations"
     },
     {
+      "display": "Other Considerations@2",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-validate-input-after-interaction/Other-Considerations@2"
     },
     {
+      "display": "Required Field Feedback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/Required-Field-Feedback"
     },
     {
+      "display": "The Problem",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/The-Problem"
     },
     {
+      "display": "The Solution",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/The-Solution"
     },
     {
+      "display": "Implementation Strategy",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/Implementation-Strategy"
     },
     {
+      "display": "Implementation Guide",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/Implementation-Guide"
     },
     {
+      "display": "1. HTML Structure",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/1.-HTML-Structure"
     },
     {
+      "display": "2. CSS",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/2.-CSS"
     },
     {
+      "display": "3. JavaScript State Synchronization",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/3.-JavaScript-State-Synchronization"
     },
     {
+      "display": "3. JavaScript State Synchronization@2",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/3.-JavaScript-State-Synchronization@2"
     },
     {
+      "display": "Fallbacking & Browser Support",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/Fallbacking-&-Browser-Support"
     },
     {
+      "display": "Fallbacks & browser support for :user valid and :user invalid",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/Fallbacks-&-browser-support-for-:user-valid-and-:user\u2026"
     },
     {
+      "display": "CSS for Fallback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/CSS-for-Fallback"
     },
     {
+      "display": "JavaScript Fallback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/JavaScript-Fallback"
     },
     {
+      "display": "Other Considerations",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-required-field-feedback/Other-Considerations"
     },
     {
+      "display": "Accessible Error Announcement",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/Accessible-Error-Announcement"
     },
     {
+      "display": "The Problem",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/The-Problem"
     },
     {
+      "display": "The Solution",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/The-Solution"
     },
     {
+      "display": "Implementation Strategy",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/Implementation-Strategy"
     },
     {
+      "display": "Implementation Guide",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/Implementation-Guide"
     },
     {
+      "display": "1. HTML Structure",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/1.-HTML-Structure"
     },
     {
+      "display": "2. CSS",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/2.-CSS"
     },
     {
+      "display": "3. JavaScript",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/3.-JavaScript"
     },
     {
+      "display": "3. JavaScript@2",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/3.-JavaScript@2"
     },
     {
+      "display": "Fallbacking & Browser Support",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/Fallbacking-&-Browser-Support"
     },
     {
+      "display": "Fallbacks & browser support for :user valid and :user invalid",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/Fallbacks-&-browser-support-for-:user-valid-and\u2026"
     },
     {
+      "display": "CSS for Fallback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/CSS-for-Fallback"
     },
     {
+      "display": "JavaScript Fallback",
       "kind": "read",
       "label": "unit-read",
       "unit": "g-accessible-error-announcement/JavaScript-Fallback"
