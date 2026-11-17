@@ -1,0 +1,7 @@
+# 本机使用的文件，不进仓库。由 RefCov 写下；这个文件已存在时不覆盖。
+# cache/ 是参考材料的原文（可能有版权），proposals/ 是提议。sources.json 和 log.jsonl 要提交，这里不忽略它们。
+cache/
+proposals/
+errors.log
+log.lock
+report-last.json
