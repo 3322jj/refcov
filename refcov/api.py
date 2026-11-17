@@ -53,7 +53,7 @@ def attach_session(store: Store, call: str, session: str,
         raise AttachError(f"{call}：会话 ID 为空")
     with store.locked():
         records = store.records()
-        read_rec = next((r for r in records if r.get("type") == "read" and r.get("call") == call), None)
+        read_rec = next((r for r in records if r.get("type") in ("read", "apply") and r.get("call") == call), None)
         if read_rec is None:
             raise AttachError(f"{call}：日志里没有这个调用编号的 read 记录")
         for field, given in (("source", source), ("unit", unit)):
@@ -66,6 +66,20 @@ def attach_session(store: Store, call: str, session: str,
             raise AttachError(f"{call}：已经补记成会话 {done[0]!r}，这次是 {session!r}")
         store.append_locked("session", session, call=call)
     return True
+
+
+def propose_sources(store: Store, items) -> str:
+    """`propose_sources` 的实现（设计第 4 节）：只读清单和配置，只在状态目录里存下一份提议，返回提议的文字。"""
+    from refcov import proposals
+
+    return proposals.propose_text(proposals.propose(store, items))
+
+
+def apply_proposal(store: Store, proposal: str, items) -> str:
+    """`apply_proposal` 的实现（设计第 3 节）：唯一写入的一步。返回执行结果的文字，最后一行是调用编号。"""
+    from refcov import proposals
+
+    return proposals.apply(store, proposal, items)
 
 
 @dataclass(frozen=True)

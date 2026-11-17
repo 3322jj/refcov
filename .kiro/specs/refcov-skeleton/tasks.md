@@ -131,10 +131,10 @@ EN summary: Implementation tasks for the skeleton, following design.md section 1
   - 判断出错时记"无法判断"；不恢复、不删除任何文件
   - _需求：10.1、10.2、10.3_
 
-- [ ]* 18. `refcov confirm` 和文件校验值（可选）
+- [ ]* 18. `refcov confirm` 和文件校验值（可选；未实现，2026-11-17 核对）
   - 没有 `refcov init`：配置由用户手动复制，状态目录第一次写入时自动建（任务 1）
   - `confirm [<文件>…]`：追加 `confirm` 记录；不带参数时只列出待确认的文件
-  - 报告 `files`：`watch` 组和上一次在终端跑 `refcov report` 存下的 `report-last.json` 比，钩子和 MCP 生成的报告只比较、不更新基准；`confirm` 组和最后一次 `confirm` 比（设计 3.6）；一行简短报告里提示待确认的数量
+  - 报告 `files`：`watch` 组和上一次在终端跑 `refcov report` 存下的 `report-last.json` 比，钩子和 MCP 生成的报告只比较、不更新基准；`confirm` 组和最后一次 `confirm` 比（设计 3.6）；一行简短报告里提示待确认的数量（未实现，2026-11-17 核对）
   - 先定：AI 用 shell 跑 `refcov report` 也会更新基准，要不要拦（设计 3.6）
   - _需求：12.2_
 

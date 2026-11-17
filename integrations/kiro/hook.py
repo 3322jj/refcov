@@ -66,8 +66,9 @@ SHELL_RULES = (
                 + r"(?:\s+-\w+)*\s+-m\s+refcov)\s+(?:" + "|".join(USER_ONLY) + r")\b", _I),
      "命令是只能由用户在终端跑的 refcov 子命令"),
 )
-_PROTECT_TAIL = ("AI 不能改状态目录、配置和钩子，也不能替用户登记或确认（需求 14）。看记录用 RefCov 的 MCP 工具 report。"
-                 "不要换写法绕过；需要做这件事就停下来告诉用户。")
+_PROTECT_TAIL = ("AI 不能改状态目录、配置和钩子，也不能在终端替用户运行登记、同步、确认这些命令；"
+                 "要登记新的 Markdown 资料，用 RefCov 的 MCP 工具 propose_sources 和 apply_proposal，执行时用户会在弹窗里批准。"
+                 "看记录用 RefCov 的 MCP 工具 report。不要换写法绕过；需要做这件事就停下来告诉用户。")
 
 
 def _rel(path: str) -> str:
@@ -191,13 +192,23 @@ def gate_write(data: dict, event: str) -> int:
 
 
 def log_error(event: str, reason: str, exc: BaseException | None = None, **extra) -> None:
-    """往 errors.log 追加一行 JSON（全部转义成 ASCII）。写不进去也不抛。"""
+    """往 errors.log 追加一行 JSON（全部转义成 ASCII）。写不进去也不抛。
+
+    先经核心层建状态目录，并写它的 .gitignore（设计 1 节）。核心层导入不了时（例如钩子被单独复制出去运行），
+    退回到直接建目录，照样写日志：这种时候最需要日志。
+    """
     entry = {"time": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "event": event, "reason": reason, **extra}
     if exc is not None:
         entry["error"] = type(exc).__name__
         entry["traceback"] = "".join(traceback.format_exception(exc))[-2000:]
     try:
-        ERRORS_LOG.parent.mkdir(parents=True, exist_ok=True)
+        _ensure_import_path()
+        try:
+            from refcov.store import Store
+
+            Store(ROOT).ensure_state_dir()  # 建状态目录，并写它的 .gitignore（设计 1 节）
+        except Exception:
+            ERRORS_LOG.parent.mkdir(parents=True, exist_ok=True)  # 核心层不可用时只建目录
         with open(ERRORS_LOG, "a", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(entry, ensure_ascii=True) + "\n")
     except Exception:

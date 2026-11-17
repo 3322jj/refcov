@@ -130,13 +130,72 @@ def hook_checks(repo: Path) -> list[dict]:
     return out
 
 
-def permission_checks() -> list[dict]:
-    """只报告文件在不在，不判断对错（设计 5.2；第二层才用）。"""
-    path = Path.home() / ".kiro" / "settings" / "permissions.yaml"
-    if path.is_file():
-        return [_check("Kiro 权限（只报告）", "hint", f"用户级权限文件存在：{path}")]
-    return [_check("Kiro 权限（只报告）", "hint", "没有用户级权限文件（第二层才用，这一步不检查）")]
+PERMISSION_SECTION = "Kiro 权限（两条规则，只提示）"
+
+
+def _rule_blocks(text: str) -> list[str]:
+    """用户级权限文件按行切成规则块：每个 `- capability:` 开头的行起一块，到下一块为止（设计第 5 节）。"""
+    blocks, cur = [], None
+    for line in text.splitlines():
+        if line.strip().startswith("- capability:"):
+            if cur is not None:
+                blocks.append("\n".join(cur))
+            cur = [line]
+        elif cur is not None:
+            cur.append(line)
+    if cur is not None:
+        blocks.append("\n".join(cur))
+    return blocks
+
+
+def _missing(blocks: list[str], effect: str, names: list[str]) -> list[str]:
+    """names 里没有出现在"同一块里有 capability: mcp 和 effect: <effect>"的规则中的那些名字。
+
+    全都有就返回空列表；没有这样的块，返回全部名字。
+    """
+    best = None
+    for block in blocks:
+        if "capability: mcp" not in block or f"effect: {effect}" not in block:
+            continue
+        miss = [n for n in names if f'"{n}"' not in block and f"'{n}'" not in block]
+        if best is None or len(miss) < len(best):
+            best = miss
+        if not miss:
+            break
+    return list(names) if best is None else best
+
+
+def permission_checks(server: str, path: Path | None = None) -> list[dict]:
+    """两条规则分别查（设计第 5 节，需求 4.2）：读取工具的 allow，和 apply_proposal 的 ask。
+
+    文本查找，不引 YAML 库：规则按 `- capability:` 切块，一块里同时有 `capability: mcp`、对应的 effect 和
+    要找的名字，才算有。只写提示，不算问题，不影响退出码；不判断用户的其他规则。
+    """
+    if path is None:
+        path = Path.home() / ".kiro" / "settings" / "permissions.yaml"
+    try:
+        text = path.read_text(encoding="utf-8") if path.is_file() else ""
+    except (OSError, UnicodeDecodeError):
+        text = ""
+    blocks = _rule_blocks(text)
+    reads = [f"{server}/{tool}" for tool in kiro_init.READ_TOOLS]
+    write = f"{server}/{kiro_init.WRITE_TOOL}"
+    out = []
+    missing = _missing(blocks, "allow", reads)
+    if missing:
+        out.append(_check(PERMISSION_SECTION, "hint",
+                          f"读资料时每次都会弹窗：{path} 里没有读取工具的 allow 规则（缺：{'、'.join(missing)}）。",
+                          "在用户级权限文件里加上 refcov init 打印的第一条规则（init 只打印，不替你写）"))
+    else:
+        out.append(_check(PERMISSION_SECTION, "ok", "读取工具的 allow 规则已经有"))
+    if _missing(blocks, "ask", [write]):
+        out.append(_check(PERMISSION_SECTION, "hint",
+                          f"登记（{kiro_init.WRITE_TOOL}）没有 ask 规则：批准框里可能出现 Always allow，选了以后就不再问。",
+                          "在用户级权限文件里加上 refcov init 打印的第二条规则"))
+    else:
+        out.append(_check(PERMISSION_SECTION, "ok", f"{kiro_init.WRITE_TOOL} 的 ask 规则已经有"))
+    return out
 
 
 def run(repo: Path) -> list[dict]:
-    return mcp_checks(repo) + hook_checks(repo) + permission_checks()
+    return mcp_checks(repo) + hook_checks(repo) + permission_checks(kiro_init.server_name(repo))

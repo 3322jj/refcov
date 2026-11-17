@@ -9,10 +9,10 @@ enforce = true           # 需求 17.1。false 时关卡一律放行，记录照
 requirements = [".kiro/specs/*/requirements.md"]
 spec_files   = [".kiro/specs/**"]
 
-# 要算校验值的文件（需求 12.2）。和上一次报告比，变了就标红
+# 暂未实现，填了不生效
 watch = [".kiro/hooks/refcov-*.json", "integrations/kiro/**"]
 
-# 要算校验值、并且要用户确认的文件。和最后一次 refcov confirm 比，新文件或变了就标红"待用户确认"
+# 暂未实现，填了不生效
 confirm = ["docs/decisions/**"]
 
 # 豁免：写这些文件不检查是否达标（需求 8.3）。写了就覆盖默认值

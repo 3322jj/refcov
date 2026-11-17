@@ -2,7 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-17): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Checked in Kiro on 2026-11-17, in a test folder: once the workspace was trusted, the MCP server connected, the prompt hook's status line appeared, and a write to `.refcov/` was blocked. Not yet checked: project paths that contain spaces, and whether Kiro reconnects a running server after its config is saved.
+> Status (2026-11-18): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Checked in Kiro on 2026-11-17, in a test folder: once the workspace was trusted, the MCP server connected, the prompt hook's status line appeared, and a write to `.refcov/` was blocked. Not yet checked: project paths that contain spaces, and whether Kiro reconnects a running server after its config is saved. The second layer (`propose_sources` and `apply_proposal`, registering Markdown from inside Kiro) is implemented and passed its check in Kiro on 2026-11-18: in a fresh chat, Kiro proposed and applied the registration of one Markdown file itself. The approval prompt showed the proposal ID, the path, the sha256 and the source ID, and it offered no Always allow.
 
 ## What it does
 
@@ -97,13 +97,15 @@ Install the tool, run `refcov init` in your project, and check the result. You d
    refcov init
    ```
 
-   It writes `.kiro/settings/mcp.json` (the `refcov` entry, with absolute paths to the Python that runs it and to your project), the five hooks into `.kiro/hooks/`, and a `refcov.toml` template if there is none. It never overwrites `refcov.toml`, and it leaves existing hook files alone. `refcov init --force` replaces the five hook files, and in the `refcov` MCP entry only `command` and `args`; other keys (`autoApprove`, `env`, `disabled`) stay as they are. Only you run `init`; the shell protection blocks an AI from running it.
+   It writes `.kiro/settings/mcp.json` (the `refcov` entry, with absolute paths to the Python that runs it and to your project), the five hooks into `.kiro/hooks/`, and a `refcov.toml` template if there is none. It never overwrites `refcov.toml`, and it leaves existing hook files alone. `refcov init --force` replaces the five hook files, and in the `refcov` MCP entry only `command` and `args`; other keys (`autoApprove`, `env`, `disabled`) stay as they are. Only you run `init`; the shell protection blocks an AI from running it. If you have not registered any material yet, delete refcov.toml and run `refcov init` again; otherwise, update the comments in your refcov.toml by hand from the current template (the first line, the [sources] comment, and the watch and confirm comments have changed).
 
    If the Python that runs `init` cannot import the hook module, `init` writes nothing and asks you to reinstall with that same Python.
 
 3. Check the result with `refcov doctor`. It is read-only, so an AI may run it. It reports the MCP entry, the five hooks, `refcov.toml`, the registered sources and what is pending, and gives a fix for each problem. Exit code 0 means no problems, 1 means at least one problem, 2 means it was not run from a project root.
 
-   A clean `doctor` does not show that Kiro runs the hooks. To check that, open the project in Kiro and trust the workspace first. Until you trust it, Kiro does not load the workspace's MCP configuration; in our test the MCP server list was empty and the five hooks showed as disabled. Then send one message, look for the one-line RefCov status, and ask Kiro to write a file under `.refcov/`. The write must be blocked.
+   A clean `doctor` does not show that Kiro runs the hooks. To check that, open the project in Kiro and trust the workspace first. Until you trust it, Kiro does not load the workspace's MCP configuration (see the "Workspace trust" section of the Kiro permissions documentation, https://kiro.dev/docs/permissions.md). In our test the MCP server list was empty and the five hooks also showed as disabled. Then send one message, look for the one-line RefCov status, and ask Kiro to write a file under `.refcov/`. The write must be blocked.
+
+   Registering material from inside Kiro needs two rules in your user-level permissions file, `~/.kiro/settings/permissions.yaml`. `refcov init` prints them and does not write that file, because it lies outside the repository. The first rule lets the read tools (`list_units`, `read_unit`, `check`, `report`, `propose_sources`) run without a prompt, so reading a unit does not ask every time. The second makes `apply_proposal` ask every time; an explicit `ask` rule offers no Always allow, so one click cannot make a registration permanent. `refcov doctor` checks each rule separately and names the one that is missing.
 
 4. In `refcov.toml`, list the reference material under `[sources]`. Patterns are relative to the project root, and `*` also crosses `/`:
 
@@ -136,12 +138,18 @@ Because of these hooks, the AI cannot `git add` files under `.refcov/` or `.kiro
 **Limits of the install.**
 
 - The protection checks match command text. They recognise full paths, quotes and `.exe`, but a rewritten command still gets through.
-- RefCov does not stop the AI from writing `.kiro/hooks/` or `.kiro/settings/mcp.json` with its file-write tool. The skeleton design relies on Kiro to ask for confirmation before it writes the hooks folder; that was not re-tested here.
+- RefCov's write-file protection does not cover `.kiro/hooks/` and `.kiro/settings/`. Kiro itself asks before any write to `.kiro/hooks/`, and refuses any write to `.kiro/settings/` (Kiro permissions documentation, "Default behavior").
 - The commands `init` writes hold absolute paths to the Python that ran `init`. Moving the project, changing or removing that Python, or uninstalling RefCov breaks them. `refcov doctor` reports this, and `refcov init --force` repairs the paths once RefCov is installed again.
 - If the hook module cannot be imported, the hook exits with code 1, which does not block the action. A hook broken later stays silent until `refcov doctor` runs.
 - The shot-coverage app needs ffmpeg and is not in the package, and its adapter must sit inside your repository.
+- There is no command to delete a registered source. A source registered by mistake is removed by hand from `sources.json` in the state directory. Reports, checks and the status line keep working after that (a test covers it).
+- The approval prompt shows only the tool name. The arguments are in the tool card above it. The server runs only arguments that match the stored proposal, so what the card shows is what runs.
+- `--trust-all-tools` and `--trust-tools` on the command line skip the prompt (Kiro's headless documentation). The prompt is a check only in the editor and in command-line runs without these flags.
+- `Approve for me` judges only actions that no rule covers. The explicit `ask` rule for `apply_proposal` still prompts.
+- A proposal does not check what the material says. Registered material enters the AI's context, so the user decides whether a file can be trusted.
 
-`.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). `.refcov/cache/`, `errors.log`, `log.lock` and `report-last.json` are git-ignored. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
+
+`.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). The first time RefCov writes to the state directory, it writes `.refcov/.gitignore` if that file is missing. That file ignores `cache/` (the cached text of your sources, which may be copyrighted), `proposals/` (local proposals for registering material), `errors.log`, `log.lock` and `report-last.json`. RefCov never overwrites an existing `.refcov/.gitignore`. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
 
 ## License
 
