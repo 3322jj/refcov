@@ -68,6 +68,13 @@
   现在不做：第二层先做。init 只能由用户运行，加参数要先定清楚它和同步、权限规则打印怎么配合。
   EN: Add a --sources option to refcov init that writes the given reference files into [sources] and runs one sync, so that a first setup is install plus one init. Not now: layer 2 goes first, and init is user-only, so how it combines with sync and with the printed permission rule needs a decision first.
 
+- 用户运行的删除命令，删掉误登记的参考源，代替手动编辑 sources.json。
+  现在不做：第一版不提供删除，是范围冻结时定的；手动删除有测试覆盖（M1）。要不要加，由用户决定。
+  EN: A user-run command to delete a registered source, instead of editing sources.json by hand. Not now: the first version has no deletion, by the scope decision; manual deletion is covered by test M1, and whether to add the command is the user's call.
+- 让 doctor 也认花括号样式（flow style）的权限规则。现在只认块式写法，花括号写法会被报成没找到。
+  现在不做：init 打印的是块式写法；花括号要单独解析，解析错了比报"没找到"更糟。
+  EN: Let doctor also read flow-style permission rules. Now only the block style is read, so a flow-style rule is reported as missing. Not now: init prints the block style only, and a flow-style parser would be a separate piece; a wrong match is worse than a "not found" hint.
+
 ## 待定
 
 已经在规格里、但要到某个任务时才定怎么做的事。定了以后在这里写结论和日期。
@@ -2148,4 +2155,32 @@
   EN: RefCov blocks in this step: 0. Reads: 8 of 384 this session (the eight Kiro permission units, all through read_unit), 384 of 384 historically, nothing outstanding. Nothing was missed.
 - 没有推送。新点子一条记进了“以后再做”，没有动手做。
   EN: Nothing was pushed. One new idea was recorded under "以后再做" and not built.
+
+## 2026-11-17（深夜：第二层实现，规格第二稿）
+- 范围冻结例外继续有效：Claude 审了第二层规格（12b05ab，检查点 3），通过，要求直接实现。按 2026-11-17 的例外办：11-20 晚上前提交，11-21 晚上代码还没过审就砍。
+  EN: The scope-freeze exception still applies. Claude passed the layer 2 spec (12b05ab, checkpoint 3) and asked for direct implementation, under the 2026-11-17 exception: commit by the evening of 2026-11-20; cut on the evening of 2026-11-21 if the code has not been reviewed.
+- 用到的 Kiro 功能：用户级权限规则（读取工具 allow，登记工具 ask）、批准框、MCP 工具（stdio）、post-mcp 钩子（按调用编号补记会话）。Kiro 权限文档的 8 个单元经 MCP 读过，规格的出处引用了其中 3 个。
+  EN: Kiro features used: user-level permission rules (allow for the read tools, ask for the write tool), the approval prompt, MCP tools over stdio, and the post-mcp hook, which attaches sessions by call number. Eight Kiro permission units were read through MCP; the specification cites three of them.
+- 实现：`refcov/proposals.py`（propose、apply、效果说明，只用标准库）；`refcov/sources.py` 把 register 的写入段抽成 `write_locked`，register 的对外行为不变（`test_register.py` 和 `test_attach.py` 不改期望通过）；`refcov/api.py` 两个包装，`attach_session` 也认 apply 记录；`refcov_mcp/server.py` 两个工具；init 打印两条规则，doctor 分别查；`.gitignore` 加 `.refcov/proposals/`。
+  EN: What was built: refcov/proposals.py (propose, apply and the effect text; standard library only); register's locked write section moved into write_locked, with register's behaviour unchanged (test_register.py and test_attach.py pass with unchanged expectations); two wrappers in api.py, and attach_session accepts apply records; two MCP tools in the server; init prints two rules and doctor checks each; .gitignore ignores .refcov/proposals/.
+- 测试：全量 985 通过、10 跳过，新增 35 个。`tests/test_proposals.py` 23 个（性质 P1 至 P6、手动删除 M1、固定例子、post-mcp 端到端补记）；`tests/test_permission_rules.py` 11 个；`tests/test_mcp_proposals.py` 1 个（提议到执行的往返，第二次执行被拒）。`tests/test_mcp_server.py` 的工具清单改成六个。
+  EN: Full suite: 985 passed, 10 skipped, with 35 new tests: 23 in tests/test_proposals.py (properties P1 to P6, manual deletion M1, fixed examples, and an end-to-end post-mcp session attachment), 11 in tests/test_permission_rules.py, and 1 in tests/test_mcp_proposals.py (a proposal-to-apply round trip where the second apply is refused). tests/test_mcp_server.py now expects six tools.
+- 规格更正：设计第 6.1 节 P3 写着"包括只改换行"要拒绝。校验值按统一换行后算，只改换行不是内容变化，所以这种改动照常执行（固定例子 CRLF/LF 覆盖）。这一条 Claude 的答复里没有提，是实现前核对出来的，设计已改。
+  EN: Spec correction: design section 6.1, property P3, said a line-ending-only change must be refused. The checksum normalizes line endings, so such a change is not a content change and it executes; a fixed example covers CRLF and LF. Claude's reply did not raise this; it was found while checking the implementation, and the design is corrected.
+- 问题（测试中发现）：`[sources]` 的模式 `docs/**/*.md` 匹配不上 `docs/a.md`。`path_matches` 用 fnmatch，`**/` 需要至少一层目录。代码没错，测试写错了，改成 `docs/*.md`。
+  EN: Problem found while testing: the [sources] pattern docs/**/*.md did not match docs/a.md, because path_matches uses fnmatch and the **/ form needs at least one directory level. The code was right and the test pattern was wrong; the test now uses docs/*.md.
+- 文档修正（上一轮留下的）：README 的信任句注明 Kiro 权限文档的 "Workspace trust" 一节（https://kiro.dev/docs/permissions.md，已登记单元 `kiro-permissions/Workspace-trust`）。README 局限段照 Kiro 文档（Default behavior）改写：RefCov 的写文件保护不管 `.kiro/hooks/` 和 `.kiro/settings/`；Kiro 对写 hooks 每次都问，对写 settings 一律拒绝。演示页第 7 段的信任句改成 "in our test the hooks also showed as disabled"。
+  EN: Documentation fixes left from the last step: the README trust sentence cites the "Workspace trust" section of the Kiro permissions documentation (https://kiro.dev/docs/permissions.md; registered unit kiro-permissions/Workspace-trust). The README limit on hooks and settings now follows the Default behavior section of Kiro's documentation: RefCov's write-file protection does not cover .kiro/hooks/ or .kiro/settings/, and Kiro asks before any write to hooks and refuses any write to settings. The demo page's trust sentence now says "in our test the hooks also showed as disabled".
+- 决定文件：`docs/decisions/2026-11-17-检查点3审阅.md` 开头两行改成“用户 2026-11-17 过目，按原样提交”，正文不动。
+  EN: The decisions file docs/decisions/2026-11-17-检查点3审阅.md now opens with "user review on 2026-11-17, committed as is"; the body is unchanged.
+- 施工账和演示页台账：补 12b05ab 一行，演示页同步，摘要改成 43 件，全量到 950。
+  EN: Build ledger and demo page ledger: the row for 12b05ab was added and mirrored; the summary reads 43 pieces, with the full suite at 950.
+- 属性测试：P1 至 P6 和 M1 都在测试里，用 Hypothesis 生成输入。这次没有抓到反例；跑测试时唯一的失败是上面那条测试模式。
+  EN: Property tests: P1 to P6 and M1 run with Hypothesis-generated inputs. No counterexample was found; the only failure during the run was the test pattern above.
+- 干净安装测试（`REFCOV_CLEAN_INSTALL=1`）要求 HEAD 里已经有这些代码，所以在这次提交之后单独跑。结果写在报告里，并在下一条 DEVLOG 里记录。可选变体（项目路径带空格和中文）也在其中。
+  EN: The clean-install tests (REFCOV_CLEAN_INSTALL=1) need the code to be committed first, so they run after this commit. Their result goes into the report and the next DEVLOG entry; the optional variant with spaces and Chinese in the project path is one of them.
+- RefCov 拦自己的次数（本步）：0。读取：本会话 8/384（8 个 Kiro 权限单元，经 MCP 的 read_unit 读的），历史 384/384，没有还差的单元。差点漏掉什么：没有。
+  EN: RefCov blocks in this step: 0. Reads: 8 of 384 this session (the eight Kiro permission units, read through read_unit), 384 of 384 historically, nothing outstanding. Nothing was missed.
+- 没有推送。提交后单独跑干净安装测试。
+  EN: Nothing was pushed. The clean-install tests run after the commit.
 

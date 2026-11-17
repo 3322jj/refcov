@@ -148,6 +148,56 @@ def write_config(repo: Path) -> str:
     return "写了 refcov.toml 模板（[sources] 的 files 为空，等你写要读的材料）"
 
 
+# 权限规则（设计第 5 节）：读取类工具逐个列名字（不用 `服务名/*`，免得以后新加的写入工具被顺带放行），
+# 写入工具单独一条 ask。init 只打印，不写用户级权限文件（它在仓库外，是用户的安全设置）。
+READ_TOOLS = ("list_units", "read_unit", "check", "report", "propose_sources")
+WRITE_TOOL = "apply_proposal"
+DEFAULT_SERVER = "refcov"
+
+
+def server_name(repo: Path) -> str:
+    """mcp.json 里指向 RefCov 服务（args 含 refcov_mcp）的那一项的键名。只读。
+
+    有名叫 refcov 且指向 RefCov 的项就用它；否则用第一个指向 RefCov 的项；找不到用 refcov。
+    """
+    try:
+        servers = json.loads((repo / ".kiro" / "settings" / "mcp.json").read_text(encoding="utf-8")).get("mcpServers", {})
+    except (OSError, ValueError, AttributeError):
+        return DEFAULT_SERVER
+    if not isinstance(servers, dict):
+        return DEFAULT_SERVER
+
+    def points_at_refcov(entry) -> bool:
+        return isinstance(entry, dict) and isinstance(entry.get("args"), list) and MCP_MODULE in entry["args"]
+
+    if points_at_refcov(servers.get(DEFAULT_SERVER)):
+        return DEFAULT_SERVER
+    for key, entry in servers.items():
+        if points_at_refcov(entry):
+            return key
+    return DEFAULT_SERVER
+
+
+def permission_rules_text(server: str) -> str:
+    """两条规则的 YAML 文字（设计第 5 节）。"""
+    reads = ", ".join(f'"{server}/{tool}"' for tool in READ_TOOLS)
+    return (
+        "rules:\n"
+        "  - capability: mcp\n"
+        f"    match: [{reads}]\n"
+        "    effect: allow\n"
+        "  - capability: mcp\n"
+        f'    match: ["{server}/{WRITE_TOOL}"]\n'
+        "    effect: ask\n"
+    )
+
+
+def permission_hint(server: str) -> str:
+    return ("用户级权限文件（~/.kiro/settings/permissions.yaml）要加上下面两条规则。init 不替你写这个文件，"
+            "它在仓库外，是你的安全设置。第一条让读取单元和查看报告不弹窗；第二条让登记每次都弹窗，"
+            "而且弹窗里没有 Always allow。\n" + permission_rules_text(server))
+
+
 def run(repo: Path, force: bool) -> int:
     """写 MCP 配置、钩子和模板。返回退出码：0 完成（跳过的也算完成）；1 什么都没写。"""
     if not (repo / ".git").exists():
@@ -164,4 +214,5 @@ def run(repo: Path, force: bool) -> int:
     print("\n".join(lines))
     print("下一步：1）在 refcov.toml 的 [sources] 里写要读的材料；2）在仓库根目录运行 refcov sync；"
           "3）在 Kiro 里确认 refcov MCP 已连上（refcov doctor 能查 MCP 配置）。")
+    print(permission_hint(server_name(repo)))
     return 0

@@ -323,20 +323,33 @@ def register(store: Store, origin: str, source_id: str,
         if (old and old.get("origin") == stored and old.get("sha256") == sha
                 and old.get("adapter") == ad.name):
             return Registered(old, changed=False, written=False)
-        changed = old is None or old.get("sha256") != sha or old.get("adapter") != ad.name
-        store.cache_dir.mkdir(parents=True, exist_ok=True)
-        cache = store.cache_dir / sha
-        tmp = cache.with_name(sha + ".tmp")
-        tmp.write_bytes(data)  # 缓存里存原始字节
-        os.replace(tmp, cache)
-        rec = store.append_locked("register", None, source=source_id, origin=stored, sha256=sha,
-                                  adapter=ad.name, units=len(units), changed=changed)
-        entry = {"id": source_id, "origin": stored, "fetched": now_iso(), "sha256": sha,
-                 "adapter": ad.name, "registered_seq": rec["seq"],
-                 "units": [u.manifest_entry() for u in units]}
-        if old is None:
-            sources.append(entry)
-        else:
-            sources[sources.index(old)] = entry
+        entry, changed = write_locked(store, manifest, source_id, stored, data, sha, ad.name, units, old)
         store.write_sources(manifest)
     return Registered(entry, changed=changed, written=True)
+
+
+def write_locked(store: Store, manifest: dict, source_id: str, stored: str, data: bytes, sha: str,
+                 adapter_name: str, units: list, old: dict | None) -> tuple[dict, bool]:
+    """拿着日志锁调用（设计 3.3）：写缓存（文件名是校验值）、追加 `register` 记录，在内存里的清单上放好条目。
+
+    `old` 是清单里同编号的旧条目，没有就是 None：有就替换，没有就追加。不写清单文件，调用方写完以后
+    调用 `store.write_sources(manifest)`。返回 (新条目, 是否改动)。`register` 和第二层的执行共用这一段，
+    顺序、字段和对外行为和原来的 `register` 完全一样。
+    """
+    changed = old is None or old.get("sha256") != sha or old.get("adapter") != adapter_name
+    store.cache_dir.mkdir(parents=True, exist_ok=True)
+    cache = store.cache_dir / sha
+    tmp = cache.with_name(sha + ".tmp")
+    tmp.write_bytes(data)  # 缓存里存原始字节
+    os.replace(tmp, cache)
+    rec = store.append_locked("register", None, source=source_id, origin=stored, sha256=sha,
+                              adapter=adapter_name, units=len(units), changed=changed)
+    entry = {"id": source_id, "origin": stored, "fetched": now_iso(), "sha256": sha,
+             "adapter": adapter_name, "registered_seq": rec["seq"],
+             "units": [u.manifest_entry() for u in units]}
+    sources = manifest.setdefault("sources", [])
+    if old is None:
+        sources.append(entry)
+    else:
+        sources[sources.index(old)] = entry
+    return entry, changed

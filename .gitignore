@@ -14,4 +14,6 @@ build/
 .venv/
 .pytest_cache/
 .hypothesis/
+# 第二层的资料提议：本机状态，不进仓库（设计第 2 节）
+.refcov/proposals/
 # 注意：不要在这里忽略 .kiro 目录（比赛规则要求它在仓库根目录且被提交）

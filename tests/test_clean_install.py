@@ -134,6 +134,14 @@ def test_init_and_doctor_in_a_temp_project_and_second_init_is_identical(installe
     assert after == before
 
 
+def test_init_and_doctor_in_a_project_path_with_spaces_and_chinese(installed):
+    """设计 7.2 的可选变体：项目路径带空格和中文，init 写出的绝对路径命令仍然能用，doctor 没有问题。"""
+    proj = _fresh_project(installed, "项目 带 空格")
+    assert _refcov(installed, proj, "init").returncode == 0
+    res = _refcov(installed, proj, "doctor")
+    assert res.returncode == 0, _text(res)
+
+
 def _mcp_path(proj: Path) -> Path:
     return proj / ".kiro" / "settings" / "mcp.json"
 

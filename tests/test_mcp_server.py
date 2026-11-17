@@ -57,7 +57,8 @@ def test_sdk_client_list_and_read_over_stdio(repo):
     init, tools, listed, got, missing, rep_text, rep_json, chk_all, chk_path = asyncio.run(
         asyncio.wait_for(run(), 60))
     assert init.serverInfo.name == "refcov"
-    assert {t.name for t in tools.tools} == {"list_units", "read_unit", "check", "report"}
+    assert {t.name for t in tools.tools} == {"list_units", "read_unit", "check", "report",
+                                             "propose_sources", "apply_proposal"}
     # check：只有一个文字块，没有调用编号；读了 1 个单元，还差 4 个
     assert not chk_all.isError and len(chk_all.content) == 1
     chk_text = chk_all.content[0].text

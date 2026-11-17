@@ -24,6 +24,7 @@ SOURCES_FILE = "sources.json"
 LOG_FILE = "log.jsonl"
 LOCK_FILE = "log.lock"
 CACHE_DIR = "cache"
+PROPOSALS_DIR = "proposals"  # 第二层的资料提议，只在本机（设计 2）
 
 GENESIS = "0" * 64
 LOCK_TIMEOUT = 2.0

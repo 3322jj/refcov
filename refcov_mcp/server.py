@@ -2,7 +2,7 @@
 
 启动：`python -m refcov_mcp --root <仓库根目录>`。Kiro 起服务时工作目录不一定是仓库根目录
 （docs/验证结果.md 第 6 项），所以根目录必须由参数给出。stdout 只走协议消息，其他输出都写 stderr。
-现在有 list_units、read_unit、check、report 四个工具；request_token 在任务 19（可选）里加。
+现在有 list_units、read_unit、check、report 四个读取工具，和第二层的 propose_sources、apply_proposal 两个资料工具（设计第 3–4 节；前者只读，后者只新增参考源）。request_token 在任务 19（可选）里加。
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import ImageContent, TextContent
 
 from refcov import api
+from refcov.proposals import ProposalError
 from refcov.store import Store
 
 NAME = "refcov"
@@ -79,6 +80,25 @@ def build(root: Path) -> FastMCP:
         if format == "json":
             return json.dumps(rep, ensure_ascii=False, indent=2) + f"\n\n{api.HINT}"
         return api.report_text(rep)
+
+    # 第二层（设计第 3–4 节）：提议只读；执行是唯一的写入，只新增参考源。参数原样交给 api，这里不写逻辑。
+    @mcp.tool(structured_output=False)
+    def propose_sources(files: list[dict]) -> str:
+        """提议要登记的参考资料（只读，不登记）。files 是列表，每项 {"path": 仓库里的 Markdown 路径, "source_id": 可选的编号}。
+        返回提议编号、每个文件的校验值和效果说明。要登记，再用 apply_proposal 执行。"""
+        try:
+            return api.propose_sources(store, files)
+        except ProposalError as e:
+            raise ToolError(str(e)) from e
+
+    @mcp.tool(structured_output=False)
+    def apply_proposal(proposal: str, files: list[dict]) -> str:
+        """按提议登记参考资料：只新增参考源，不改已有的，不改必看范围，不改配置。proposal 是提议编号；
+        files 的每一项照抄提议里的 path、sha256 和 source_id。结果的最后一行是调用编号。"""
+        try:
+            return api.apply_proposal(store, proposal, files)
+        except ProposalError as e:
+            raise ToolError(str(e)) from e
 
     return mcp
 
