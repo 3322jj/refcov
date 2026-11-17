@@ -157,7 +157,7 @@ EN: As a maintainer, I want the page to respect the data and video rights and no
 2. THE 页面 SHALL 只显示 Chrome 指南的单元标题（指南为 Apache-2.0）。
 3. THE 页面 SHALL NOT 放参考视频的关键帧、画面文字或真实公司名。
 4. THE 页面 SHALL NOT 放访客数据，不加载第三方脚本、字体、统计代码或广告（方案第 6 节）。
-5. THE 数据和字典的使用条款 SHALL 由 Claude 在上线前读完，并经用户确认后才上线；`apps/layer-coverage/README.md` 写明目前还没有读完。
+5. 已完成：Claude 2026-11-17 读完使用条款，用户确认。
 
 出处：[ref:demo-plan/3.-回放的数据从哪来]；[ref:demo-plan/6.-不做的]；[ref:app-positioning/9.-风险和待验证]；[ref:layer-readme/Source-and-terms-of-use]
 

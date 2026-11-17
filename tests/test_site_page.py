@@ -199,3 +199,14 @@ def test_ledger_is_folded_in_a_details_element():
     assert "<details>" in HTML and "<summary>" in HTML
     details = HTML[HTML.index("<details>"): HTML.index("</details>")]
     assert 'class="ledger responsive"' in details
+
+
+def test_footer_names_the_sources_and_licenses():
+    """性质（用户要求，需求 9.2、9.5）：页脚写明数据、字典、指南标题的来源和许可，并声明与纽约市政府没有关联。"""
+    footer = HTML[HTML.index("<footer>"): HTML.index("</footer>")]
+    assert (
+        "Sources and licenses: NYC Building Footprints from NYC Open Data (no use restrictions; "
+        "not affiliated with the City of New York); field names and section titles from "
+        "CityOfNewYork/nyc-geo-metadata (Apache-2.0); guide titles from Chrome's modern web guidance "
+        "(Apache-2.0)."
+    ) in footer

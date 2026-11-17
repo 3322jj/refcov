@@ -25,7 +25,11 @@ SUBSET_WHERE = "within_box(the_geom, 40.770, -73.785, 40.755, -73.765)"
 CRS84 = "urn:ogc:def:crs:OGC:1.3:CRS84"
 MANIFEST_NAME = "bayside.fields.md"
 DEFAULT_OUT = HERE / MANIFEST_NAME
-PREAMBLE = "# 纽约建筑轮廓：Bayside 子集，字段清单\n\n由 apps/layer-coverage/build.py 生成，手改会被覆盖。\n"
+PREAMBLE = (
+    "# 纽约建筑轮廓：Bayside 子集，字段清单\n\n"
+    "由 apps/layer-coverage/build.py 生成，手改会被覆盖。\n"
+    "字典文字原样引自 CityOfNewYork/nyc-geo-metadata（Apache-2.0），数据来自 NYC Open Data 5zhs-2jue。\n"
+)
 HEADER_ROW = re.compile(r"^\|\s*Attribute\s*\|\s*Shapefile Attribute\s*\|")
 SEPARATOR_ROW = re.compile(r"^\|[-\s|]+\|?$")
 

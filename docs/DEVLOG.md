@@ -1921,4 +1921,19 @@
   EN: Ledger: the row for 2187bab was added (review pending). This step's row goes in the next commit. The user confirmed the model is claude-haiku-5.5, so the ledger and the commit trailers are unchanged.
 - 没做的：合并 main、打开 Pages 设置。按用户要求，等 Claude 读完使用条款再做。
   EN: Not done: merging main and turning on Pages. As the user asked, both wait until Claude has read the terms of use.
+## 2026-11-17（夜：使用条款，清单来源说明，页脚）
+- 使用条款：Claude 2026-11-17 读完了数据和字典的使用条款，用户确认。apps/layer-coverage/README.md 的"Source and terms of use"里，"还没读完"那句换成三条：数据（NYC Open Data，Local Law 11 of 2012，不限制使用，按现状提供、不保证；转载时注明来源、版本和改动）；数据字典（CityOfNewYork/nyc-geo-metadata，Apache License 2.0，清单原样引用）；与纽约市政府没有关联。原来的"数据"和"字典"两条合并进这三条，没有重复。
+  EN: Terms: Claude read the terms of use for the data and the dictionary on 2026-11-17, and the user confirmed them. In apps/layer-coverage/README.md, the "not read yet" sentence became three bullets: the data (NYC Open Data, Local Law 11 of 2012, no use restrictions, provided as is without warranty, and republishing must name the source, version and changes); the dictionary (CityOfNewYork/nyc-geo-metadata, Apache License 2.0, quoted unchanged); and non-affiliation with the City of New York. The two existing data and dictionary bullets were merged into these, so nothing is duplicated.
+- 重新生成前的来源核对：fetch.py 和 README 的数据集编号都是 5zhs-2jue；在线字典的 SHA-256 与清单记录的 f1f7934c… 一致；本地 GeoJSON 用 GIS-template 下的 bayside_buildings.geojson，SHA-256 0fdf697f… 与清单一致。同一个文件在试验目录里有多份，都一样。
+  EN: Source check before regenerating: fetch.py and the README both give dataset 5zhs-2jue. The live dictionary's SHA-256 matches the value recorded in the manifest (f1f7934c…). The local GeoJSON, the GIS-template copy, matches the recorded SHA-256 of the extract (0fdf697f…). Many copies of that file exist in the trial folders, and all are identical.
+- build.py：PREAMBLE 加一行来源说明，中文，和清单其他文字一致。用上面两个输入重新生成 bayside.fields.md：diff 只有一行新增，没有删除；字段 15 个，单元仍是 17 个（坐标系、范围和 15 个字段）。layer 测试 83 个全部通过，没有改回归测试。
+  EN: build.py: the preamble gained one source line in Chinese, matching the rest of the manifest. The manifest was regenerated from the same two inputs. The diff is exactly one inserted line and no deletions; 15 fields and 17 units. The 83 layer tests pass unchanged, so no regression test had to change.
+- RefCov 复查：清单改了之后，严格模式检查仍是 384/384 达标，幻影需求 0、无效引用 0。
+  EN: RefCov check after the manifest change: strict mode still passes with 384 of 384 required units read, 0 phantom requirements and 0 invalid references.
+- 页脚：加了一行 Sources and licenses，用的是用户给的英文，并有测试。需求 9.5 的验收句改成"已完成：Claude 2026-11-17 读完使用条款，用户确认。"，原来的义务句按用户的要求一并去掉。
+  EN: Footer: a Sources and licenses line was added with the user's English wording, and a test checks it. Requirement 9.5 now reads as completed, as the user asked. The obligation sentence it replaced was removed with it.
+- 施工账：补了 dda0f07 一行（待审）；页面的施工账表和一句摘要同步改为 33 件、全量测试从 742 到 904。本步的行在下一次提交里补。
+  EN: Ledger: the row for dda0f07 was added (review pending). The page's ledger table and summary sentence now match: 33 pieces of work, full-suite count from 742 to 904. This step's row goes in the next commit.
+- 没做的：合并 main、打开 Pages，等用户指示。
+  EN: Not done: merging main and turning on Pages, which wait for the user's go-ahead.
 

@@ -1,6 +1,7 @@
 # 纽约建筑轮廓：Bayside 子集，字段清单
 
 由 apps/layer-coverage/build.py 生成，手改会被覆盖。
+字典文字原样引自 CityOfNewYork/nyc-geo-metadata（Apache-2.0），数据来自 NYC Open Data 5zhs-2jue。
 
 ## crs
 kind: crs

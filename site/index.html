@@ -220,7 +220,7 @@
   <h2 id="s5-title">We used it on ourselves</h2>
   <p>From 15 November, claude-haiku-5.5 built the layer-coverage app under RefCov, which required the specs and data notes to be read before each write. The ledger below is the project's own record, one row per piece of work. Credits show as unknown where the Kiro panel did not show the number.</p>
 
-  <p>32 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 893.</p>
+  <p>33 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 904.</p>
   <details>
     <summary>Show the build ledger, row by row</summary>
     <div class="table-wrap" role="region" tabindex="0" aria-labelledby="ledger-caption">
@@ -270,6 +270,7 @@
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Display names for read events (unit ID with layout tags and entities removed, hyphens as spaces, cut to 80 characters); G-01 and WB-H-03 JSON regenerated; two converter tests added</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">19 converter tests pass; full suite 869 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Demo page: index.html, style.css and app.js (English, eight sections); three page test files (page 12, numbers 9, contrast 3); Pages workflow pages.yml uploads site/ only; design sections 3.2 and 3.4 define the display field; design section 8 steps 4 and 5 done</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">24 new tests pass; full suite 893 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">1 (a shell command that read the RefCov log was stopped by the protection check; the report tool was used instead)</td></tr>
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Steering: product.md says RefCov records workspace MCP reads without saying which agent made them; tech.md adds a rule that required units are read by the writing agent through MCP, not by sub-agents</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 893 passed</td><td data-label="Units read before writing">316 (report check: session total; the 82 guide units read before this step did not change the count)</td><td data-label="Gate blocks">0</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Review fixes: 82 guide units read and the page checked against them (pause control, press state, keyboard-reachable table regions, flash on reveal); nine page text changes; bold markers removed from display names and the four JSON files regenerated (only the G-01 table-of-contents name changed)</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">site and converter tests pass; full suite 904 passed</td><td data-label="Units read before writing">316 (report check: session total; the 82 catch-up reads did not change the count)</td><td data-label="Gate blocks">0</td></tr>
       </tbody>
     </table>
     </div>
@@ -324,6 +325,7 @@
 
 <footer>
   <p>Built for Kiroween 2026, Skeleton Crew category. The replays come from the JSON files in <code>site/data</code>, written by <code>site/convert_runs.py</code> from four recorded runs.</p>
+  <p>Sources and licenses: NYC Building Footprints from NYC Open Data (no use restrictions; not affiliated with the City of New York); field names and section titles from CityOfNewYork/nyc-geo-metadata (Apache-2.0); guide titles from Chrome's modern web guidance (Apache-2.0).</p>
 </footer>
 </body>
 </html>

@@ -10,9 +10,9 @@ A RefCov adapter named `layer`, plus the scripts that build its manifest. The da
 
 ## Source and terms of use
 
-- Data: NYC Open Data, dataset `5zhs-2jue` (NYC Building Footprints). The data is not stored in this repository. The demo uses only the Bayside subset.
-- Data dictionary: the Markdown text published with the dataset, registered in RefCov as the reference source `nyc-bldg-dict`.
-- The full terms of use of the data and of the dictionary have not been read yet. Read them and follow them before any public use.
+- Data: NYC Open Data, dataset `5zhs-2jue` (NYC Building Footprints). Under Local Law 11 of 2012 the City places no restrictions on the use of Open Data; it is provided as is, without warranty. When republishing, name the source, the version and any changes. The data is not stored in this repository. The demo uses only the Bayside subset.
+- Data dictionary: CityOfNewYork/nyc-geo-metadata on GitHub, Apache License 2.0. The manifest quotes its text unchanged. It is registered in RefCov as the reference source `nyc-bldg-dict`.
+- This project is not affiliated with or endorsed by the City of New York.
 
 ## Files
 
