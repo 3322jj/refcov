@@ -154,7 +154,7 @@ def test_bad_input_raises(data):
 
 def test_user_only_matches_core():
     """设计 6：只能用户跑的子命令，核心层和 hook.py 各一份，必须一致。"""
-    assert hook.USER_ONLY == cli.USER_ONLY == ("add", "confirm", "sync")
+    assert hook.USER_ONLY == cli.USER_ONLY == ("add", "confirm", "sync", "init")
 
 
 # ---- 经 subprocess 跑 hook.py（临时目录当仓库根目录）----
@@ -242,3 +242,60 @@ def test_hook_configs_match_design():
     assert cfgs["refcov-pre-write.json"]["action"]["command"] == "python integrations/kiro/hook.py pre-write"
     assert cfgs["refcov-pre-shell.json"]["matcher"] == "^(execute_pwsh|control_pwsh_process|execute_bash)$"
     assert cfgs["refcov-pre-shell.json"]["action"]["command"] == "python integrations/kiro/hook.py pre-shell"
+
+
+# ---- 带完整路径、引号和 .exe 的写法（检查点 3 审阅第 2 条：这些写法原先放行）----
+
+USER_ONLY_FORMS = [
+    r"C:\Users\W\.local\bin\refcov.exe sync",
+    "C:/Users/W/.local/bin/refcov sync",
+    r'& "C:\Users\W\.local\bin\refcov.exe" add x.md --id a',
+    r'"C:\Users\W\.local\bin\refcov.exe" init',
+    "refcov init",
+    "python -m refcov confirm docs/x.md",
+    r'"D:\pyth\python.exe" -m refcov sync',
+]
+HOOK_AND_SETUP_FORMS = [
+    r'"D:\pyth\python.exe" "D:\agent\kiro\refcov\integrations\kiro\hook.py" --root "D:\x" pre-shell',
+    r'python "D:\agent\kiro\refcov\integrations\kiro\hook.py" pre-shell',
+    r'"D:\pyth\python.exe" -P -m integrations.kiro.hook --root "D:\x" pre-shell',
+    r'"D:\pyth\python.exe" "D:\agent\kiro\refcov\integrations\kiro\setup.py"',
+    "python integrations/kiro/setup.py",
+    "python -m integrations.kiro.init",
+]
+ALLOWED_FORMS = [
+    "refcov doctor",
+    r'"C:\Users\W\.local\bin\refcov.exe" doctor',
+    "git add integrations/kiro/setup.py",
+]
+
+
+@pytest.mark.parametrize("command", USER_ONLY_FORMS + HOOK_AND_SETUP_FORMS)
+def test_path_quote_and_exe_forms_are_blocked(command):
+    """检查点 3 审阅第 2 条：完整路径、引号、.exe 的写法，只能由用户运行的子命令和运行脚本的写法都拦。"""
+    reason = protect("execute_pwsh", {"command": command})
+    assert reason and "RefCov" in reason
+
+
+@pytest.mark.parametrize("command", ALLOWED_FORMS)
+def test_doctor_and_a_plain_path_are_allowed(command):
+    """检查点 3 审阅第 2 条：doctor（AI 可以运行）和只写一个路径的 git add 放行。"""
+    assert protect("execute_pwsh", {"command": command}) is None
+
+
+def test_commands_init_writes_are_blocked_in_pre_shell(tmp_path):
+    """检查点 3 审阅第 2 条：init 实际写出的 5 条钩子命令，和 MCP 那一行（拼成命令行），在 pre-shell 里都被拦。
+    init.py 按文件路径加载（它只用标准库），测试不依赖仓库根在 sys.path 上。"""
+    spec = importlib.util.spec_from_file_location("refcov_kiro_init_under_test", REPO / "integrations" / "kiro" / "init.py")
+    init_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(init_mod)
+    root = str(tmp_path)
+    commands = []
+    for tmpl in sorted(init_mod.TEMPLATES.glob("refcov-*.json")):
+        (h,) = json.loads(tmpl.read_text(encoding="utf-8"))["hooks"]
+        commands.append(init_mod.hook_command(h["action"]["command"], sys.executable, root))
+    commands.append(f'"{sys.executable}" -P -m refcov_mcp --root "{root}"')
+    assert len(commands) == 6
+    for command in commands:
+        reason = protect("execute_pwsh", {"command": command})
+        assert reason and "RefCov" in reason, command

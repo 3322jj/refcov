@@ -21,7 +21,10 @@ dev = ["pytest<10", "hypothesis>=6.170,<7"]
 refcov = "refcov.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["refcov*", "refcov_mcp*"]
+include = ["refcov*", "refcov_mcp*", "integrations*"]
+
+[tool.setuptools.package-data]
+"integrations.kiro" = ["hooks/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

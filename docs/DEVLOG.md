@@ -2006,4 +2006,23 @@
   EN: Full suite: 905 passed. This step changed only the specs, the ledger and this log; no code.
 - 用户决定：`docs/易用性改造方案.md` 先不登记。严格模式下未转换的出处不拦，检查程序报 5 条未转换。
   EN: User decision: docs/易用性改造方案.md stays unregistered for now. Under strict mode, unconverted citations do not block; the checker reports 5 of them.
+## 2026-11-17（深夜：接入层转交，init 和 doctor 实现，保护规则认完整路径）
+- 按规格第二稿实现。新增 integrations/commands.py（转交，命令行只导入它）、integrations/kiro/init.py（写 MCP 配置、钩子和模板；写之前先探测）、integrations/kiro/doctor.py（MCP 配置、钩子、权限文件，只读）。integrations/kiro/setup.py 改成调用 init 的包装。refcov/api.py 新增 doctor_core（配置文件、参考源、待同步，只读）。refcov/cli.py 新增 init（带 --force）和 doctor，init 加进 USER_ONLY。
+  EN: Implemented the second draft. New: integrations/commands.py (forwarding; the command line imports only this), integrations/kiro/init.py (writes the MCP entry, the hooks and the template, probing first), and integrations/kiro/doctor.py (MCP entry, hooks and the permission file; read-only). integrations/kiro/setup.py is now a wrapper around init. refcov/api.py gained doctor_core (config file, sources and pending sync; read-only). refcov/cli.py gained init (with --force) and doctor, and init joined USER_ONLY.
+- hook.py：命令词前面允许完整路径、引号和分隔符；程序名后面允许一个引号；新增运行钩子模块和安装脚本的规则；sys.path 只放代码自己的上级目录，不再放 --root。pre-shell 模板只改说明。pyproject 把 integrations 放进包，并把钩子模板放进包数据。
+  EN: hook.py: the command word may follow a full path, a quote or a separator; a program name may be followed by one quote; new rules for running the hook module and the setup script; sys.path gets only the code's own parent directory, no longer --root. The pre-shell template changed only its description. pyproject packages integrations and includes the hook templates as package data.
+- 测试：test_protect 新增样例：审阅指出的四条写法，加上别的完整路径和引号写法；init 实际写出的 5 条钩子命令和 MCP 那一行在 shell 文本里被拦；doctor 和只写一个路径的 git add 放行。test_setup_kiro 改写（--force 只换 command 和 args，其他键保留）。新增 test_init_kiro（性质 I1 至 I5 和固定例子）、test_doctor（性质 D1 和 9 个固定例子）、test_packaging、test_clean_install（默认跳过）。
+  EN: Tests: test_protect gained cases for the four forms from the review, more full-path and quoted forms, the five hook commands and the MCP line that init writes (blocked in the shell text), and doctor and a plain git add (allowed). test_setup_kiro was rewritten (--force replaces only command and args). New: test_init_kiro (properties I1 to I5 and fixed cases), test_doctor (property D1 and nine fixed cases), test_packaging, and test_clean_install (skipped by default).
+- 子进程测试把仓库根放进 PYTHONPATH。进程内的性质测试把探测换成"找得到"，探测本身用一个不存在的模块名另测，所以结果不依赖 D:\pyth 的安装是不是最新。
+  EN: Subprocess tests put the repository root on PYTHONPATH. In-process property tests replace the probe with "found", and the probe itself is tested with a module name that does not exist, so results do not depend on whether the D:\pyth install is current.
+- 全量测试 949 通过，9 个跳过。跳过的是设 REFCOV_CLEAN_INSTALL=1 才跑的那一组，它们要在提交以后跑（只装 HEAD 的内容）。
+  EN: Full suite: 949 passed and 9 skipped. The skipped group runs only with REFCOV_CLEAN_INSTALL=1 and must run after the commit, because it installs HEAD.
+- 问题 1：改前的四条漏洞没有在改前的代码上重新跑一遍。Claude 审时试过；这一步的新测试只能证明改后的规则拦住了它们。
+  EN: Problem 1: the four gaps were not re-run against the code from before the change. Claude's review ran them; the new tests show only that the new rules block them.
+- 问题 2：一个断言把"没有配置问题"里的"问题"当成了问题标记，测试先失败。改成检查级别标记"问题："。这是测试写错，不是代码错。
+  EN: Problem 2: an assertion took the word 问题 inside "没有配置问题" for a problem marker, so a test failed first. It now checks for the level label. The test was wrong, not the code.
+- 问题 3：在 D:\pyth 的环境里直接运行 init 会拒绝写，因为那边的可编辑安装没有接入层（设计 7.3 说过）。测试用 PYTHONPATH 避开了这一点，没有依赖它。
+  EN: Problem 3: running init directly in the D:\pyth environment refuses to write, because that editable install has no integration layer (design section 7.3). The tests avoid this with PYTHONPATH.
+- 写文件关卡：这一步的写入没有被拦。保护检查：这一步没有被拦下的 shell 命令。
+  EN: Write gate: none of this step's writes was stopped. Protection check: no shell command in this step was stopped.
 

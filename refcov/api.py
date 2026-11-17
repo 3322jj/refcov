@@ -912,6 +912,71 @@ def _report_text_base(rep: dict) -> str:
     return "\n".join(lines)
 
 
+def _doctor_check(section: str, level: str, message: str, fix: str | None = None) -> dict:
+    return {"section": section, "level": level, "message": message, "fix": fix}
+
+
+def doctor_core(store: Store) -> list[dict]:
+    """`refcov doctor` 的核心部分（设计 5.1）：配置文件能否解析、配置问题、参考源、待同步。只读：
+    不建状态目录，不拿锁，不写日志。`Store(root)` 构造时不建目录（`ensure_state_dir` 才建）。"""
+    from refcov.store import StoreError
+
+    out, sec, cfg = [], "配置文件", None
+    if not store.config_path.is_file():
+        out.append(_doctor_check(sec, "problem", "没有配置文件 refcov.toml",
+                                 "运行 refcov init 写模板，再在 [sources] 里写要读的材料"))
+    else:
+        try:
+            cfg = store.load_config()
+            out.append(_doctor_check(sec, "ok", "能解析"))
+        except StoreError as e:
+            out.append(_doctor_check(sec, "problem", f"不能解析：{e}", "改掉上面说的语法错或配置错，再运行 refcov doctor"))
+    if cfg is not None:
+        try:
+            problems = _config_problems(gather(store))
+        except (ReadError, CheckError, StoreError, OSError, ValueError) as e:
+            problems = None
+            out.append(_doctor_check(sec, "problem", f"没法检查配置问题：{e}", "修好上面说的文件，再运行 refcov doctor"))
+        if problems:
+            for p in problems:
+                out.append(_doctor_check(sec, "problem", f"配置写错：{p['where']} 的 {p['value']}：{p['note']}",
+                                         "改 refcov.toml（由用户改）"))
+        elif problems is not None:
+            out.append(_doctor_check(sec, "ok", "没有配置问题"))
+    sec = "参考源"
+    manifest, broken = [], False
+    try:
+        manifest = _manifest(store)
+    except (StoreError, OSError, ValueError) as e:
+        broken = True
+        out.append(_doctor_check(sec, "problem", f"登记的清单读不了：{e}", "看清单文件是不是被改坏了"))
+    if not manifest and not broken:
+        out.append(_doctor_check(sec, "hint", "还没有登记过资料", "在 [sources] 里写要读的材料，然后运行 refcov sync"))
+    for s in manifest:
+        out.append(_doctor_check(sec, "ok", f"{s['id']}：{len(s.get('units', []))} 个单元（{s.get('origin', '')}）"))
+    sec = "待同步"
+    if cfg is not None:
+        try:
+            plan = plan_sync(store)
+        except (StoreError, OSError, ValueError, ReadError) as e:
+            out.append(_doctor_check(sec, "problem", f"没法算待同步：{e}", "修好上面说的问题，再运行 refcov doctor"))
+        else:
+            if plan["new"]:
+                out.append(_doctor_check(sec, "problem", f"{len(plan['new'])} 个匹配到的文件还没登记",
+                                         "运行 refcov sync"))
+            if plan["changed"]:
+                out.append(_doctor_check(sec, "problem", f"{len(plan['changed'])} 个文件的内容变了，还没同步",
+                                         "运行 refcov sync"))
+            if plan["failed"]:
+                out.append(_doctor_check(sec, "problem", f"{len(plan['failed'])} 个匹配到的文件读不了",
+                                         "检查文件是不是 UTF-8 文本"))
+            for e in plan["empty"]:
+                out.append(_doctor_check(sec, "hint", f"通配符没有匹配到文件：{e['where']} {e['value']}"))
+            if not (plan["new"] or plan["changed"] or plan["failed"]):
+                out.append(_doctor_check(sec, "ok", "没有待同步的文件"))
+    return out
+
+
 def status_line(store: Store, session: str | None) -> str:
     """一行简短报告（需求 9.8、12.4），由报告 JSON 生成。达标按全部参考源算，不分会话（需求 5.7）。"""
     rep = report(store, session)

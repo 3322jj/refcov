@@ -12,7 +12,7 @@ from refcov import __version__, api, citations
 
 # 只能由用户在终端跑的子命令（设计 6）：会往日志追加记录、写配置、建立或清空日志的子命令都放进来。
 # 接入层的保护检查不能 import 核心层，integrations/kiro/hook.py 里抄了一份，tests/test_protect.py 检查两份一致。
-USER_ONLY = ("add", "confirm", "sync")
+USER_ONLY = ("add", "confirm", "sync", "init")
 from refcov.sources import RegisterError, register
 from refcov.store import Store, StoreError
 
@@ -153,6 +153,19 @@ def _sync(args) -> int:
     return 1 if res["errors"] else 0
 
 
+def _integration(args) -> int:
+    """init 和 doctor 转交给接入层（设计 4.1）。接入层导入不了就说明并退出码 2，什么都不写。"""
+    try:
+        from integrations import commands
+    except ImportError:
+        print("接入层没装上，用同一个解释器重新安装 RefCov（例如 uv tool install，或 pip install -e）。",
+              file=sys.stderr)
+        return 2
+    if args.command == "init":
+        return commands.init(Path.cwd(), args.force)
+    return commands.doctor(Path.cwd())
+
+
 def main(argv=None) -> int:
     _match_console_encoding()
     parser = argparse.ArgumentParser(prog="refcov", description="Coverage for reference material.")
@@ -171,6 +184,10 @@ def main(argv=None) -> int:
     chk = sub.add_parser("check-spec", help="出处检查：列出幻影需求、无效引用、未转换、被引用的单元（只读）")
     chk.add_argument("doc", help="需求文档路径（相对仓库根目录）")
     sy = sub.add_parser("sync", help="登记 [sources] 匹配到的新文件，重新登记内容变了的文件（只能由用户运行）")
+    ini = sub.add_parser("init", help="写 Kiro 的 MCP 配置、5 个钩子和配置模板（只能由用户运行）")
+    ini.add_argument("--force", action="store_true",
+                     help="覆盖 5 个钩子文件；MCP 配置里的 refcov 项只换 command 和 args；配置文件永不覆盖")
+    sub.add_parser("doctor", help="只读检查：MCP 配置、钩子、配置文件、参考源和待同步（AI 可以运行）")
     args = parser.parse_args(argv)
     if args.command == "add":
         return _add(args)
@@ -182,5 +199,7 @@ def main(argv=None) -> int:
         return _check_spec(args)
     if args.command == "sync":
         return _sync(args)
+    if args.command in ("init", "doctor"):
+        return _integration(args)
     parser.print_help()
     return 0
