@@ -2042,4 +2042,19 @@
   EN: Draft: the checkpoint 3 review instruction is drafted as a file under docs/decisions/ for the user to review; it is not committed.
 - 保护检查拦了一次。提交 README 时，提交说明里有一个只能由用户运行的子命令的名字，被文本匹配拦下（退出码 2）。没有运行任何命令，也没有用文件等别的办法提交；只把提交说明里的那个词改掉，然后提交。这是误报：提交说明不运行东西。读取：本会话 4/384，历史 384/384。
   EN: The protection check stopped one shell command. When committing the README, the commit message named a user-only subcommand, and text matching stopped the command (exit code 2). Nothing was run, and I did not commit through a file or any other route; I changed the wording in the message and committed. This was a false positive, since a commit message runs nothing. Reads at that point: 4 of 384 this session, 384 of 384 historically.
+## 2026-11-17（夜：Claude 审代码通过，README 状态段修正）
+- Claude 审了 b02cd20 到 6357d70，结论通过。Claude 自己核对：全量 949 通过、9 个跳过；设 REFCOV_CLEAN_INSTALL=1 单独跑，在 6357d70 上 9 个通过；保护规则用 30 条命令试过，审阅列的 4 种写法都拦，init 写出的钩子命令和 MCP 命令都拦，doctor 的各种写法都放行；doctor 在本仓库跑一遍，文件不变，配置语法错能报出行号。
+  EN: Claude reviewed b02cd20 to 6357d70 and passed it. Claude's own checks: the full suite passed 949 with 9 skipped; the clean-install tests, run alone with REFCOV_CLEAN_INSTALL=1, passed 9 of 9 on 6357d70; 30 protection test commands were tried, the four forms from the review were blocked, the hook and MCP commands written by init were blocked, and every doctor form was allowed; doctor run on this repository left the files unchanged and reported the line number of a config syntax error.
+- Claude 审出 README 状态段两处不符。一、列出的"必看集合和达标判断、剩下的 Kiro 钩子"其实都已做完（检查程序、写文件关卡、任务开工关卡和五个钩子都有，试验里也用过）。二、"Earlier status (2026-11-11)"段说 README 其余部分只描述规格，现在已经不成立。改了：去掉第一处，状态只留"在 Kiro 里运行钩子（用户验收）"一项；删掉第二处那一段。README 的其他部分等 12-02 检查点 4 再逐句核对。
+  EN: Claude found two wrong statements in the README status. First, it listed the required set, pass/fail and the remaining Kiro hooks as not done, but all of them are built (the checker, the write gate, the task-start gate and the five hooks), and the trials used them. Second, the earlier-status paragraph said the rest of the README describes specifications, which is no longer true. Fixed: the first list is cut down to running the hooks inside Kiro (a user check), and the earlier-status paragraph is deleted. The rest of the README waits for a line-by-line check at checkpoint 4 on 12-02.
+- 提交说明不开例外。给提交命令开口子，那么提交说明后面接一个只能由用户运行的子命令也会放行，而要分清这两种写法需要解析 shell。提交说明里改用"init 子命令"或"初始化子命令"这样的写法：规则只认程序名后面紧跟子命令的写法。这次的提交说明就是这样写的。
+  EN: No exception for commit messages. Opening one for the commit command would also let a commit message followed by a user-only subcommand through, and telling the two apart needs shell parsing. Commit messages say "init subcommand" or "初始化子命令" instead, because the rule matches only a subcommand written right after the program name. This step's commit message follows that rule.
+- doctor 报本仓库自己的五个钩子有问题，是预期的。那是用户的文件，比赛期间不换。
+  EN: doctor reports the repository's own five hooks as problems. This is expected: they are the user's files, and they stay as they are during the contest.
+- 5a6d857 是 Claude 提交的读取记录（只新增 10 行），不计入施工账。
+  EN: 5a6d857 is a read-record commit made by Claude (10 added lines). It is not in the build ledger.
+- docs/decisions/2026-11-17-检查点3审阅.md 仍未提交，等用户过目。这一步没有推送，推送等用户决定。
+  EN: docs/decisions/2026-11-17-检查点3审阅.md is still uncommitted, waiting for the user to review it. Nothing was pushed in this step; pushing waits for the user's decision.
+- 全量测试 949 通过、9 个跳过。保护检查：这一步没有被拦下的 shell 命令。
+  EN: Full suite: 949 passed, 9 skipped. Protection check: no shell command in this step was stopped.
 

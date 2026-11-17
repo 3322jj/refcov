@@ -2,9 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-17): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Not yet done: running the hooks inside Kiro (a user check), the required-set and pass/fail parts of the core, and the rest of the planned Kiro hooks.
->
-> Earlier status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), source registration with `refcov add` (task 4), the MCP server with `list_units` and `read_unit` (task 5), the PostToolUse hook that attaches Kiro's session ID to each read (task 6), and the coverage report plus a one-line status on every user message (task 7). The report does not yet compute the required set: for now every unit counts as required, and there is no pass/fail. Everything else below describes what the skeleton is specified to do, not what it does today.
+> Status (2026-11-17): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Not yet done: running the hooks inside Kiro (a user check).
 
 ## What it does
 
