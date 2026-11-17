@@ -218,7 +218,7 @@
 
 <section id="s5" aria-labelledby="s5-title">
   <h2 id="s5-title">We used it on ourselves</h2>
-  <p>From 15 November, claude-haiku-5.5 built the layer-coverage app under RefCov, which required the specs and data notes to be read before each write. The ledger below is the project's own record, one row per piece of work. Credits show as unknown where the Kiro panel did not show the number.</p>
+  <p>From 15 November, claude-haiku-5.5 built the layer-coverage app, this page and the install layer under RefCov, which required the specs and data notes to be read before each write. The ledger below is the project's own record, one row per piece of work. Credits show as unknown where the Kiro panel did not show the number.</p>
 
   <p>47 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 996.</p>
   <details>
@@ -313,6 +313,8 @@
   <h2 id="s6-title">What this does not show</h2>
   <ul>
     <li>Reading is not following. A guide that the model read did not always lead to its practices. After reading, several runs chose conservative browser-support code.</li>
+    <li>Pages worked without RefCov too. A headless browser check of the first task's 20 pages found them mostly working in every group (28 to 32 of 32 checks per group). Without RefCov the features were built with older techniques. The claim is "follows the project's practices", not "the pages work better".</li>
+    <li>Not every model skips the guides. On the first task, claude-sonnet-5.5 without RefCov read 6 to 7 relevant guides every time. The runs that skipped them used Kiro's automatic model selection or claude-haiku-5.5.</li>
     <li>The GIS app does not show that reading changes the answer. Three GIS rounds, including a published benchmark task, did not measure that.</li>
     <li>RefCov adds information the model lacks or does not use: project standards, newer practices it knows but skips, and team conventions. It does not add skill for long workflows or hard libraries.</li>
     <li>It helps most where the material is large or costly to read in full, and where the material is a means rather than the task. For a short document that the prompt names, the model often reads it anyway, and RefCov only adds a record.</li>
@@ -331,7 +333,7 @@
     <li>Install RefCov with uv: <code>uv tool install git+https://github.com/3322jj/refcov</code>.</li>
     <li>In your project root (the folder that holds <code>.git</code>), run <code>refcov init</code>, then <code>refcov doctor</code>.</li>
     <li>Open the project in Kiro and trust the workspace. Until you trust it, Kiro does not load the project's MCP configuration; in our test the hooks also showed as disabled.</li>
-    <li>List your reference files under <code>[sources]</code> in <code>refcov.toml</code>, then run <code>refcov sync</code>.</li>
+    <li>Add the two permission rules that <code>refcov init</code> prints to <code>~/.kiro/settings/permissions.yaml</code>. Then register your reference material: in Kiro, say "register docs/guide.md as reference material" and approve the prompt; or list the files under <code>[sources]</code> in <code>refcov.toml</code> and run <code>refcov sync</code>.</li>
   </ol>
   <p>The full steps are in the <a href="https://github.com/3322jj/refcov#setup">Setup section of the README</a>.</p>
 </section>
