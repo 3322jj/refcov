@@ -2,7 +2,9 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), source registration with `refcov add` (task 4), the MCP server with `list_units` and `read_unit` (task 5), the PostToolUse hook that attaches Kiro's session ID to each read (task 6), and the coverage report plus a one-line status on every user message (task 7). The report does not yet compute the required set: for now every unit counts as required, and there is no pass/fail. Everything else below describes what the skeleton is specified to do, not what it does today.
+> Status (2026-11-17): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Not yet done: running the hooks inside Kiro (a user check), the required-set and pass/fail parts of the core, and the rest of the planned Kiro hooks.
+>
+> Earlier status (2026-11-11): implementation has started. Only the state directory, config loading and the hash-chained log exist (`refcov/store.py`, task 1), plus the `.gitignore` check and a Linux CI workflow (task 2), unit IDs with the Markdown adapter (task 3), source registration with `refcov add` (task 4), the MCP server with `list_units` and `read_unit` (task 5), the PostToolUse hook that attaches Kiro's session ID to each read (task 6), and the coverage report plus a one-line status on every user message (task 7). The report does not yet compute the required set: for now every unit counts as required, and there is no pass/fail. Everything else below describes what the skeleton is specified to do, not what it does today.
 
 ## What it does
 
@@ -41,6 +43,7 @@ A commenter on that pull request describes an incident with a local implementati
 | Path | Contents |
 | --- | --- |
 | `.kiro/specs/refcov-skeleton/requirements.md` | Skeleton requirements (Chinese, with an English line under each requirement title and user story) |
+| `.kiro/specs/easy-install/` | Install layer requirements and design (`refcov init`, `refcov doctor`, packaging, protection rules) |
 | `.kiro/steering/` | Steering files: product, tech conventions, citation format, testing, DEVLOG rules, language rules |
 | `.kiro/agents/spec-auditor.md` | Read-only custom agent that checks requirement citations |
 | `docs/验证结果.md` | Hands-on verification of Kiro hooks and MCP behavior (exit codes, hook payloads, MCP images, session IDs) |
@@ -51,13 +54,13 @@ A commenter on that pull request describes an incident with a local implementati
 | `.kiro/specs/refcov-skeleton/design.md` | Skeleton design: modules, data formats, MCP tools, hooks, unit-ID rules, property tests, build order |
 | `.kiro/specs/refcov-skeleton/tasks.md` | Implementation tasks; the thinnest path (register, split, read via MCP, record, report) comes first |
 | `docs/mcp.example.json` | Example workspace MCP config for the RefCov server (`python -m refcov_mcp --root <repo root>`). Copy it to `.kiro/settings/mcp.json` and fill in the absolute paths of your Python and the repo. The real file is kept out of git via `.git/info/exclude`, not `.gitignore` |
-| `pyproject.toml` | Package metadata; console script `refcov`; runtime dependency `mcp`, dev extras `pytest` and `hypothesis` |
-| `refcov/` | Core library (standard library only). So far: `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock), `sources.py` (adapter interface, unit-ID rules, splitting units over 4000 characters into `@2`, `@3` parts, and source registration), `adapters/markdown.py` (splits on `#` to `###` headings, skipping fenced code and `>` lines), `api.py` (tool-independent entry points; `read` is the only writer of `read` records; `report` and `status_line` are read-only), `coverage.py` (pure coverage calculation) and the CLI (`refcov add`, `refcov report [--json] [--session <id>]`). Known adapter limits: setext headings (`===`, `---` underlines) are not split on, and a blank line inside a code block can become a split point |
-| `refcov_mcp/` | MCP server (official SDK, FastMCP over stdio, server name `refcov`). So far three tools: `list_units`, `read_unit` and `report` (the MCP server cannot see Kiro's session ID, so the "this session" column reads "unavailable"). Each `read_unit` result is one text block ending in the line `refcov-call: c-<seq>`, and appends a `read` record to the log |
-| `integrations/kiro/` | Kiro integration layer. So far: `refcov.example.toml` (example config with Kiro paths), `hook.py` (one hook script dispatching on its first argument: `post-mcp`, `prompt`), `hooks/refcov-prompt.json` (UserPromptSubmit: writes one status line to stdout, which Kiro adds to the AI's context; the user's message text is never read or logged) and `hooks/refcov-post-mcp.json` (PostToolUse on `^mcp_refcov_`: reads the `refcov-call: c-<seq>` last line of the tool result and appends a `session` record). Copies of both hook files are committed in `.kiro/hooks/`, where Kiro picks them up; moving a file out of that folder disables it immediately |
+| `pyproject.toml` | Package metadata; console script `refcov`; packages `refcov`, `refcov_mcp` and `integrations`, with the five hook templates as package data; runtime dependency `mcp`, dev extras `pytest` and `hypothesis` |
+| `refcov/` | Core library (standard library only). `store.py` (state directory `.refcov/`, `refcov.toml` loading, source manifest, append-only hash-chained log with a file lock), `sources.py` (adapter interface, unit-ID rules, splitting units over 4000 characters into `@2`, `@3` parts, and source registration), `adapters/markdown.py` (splits on `#` to `###` headings, skipping fenced code and `>` lines), `api.py` (tool-independent entry points; `read` is the only writer of `read` records; `report`, `status_line` and `doctor_core` are read-only), `coverage.py` (pure coverage calculation) and the CLI (`refcov add`, `refcov report [--json] [--session <id>]`, `refcov sync`, `refcov check`, `refcov check-spec`, and `refcov init` and `refcov doctor`, which the CLI forwards to `integrations/commands.py`). Known adapter limits: setext headings (`===`, `---` underlines) are not split on, and a blank line inside a code block can become a split point |
+| `refcov_mcp/` | MCP server (official SDK, FastMCP over stdio, server name `refcov`). Tools: `list_units`, `read_unit` and `report` (the MCP server cannot see Kiro's session ID, so the "this session" column reads "unavailable"). Each `read_unit` result is one text block ending in the line `refcov-call: c-<seq>`, and appends a `read` record to the log |
+| `integrations/` | Interface and integration layer. `commands.py` forwards `init` and `doctor` (the command line imports only this module, so the core never names the integration). `kiro/init.py` writes the Kiro MCP entry, the five hooks and the `refcov.toml` template, and probes the Python before it writes a hook. `kiro/doctor.py` is the read-only Kiro part of `doctor`. `kiro/setup.py` is a wrapper that calls `init`, kept for the old instructions. `kiro/hook.py` is the one hook script (`pre-write`, `pre-shell`, `pretask`, `post-mcp`, `prompt`). The five hook templates in `kiro/hooks/` are packaged with it. `kiro/refcov.example.toml` is an example config and is not packaged. The repository's own five hook files in `.kiro/hooks/` use relative paths and are left as they are |
 | `experiments/hook-python/` | Probe hook that records which Python and working directory Kiro hook processes use |
 | `site/` | Demo page: `index.html`, `style.css`, `app.js` (static, English only) and `data/*.json`, the replay data written by `convert_runs.py` (standard library only) from four recorded runs. `.github/workflows/pages.yml` publishes this folder to GitHub Pages on a push to `main` |
-| `tests/` | pytest tests, including `test_gitignore.py`, which fails if any `.gitignore` rule ignores a file under `.kiro` |
+| `tests/` | pytest tests, including `test_gitignore.py`, which fails if any `.gitignore` rule ignores a file under `.kiro`, and `test_clean_install.py`, which installs the committed package with uv into temporary directories and runs `init`, `doctor` and a blocked write (skipped unless `REFCOV_CLEAN_INSTALL=1`) |
 | `.github/workflows/ci.yml` | GitHub Actions: runs `pytest` on Linux (Python 3.11 and 3.12) and on Windows (Python 3.12, default `core.autocrlf=true`, so text files are checked out with CRLF) |
 | `experiments/mcp-posttooluse/` | Probe MCP server, hook logger, raw logs and the disabled probe hooks from the test showing that PostToolUse on MCP tools carries the correct session ID |
 
@@ -78,37 +81,46 @@ Python 3.11+. The core library uses only the standard library. The MCP server mo
 
 ## Setup
 
-1. Install RefCov from its clone, in editable mode. The hooks and the MCP server run with the Python you install into, and the hooks point at `integrations/kiro/hook.py` inside this clone, so keep the clone where it is:
+Install the tool, run `refcov init` in your project, and check the result. You do not need to keep the RefCov clone after installing.
+
+1. Install with uv (uv must be on your PATH, or run it by its full path). Until the work is merged to `main`, install from the branch:
 
    ```
-   python -m pip install -e ".[dev]"
+   uv tool install git+https://github.com/3322jj/refcov@phase2-haiku
    ```
 
-   Check with `python -c "import refcov"`. If the hooks run a different Python than the one you installed into, they fail silently (errors go to `.refcov/errors.log`).
-2. From the root of your project (the folder that holds `.git`), run the setup script from the RefCov clone:
+   After the merge, use `git+https://github.com/3322jj/refcov` (that is, `main`). If `refcov` is not found afterwards, run `uv tool update-shell` and open a new terminal. Check with `refcov --version`.
+
+   Developers working on RefCov itself install from the clone with `python -m pip install -e ".[dev]"`.
+
+2. From the root of your project (the folder that holds `.git`), run:
 
    ```
-   python <RefCov clone>/integrations/kiro/setup.py
+   refcov init
    ```
 
-   It writes `.kiro/settings/mcp.json` with absolute paths to your Python and your project, copies five hooks into `.kiro/hooks/` (their commands point at this clone and at your project), and writes a `refcov.toml` template if there is none. It never overwrites `refcov.toml`. Without `--force` it leaves existing hook files and the `refcov` entry in `mcp.json` alone; `--force` replaces only those. Only you edit `refcov.toml`. There is no `refcov init`; the state directory `.refcov/` is created on the first write. `setup.py` writes the `refcov.toml` template only when there is no `refcov.toml` yet. The hooks point at `integrations/kiro/hook.py` inside the RefCov clone, so if you move that clone, run `setup.py` again from your project root.
+   It writes `.kiro/settings/mcp.json` (the `refcov` entry, with absolute paths to the Python that runs it and to your project), the five hooks into `.kiro/hooks/`, and a `refcov.toml` template if there is none. It never overwrites `refcov.toml`, and it leaves existing hook files alone. `refcov init --force` replaces the five hook files, and in the `refcov` MCP entry only `command` and `args`; other keys (`autoApprove`, `env`, `disabled`) stay as they are. Only you run `init`; the shell protection blocks an AI from running it.
 
-3. In `refcov.toml`, list the reference material under `[sources]`. Patterns are relative to the project root, and `*` also crosses `/`:
+   If the Python that runs `init` cannot import the hook module, `init` writes nothing and asks you to reinstall with that same Python.
+
+3. Check the result with `refcov doctor`. It is read-only, so an AI may run it. It reports the MCP entry, the five hooks, `refcov.toml`, the registered sources and what is pending, and gives a fix for each problem. Exit code 0 means no problems, 1 means at least one problem, 2 means it was not run from a project root.
+
+   A clean `doctor` does not show that Kiro runs the hooks. To check that, open the project in Kiro, send one message and look for the one-line RefCov status, then ask Kiro to write a file under `.refcov/`. The write must be blocked.
+
+4. In `refcov.toml`, list the reference material under `[sources]`. Patterns are relative to the project root, and `*` also crosses `/`:
 
    ```toml
    [sources]
    files = ["guides/forms/*.md", "docs/**/*.md"]
    ```
 
-   Material in other formats needs an adapter declared under `[adapters]` first (see the template). URLs are not allowed here; register a URL with `refcov add` (step 5).
+   Material in other formats needs an adapter declared under `[adapters]` first (see the template). URLs are not allowed here; register a URL with `refcov add` (step 6).
 
-   Then open the MCP panel in Kiro and reconnect `refcov`. A server process started earlier keeps the old tool list.
-4. Register the material with `refcov sync` from the project root (only you run this). It prints what it registered, what changed, what is missing from disk, and what has left the list. Run it again after you add or change material. An AI cannot run it: the shell protection blocks the command. The hooks read only what `sync` registered and never read your material files. To disable a hook, move its file out of `.kiro/hooks/`.
+5. Register the material with `refcov sync` from the project root (only you run this). It prints what it registered, what changed, what is missing from disk, and what has left the list. Run it again after you add or change material. The hooks read only what `sync` registered and never read your material files.
 
-   **Protection hooks and the escape hatch.** Setup copies `refcov-pre-write.json` and `refcov-pre-shell.json` into `.kiro/hooks/`. They block (exit code 2) any Kiro write-tool call targeting `.refcov/` or `refcov.toml`, and any shell command whose text mentions `.refcov`, `refcov.toml` or `.kiro/hooks`, runs the hook script or the MCP server, or runs `refcov add`, `refcov confirm` or `refcov sync`. If the hook script itself fails, these two hooks block too, so a bug could block every write and shell command and the AI cannot undo it. Escape hatch: move `.kiro/hooks/refcov-pre-write.json` and `.kiro/hooks/refcov-pre-shell.json` out of `.kiro/hooks/` (in Explorer or a terminal outside Kiro); protection stops at once. Setting `enforce = false` does not turn protection off.
+   Then reconnect `refcov` in Kiro's MCP panel if it is not listed there. A server process started earlier keeps the old tool list. Whether saving the config is enough to reconnect is not yet verified.
 
-   Because of these hooks, the AI cannot `git add` files under `.refcov/` or `.kiro/hooks/`, and cannot mention those names in a commit message. The user commits them, or stages them with `git add -u` / `git add -A`. This is text matching on the command line: a rewritten command (string concatenation, `py` instead of `python`) gets through.
-5. Optional: register a URL, or a file you do not want under `[sources]`, with `refcov add` from the repo root (`refcov` refuses to run in a directory without `.git`). Only you run this; an AI must not:
+6. Optional: register a URL, or a file you do not want under `[sources]`, with `refcov add` from the repo root (`refcov` refuses to run in a directory without `.git`). Only you run this:
 
    ```
    refcov add https://kiro.dev/docs/hooks.md --id kiro-hooks
@@ -116,7 +128,20 @@ Python 3.11+. The core library uses only the standard library. The MCP server mo
    ```
 
    Accepted: local `.md` / `.markdown` files inside the repo, and URLs served as `text/markdown` (or `text/plain` when the path ends in `.md`). UTF-8 only. Source IDs use lowercase letters, digits and hyphens. On failure nothing is changed and the reason goes to stderr. Registering unchanged content again writes nothing. A fresh clone has the committed `.refcov/sources.json` but no `.refcov/cache/`; run `refcov sync` (for `[sources]` material) or `refcov add` (for the rest) again before reading it, or `read_unit` reports that the cache is missing.
-6. Check the setup. In a Kiro chat, ask the agent to call the RefCov `read_unit` tool for one unit (for example source `kiro-hooks`, unit `Hooks`). The result should end with a line `refcov-call: c-<n>`. Then run `refcov report` in a terminal: the unit counts as read, and it is listed under a session ID rather than under unknown sessions, which shows the PostToolUse hook ran. Your next chat message should also carry the one-line RefCov status in the agent's context.
+
+7. Check the setup. In a Kiro chat, ask the agent to call the RefCov `read_unit` tool for one unit (for example source `kiro-hooks`, unit `Hooks`). The result should end with a line `refcov-call: c-<n>`. Then run `refcov report` in a terminal: the unit counts as read, and it is listed under a session ID rather than under unknown sessions, which shows the PostToolUse hook ran. Your next chat message should also carry the one-line RefCov status in the agent's context.
+
+**Protection hooks and the escape hatch.** `refcov init` copies `refcov-pre-write.json` and `refcov-pre-shell.json` into `.kiro/hooks/`. They block (exit code 2) any Kiro write-tool call that targets `.refcov/` or `refcov.toml`. They also block a shell command whose text mentions `.refcov`, `refcov.toml` or `.kiro/hooks`; runs the hook script, the MCP server or an installer script; or runs a user-only command (`refcov add`, `confirm`, `sync` or `init`), including the forms with a full path, quotes or `.exe`. If the hook script itself fails, these two hooks block too, so a bug could block every write and shell command and the AI cannot undo it. Escape hatch: move `.kiro/hooks/refcov-pre-write.json` and `.kiro/hooks/refcov-pre-shell.json` out of `.kiro/hooks/` (in Explorer or a terminal outside Kiro); protection stops at once. Setting `enforce = false` does not turn protection off.
+
+Because of these hooks, the AI cannot `git add` files under `.refcov/` or `.kiro/hooks/`, and cannot mention those names in a commit message. The user commits them, or stages them with `git add -u` / `git add -A`. This is text matching on the command line: a rewritten command (string concatenation, a different interpreter name, an environment variable) gets through.
+
+**Limits of the install.**
+
+- The protection checks match command text. They recognise full paths, quotes and `.exe`, but a rewritten command still gets through.
+- RefCov does not stop the AI from writing `.kiro/hooks/` or `.kiro/settings/mcp.json` with its file-write tool. The skeleton design relies on Kiro to ask for confirmation before it writes the hooks folder; that was not re-tested here.
+- The commands `init` writes hold absolute paths to the Python that ran `init`. Moving the project, changing or removing that Python, or uninstalling RefCov breaks them. `refcov doctor` reports this, and `refcov init --force` repairs the paths once RefCov is installed again.
+- If the hook module cannot be imported, the hook exits with code 1, which does not block the action. A hook broken later stays silent until `refcov doctor` runs.
+- The shot-coverage app needs ffmpeg and is not in the package, and its adapter must sit inside your repository.
 
 `.refcov/sources.json` and `.refcov/log.jsonl` are meant to be committed (the demo page replays the log). `.refcov/cache/`, `errors.log`, `log.lock` and `report-last.json` are git-ignored. `.gitattributes` keeps `*.jsonl` free of line-ending conversion so the hash chain verifies on any machine.
 

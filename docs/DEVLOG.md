@@ -2025,4 +2025,19 @@
   EN: Problem 3: running init directly in the D:\pyth environment refuses to write, because that editable install has no integration layer (design section 7.3). The tests avoid this with PYTHONPATH.
 - 写文件关卡：这一步的写入没有被拦。保护检查：这一步没有被拦下的 shell 命令。
   EN: Write gate: none of this step's writes was stopped. Protection check: no shell command in this step was stopped.
+## 2026-11-17（深夜：干净安装验收，README 改写）
+- 干净安装验收（设 REFCOV_CLEAN_INSTALL=1）：从提交的内容 b85af88 打 wheel，用 uv tool install 装到临时目录（UV_TOOL_DIR 和 UV_TOOL_BIN_DIR 指向临时目录；临时目录里能看到 tools\refcov 和 bin\refcov.exe）。9 项全部通过，约 25 秒：wheel 的内容；导入的是安装的包，不是克隆；init 和 doctor 成功；第二次 init 后文件逐字节不变；五种人为破坏，doctor 都报出并退出 1；init 写出的 pre-write 钩子命令原样用 shell 跑，退出码 2。
+  EN: Clean-install acceptance (with REFCOV_CLEAN_INSTALL=1): built a wheel from the committed tree b85af88 and installed it with uv tool install into temporary UV_TOOL_DIR and UV_TOOL_BIN_DIR; the temporary folder shows tools\refcov and bin\refcov.exe. All 9 checks passed in about 25 seconds: wheel contents; imports from the install, not the clone; init and doctor succeed; a second init leaves files byte-identical; each of the five sabotages is reported with exit 1; the pre-write hook command written by init exits 2 when run through the shell.
+- uv 0.12.5 在用户的本地程序目录里，不在 PATH 上。测试先找 PATH，再找那个路径，所以用的是 uv。
+  EN: uv 0.12.5 is in the user's local program directory and is not on PATH. The test looks on PATH first and then at that path, so it used uv.
+- 问题 1：b85af88 的提交说明里，尾注写在了正文一行的中间，不是最后单独一行。这个提交还没有推送，我用 amend 只改了说明，尾注现在单独占最后一行。
+  EN: Problem 1: in commit b85af88 the trailer sat in the middle of a body line instead of on its own last line. The commit was not pushed, so I amended only its message; the trailer now occupies the last line.
+- README 改写：安装改成 uv tool install（合并前用 phase2-haiku 分支，合并后用 main）；找不到命令时运行 uv tool update-shell，再开新终端；init、doctor 的用法；保护段认完整路径和引号，并写明文本匹配的局限；新增安装局限一节；布局表更新（integrations/、测试、打包）。状态段开头是 2026-11-17 的状态，2026-11-11 的状态保留，标为 earlier。
+  EN: README rewritten: install with uv tool install (the phase2-haiku branch until the merge, main after it); uv tool update-shell and a new terminal when the command is not found; how to use init and doctor; a protection paragraph that covers full paths and quotes and states the text-matching limit; a new section on the limits of the install; the layout table (integrations/, tests, packaging). The status opens with 2026-11-17; the 2026-11-11 status is kept and labelled as earlier.
+- 没做的：用户验收（在没有克隆的机器上 uv tool install，合并前用 phase2-haiku 的地址，装完运行 update-shell，在 Kiro 里看状态行，并看写 .refcov\ 下文件是否被拦）。这些只能由用户做。Kiro 里钩子的实际运行没有测。
+  EN: Not done: the user's acceptance (install on a machine without the clone using the phase2-haiku address before the merge, run update-shell after installing, then in Kiro check the status line and whether a write under .refcov\ is blocked). Only the user can run these. Hooks running inside Kiro were not tested.
+- 施工账：补了 b85af88 一行。演示页的台账表加一行，摘要改成 37 件，全量测试到 949。
+  EN: Ledger: the b85af88 row was added. The demo page's ledger table gained the matching row, and its summary now reads 37 pieces with the full-suite count at 949.
+- 草稿：检查点 3 的审阅意见起草成 docs/decisions/ 下的文件，给用户过目，没有提交。
+  EN: Draft: the checkpoint 3 review instruction is drafted as a file under docs/decisions/ for the user to review; it is not committed.
 
