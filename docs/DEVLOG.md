@@ -57,6 +57,13 @@
   现在不做：任务 11 的转换已经做完，那次切段发生在加引用之前，没受影响；改 ID 规则会让已写好的引用失效，也要改设计 4 第 1 条。
   EN: Unit IDs may contain a full-width semicolon (e.g. in dec-review-reply 二·2); a later script splitting source lines on it would cut such a reference in half. Extract references before splitting, or map the semicolon to a hyphen in IDs. Not now: the task 11 conversion split before references were added, and changing the ID rule would break existing references and design section 4 rule 1.
 
+- 让 `refcov doctor` 能查出 Kiro 的工作区是不是已经信任（信任之前 Kiro 不加载 MCP 配置，钩子显示为停用）。
+  现在不做：不知道 Kiro 把信任状态存在哪里，查不到就做不了；README 第 3 步先写明。
+  EN: Let doctor report whether Kiro has trusted the workspace (before trust, Kiro does not load the MCP configuration and the hooks show as disabled). Not now: the place where Kiro keeps the trust state is not known, so doctor cannot read it; README step 3 says so for now.
+- 用测试比对演示页第 7 段和 README 的 Setup 步骤（需求 7.4 要求一致，现在靠人工核对）。
+  现在不做：比对要先解析 README 的步骤，比对规则还没定；范围已冻结。
+  EN: Add a test that compares the steps in demo page section 7 with the README Setup section (requirement 7.4 requires them to agree; for now a person checks). Not now: the test would have to parse the README steps, and the matching rule is not defined; scope is frozen.
+
 ## 待定
 
 已经在规格里、但要到某个任务时才定怎么做的事。定了以后在这里写结论和日期。
@@ -65,6 +72,16 @@
   EN: Optional tasks 18 and 19 stay for now; decide at task 14. Dropping 19 costs little (requirement 7.5 says gates ignore tokens; requirement 6.5's three entry points become two and the report's token list stays empty). Dropping 18 costs more (requirement 12.2 flags changed hook-file checksums, the second defence against the AI moving hooks away). If task 14 blocks shell commands mentioning .kiro/hooks, 18 can go; if it relies on report flags, only the hook-checksum part of 18 is built. The frozen requirements are not changed.
 - 按示例配置 `integrations/kiro/refcov.example.toml`，只有 `integrations/kiro/**` 有 scope（对应 `kiro-hooks`），其他路径一条 scope 都不命中，按需求 8.2 要求读完全部参考源（现在 114 个单元）。任务 15 建 `refcov.toml` 时要定：其他路径（例如 `refcov/**`、`tests/**`、`.kiro/specs/**`）各对应哪些参考源，或者放宽哪些。（2026-11-12，任务 11 动手前，用户提出）
   EN: With the example config, only integrations/kiro/** has a scope (kiro-hooks); every other path matches no scope and, per requirement 8.2, requires all sources (114 units now). When task 15 creates refcov.toml, decide which sources other paths (e.g. refcov/**, tests/**, .kiro/specs/**) map to, or what to relax. (Raised by the user on 2026-11-12 before task 11 coding.)
+
+- 把 `integrations/kiro` 改名为 `refcov_kiro`，让顶层包名不那么泛。
+  现在不做：测试里约 47 处把这个路径当字符串用，仓库自己的钩子也指向它；改名要用户改钩子，或者留一个转发壳。
+  EN: Rename integrations/kiro to refcov_kiro so the top-level package name is less generic. Not now: about 47 tests use this path as a string, the repository's own hooks point at it, and a rename needs the user to change the hooks or leave a forwarding shim.
+- 让适配器路径能指向仓库外的文件（镜头应用的适配器在 RefCov 仓库里，用户仓库放不下）。
+  现在不做：适配器是代码，会在 RefCov 的进程里运行；放宽路径规则是安全上的决定，要用户定。
+  EN: Let an adapter path point outside the repository, since the shot-coverage adapter lives in the RefCov repository. Not now: an adapter is code that runs inside RefCov, so relaxing the path rule is a security decision for the user.
+- 让 `refcov doctor` 检查用户级 MCP 配置里有没有重复的 refcov 项。
+  现在不做：不在方案第 2 节的清单里，范围已冻结。
+  EN: Make doctor check the user-level MCP configuration for a duplicate refcov entry. Not now: it is not in the section 2 list, and scope is frozen.
 
 ## 2026-11-10（第一步：验证 Kiro 钩子和 MCP）
 
@@ -1936,4 +1953,163 @@
   EN: Ledger: the row for dda0f07 was added (review pending). The page's ledger table and summary sentence now match: 33 pieces of work, full-suite count from 742 to 904. This step's row goes in the next commit.
 - 没做的：合并 main、打开 Pages，等用户指示。
   EN: Not done: merging main and turning on Pages, which wait for the user's go-ahead.
+## 2026-11-17（晚：易用性改造第一层，规格和设计）
+- 同步分支：在 phase2-haiku 上运行 `git merge --ff-only main`，快进到 39b7969，没有冲突。快进前，本地分支已经比远端多一个提交（3f9dcc2，读取记录的提交），这次推送会把它一起推上去。
+  EN: Synced the branch with `git merge --ff-only main`, which fast-forwarded phase2-haiku to 39b7969 with no conflicts. Before the merge, the local branch was already one commit (3f9dcc2, the read-record commit) ahead of origin, so this push also sends that commit.
+- 用了哪些 Kiro 功能：经 MCP 的 `read_unit` 读了 4 个登记单元（`kiro-hooks` 的 File-naming-and-location 和 Hook-file-schema，`kiro-permissions` 的 Defining-rules，`dec-design-review` 的第 1 条），`list_units` 和 `report` 各调用一次。开工时钩子的报告：严格模式达标，必看 384 个，历史 384/384，没有还差的单元。没有用子代理。
+  EN: Kiro features: read four registered units through the MCP `read_unit` tool (kiro-hooks File-naming-and-location and Hook-file-schema, kiro-permissions Defining-rules, dec-design-review item 1), and called `list_units` and `report` once each. The start-of-task hook report said strict mode is met: 384 required units, 384 of 384 read historically, none left. No sub-agents were used.
+- 保护检查拦了一次。我在 shell 里运行一条命令，想看配置文件里登记了哪些资料；命令文本里有配置文件的名字，被拦下（退出码 2）。没有改写绕过，改用 `list_units` 和 `report` 拿到了同样的登记信息。这次算一次被拦，当时的读取是本会话 0/384、历史 384/384。
+  EN: The protection check stopped one shell command. I wanted to see which sources were registered, and the command text named the configuration file. I did not rephrase the command; `list_units` and `report` gave the same registration information. That is one block, at 0 of 384 read this session and 384 of 384 historically.
+- 未登记的文档（易用性改造方案、简化上手设计、施工账、DEVLOG 和代码）是直接读文件的。它们不是登记单元，覆盖率报告不计。
+  EN: Unregistered documents (the usability plan, the simplified-setup design, the ledger, the DEVLOG and the code) were read as files. They are not registered units, so the coverage report does not count them.
+- 规格和设计写在 `.kiro/specs/easy-install/`：需求 8 条，每条有英文标题和英文用户故事；设计 11 节。第 2 节列出 4 个等 Claude 审的决定，每个都写了建议和替代办法。这一步没有改代码，所以决定留在文档里，没有在对话里直接定下。
+  EN: The spec and design are in .kiro/specs/easy-install/: 8 requirements, each with an English title and story line, and an 11-section design. Section 2 lists four decisions for Claude, each with a recommendation and an alternative. This step changed no code, so the decisions stay in the document rather than being settled in conversation.
+- 出处检查（`check-spec`）：8 条需求，幻影 0，无效引用 0，未转换 5（需求 1、3、4、7、8）。被引用的 4 个单元都是已经读过的登记单元。
+  EN: Citation check (`check-spec`): 8 requirements, 0 phantom, 0 invalid, 5 unconverted (requirements 1, 3, 4, 7 and 8). The four cited units are registered units that were already read.
+- 全量测试 905 通过。这一步没有改代码；改的是规格、施工账、演示页的台账和本日志。
+  EN: Full suite: 905 passed. This step changed no code; it changed the specs, the build ledger, the demo page's ledger table and this log.
+- 问题 1：本机没有 `uv`。最后的 `uv tool install` 验收只能由用户做，这一步的验收改用 venv 加 pip（设计第 7.2 节）。
+  EN: Problem 1: `uv` is not installed on this machine. The final `uv tool install` check can only be run by the user, so the design's acceptance steps use a venv and pip (section 7.2).
+- 问题 2：易用性改造方案不是登记的参考源，所以需求出处只能写成文字。检查程序把它报成"未转换"，既不算幻影，也不让达标失败，所以检查程序不会提醒这件事。要用户登记以后才能转换。
+  EN: Problem 2: the usability plan is not a registered source, so the requirement citations can only be text. The checker reports them as unconverted, which is neither phantom nor a failure, so the checker does not flag the gap. They can be converted only after the user registers the plan.
+- 问题 3：`python -m` 把当前目录放在 `sys.path` 最前面。实测：在临时目录里运行 `python -m site`，第一项是那个目录；加 `-P` 后第一项是标准库的 zip。方案里没有这一条。设计里钩子命令和 MCP 项都加了 `-P`，等 Claude 审。
+  EN: Problem 3: `python -m` puts the current directory first on `sys.path`. Tested: `python -m site` run from a temporary directory listed that directory first; with `-P`, the first entry was the standard library zip. The plan does not cover this. The design adds `-P` to the hook and MCP commands, pending Claude's review.
+- 问题 4（读代码，未测）：现在的钩子脚本把 `--root`（用户仓库）放进 `sys.path`。装了包以后，用户仓库里的同名包会先被导入。设计改成只放脚本自己的上级目录。
+  EN: Problem 4 (from reading the code, not tested): the hook script puts `--root`, the user's repository, on `sys.path`. Once the package is installed, a package of the same name in the user's repository would be imported first. The design limits `sys.path` to the script's own parent directory.
+- 问题 5（读代码和 `tech.md`，未测）：找不到钩子模块时，钩子的退出码是 1，既不拦，也不报给 Kiro。`tech.md` 已经写了这一条局限。设计在 `init` 和 `doctor` 里加了探测。
+  EN: Problem 5 (from reading the code and `tech.md`, not tested): when the hook module cannot be found, the hook exits with code 1, which neither blocks nor reports to Kiro. `tech.md` already records this limit. The design adds a probe to `init` and to `doctor`.
+- 问题 6：2026-11-10 的决定里，`init` 指的是清空日志的命令；这一步要用同一个名字写配置和钩子。名字撞了。理由不同，"shell 里要拦"的结论相同。
+  EN: Problem 6: the 2026-11-10 decision uses `init` for a command that clears the log, and this step proposes the same name for writing configuration and hooks. The names collide. The reasons differ, but the conclusion (block it in the shell) is the same.
+- 问题 7：保护检查的说明文字写的是"AI 不能改状态目录、配置和钩子"，但写文件的规则只拦状态目录和配置文件。写钩子目录由 Kiro 要求确认，`test_ordinary_writes_are_allowed` 有这条期望。说明文字比实际范围宽。
+  EN: Problem 7: the protection message says the AI cannot change the state directory, the configuration and the hooks. The write rule blocks only the state directory and the configuration file; writes to the hooks folder are left to Kiro's confirmation, and `test_ordinary_writes_are_allowed` expects that. The message is broader than the rule.
+- 问题 8（设计时发现，已写进设计）：如果 `setup.py` 的新规则只看路径，`git add integrations/kiro/setup.py` 也会被拦。规则改成要求路径前面有 Python 命令。
+  EN: Problem 8 (found while designing, already in the design): a rule that matched only the path would also block `git add integrations/kiro/setup.py`. The rule now requires a Python command in front of the path.
+- 问题 9（读代码）：仓库自己的钩子是相对路径，没有 `--root`，doctor 会报它们有问题。这是事实；钩子是用户的文件，这一步不改。
+  EN: Problem 9 (from reading the code): the repository's own hooks use relative paths and have no `--root`, so doctor will report them. That is accurate. The hooks belong to the user, so this step does not change them.
+- 规格流程和随口对话的差别：随口的说明不会被检查；规格里的文字出处会被检查，但只报为未转换，不让检查失败，所以一份未登记的计划文档不会让检查失败。返工 0 次（还没有审）。
+  EN: Spec flow compared with ad-hoc talk: a loose remark is never checked, while a text citation in a spec is checked and reported as unconverted without failing the check, so an unregistered plan does not fail it. Rework: 0 so far, because the review has not happened.
+- 属性测试：这一步只有规格和设计，没有代码，没有写性质测试。设计里列了 I1 到 I3 和 D1，实现时写。没有抓到反例，因为还没有测试。
+  EN: Property tests: this step has specs and design only, no code, so no property test was written. The design lists I1 to I3 and D1 for the implementation step. No counterexample was found, because no test exists yet.
+- 演示页的施工账表和摘要跟着加了一行，因为 `tests/test_site_numbers.py` 要求两边的行数、顺序和数字都一致：34 件，全量测试从 742 到 905。页面仍是英文，只是台账的镜像。以后每加一行台账，页面也要同步改。
+  EN: The demo page's ledger table and summary gained the matching row, because tests/test_site_numbers.py requires the rows, their order and their figures to agree: 34 pieces, full-suite count from 742 to 905. The page stays in English and only mirrors the ledger, so each new ledger row also changes the page.
+- 施工账补了 9239c79 一行。这一步自己的一行要在下一次提交里补。9239c79 那一行的被拦次数写的是 0，依据是 DEVLOG 该条没有记被拦，没有另外核对。
+  EN: The build ledger got its 9239c79 row. This step's own row goes into the next commit. The blocks cell for 9239c79 says 0, based on its DEVLOG entry, which records no block; it was not counted separately.
+- 范围冻结例外：用户 2026-11-17 指示做第一层（方案第 2 节），按例外办理。第二层没有开始。
+  EN: Scope-freeze exception: on 2026-11-17 the user asked for layer 1 of the plan (section 2), so it is handled as an exception. Layer 2 has not been started.
+- 写文件关卡：到写本条为止，这一步的写入没有被写文件关卡拦下。
+  EN: Write gate: up to this entry, none of this step's writes was stopped by the write gate.
+## 2026-11-17（夜：检查点 3 审阅后的规格第二稿）
+- Claude 审过第一稿（检查点 3）：方向同意。setup 包装、模块形式的钩子命令加 `-P`、包留在 `integrations/`、模板不改、hook.py 的 sys.path 改法、写钩子前的探测，都定下。要改的：核心层名字检查会因为 cli 里的接入层导入字符串失败；保护规则不认完整路径和引号；验收改用 uv；`--force` 要保留 MCP 项的其他键；测试不依赖 D:\pyth 的安装状态；doctor 比较路径用 normcase(realpath)。
+  EN: Claude reviewed the first draft at checkpoint 3 and agreed the direction: the setup wrapper, the module-form hook command with -P, the package location, the unchanged templates, the hook.py sys.path change, and the probe before writing hooks. Must-fix items: the core-name check fails on the integration import string in cli; the protection rules miss full paths and quotes; acceptance moves to uv; --force keeps the other MCP keys; tests must not depend on the D:\pyth install; doctor compares paths with normcase(realpath).
+- 更正：我之前写"本机没有 uv"，是按 PATH 判断的。uv 0.12.5 在用户目录的程序目录里，只是不在 PATH 上。设计 7.2 已改。
+  EN: Correction: I earlier wrote that this machine had no uv, judging by PATH. uv 0.12.5 is in the user's local program directory and is not on PATH. Design section 7.2 is corrected.
+- 规格第二稿改了：需求 1.4、2.6、3.3、3.6、5.2、5.10、6.2 至 6.8、8.1 至 8.6，以及"已定和还没定的"。设计第 2 节改成已定；第 4.1、4.2、5.2、6、7、8、9、10 节按审阅改。检查程序：8 条需求，幻影 0，无效引用 0，未转换 5。
+  EN: The second draft changes requirements 1.4, 2.6, 3.3, 3.6, 5.2, 5.10, 6.2 to 6.8, 8.1 to 8.6, and the open-items list. Design section 2 is marked decided, and sections 4.1, 4.2, 5.2, 6, 7, 8, 9 and 10 follow the review. Citation check: 8 requirements, 0 phantom, 0 invalid, 5 unconverted.
+- 保护规则的漏洞（Claude 审出）：现在的规则要求命令词前面是行首或空白，所以带完整路径的写法和用引号括起来的程序路径都放行；运行钩子脚本的规则也不认解释器名后面跟引号的写法。实现时用测试复现。
+  EN: Protection gap (found in review): the current rule requires the command word to follow the start of the line or a space, so commands written with a full path, and an executable path in quotes, pass. The rule for running hook scripts also misses the form with a quote after the interpreter name. The implementation step reproduces these in tests.
+- 施工账补了 d4ba991 一行；演示页的台账表加一行，摘要改成 35 件，全量测试仍到 905。
+  EN: The ledger got its d4ba991 row. The demo page's ledger table gained the matching row, and its summary now reads 35 pieces, still ending at 905.
+- 全量测试 905 通过。这一步只改了规格、台账和本日志，没有改代码。
+  EN: Full suite: 905 passed. This step changed only the specs, the ledger and this log; no code.
+- 用户决定：`docs/易用性改造方案.md` 先不登记。严格模式下未转换的出处不拦，检查程序报 5 条未转换。
+  EN: User decision: docs/易用性改造方案.md stays unregistered for now. Under strict mode, unconverted citations do not block; the checker reports 5 of them.
+## 2026-11-17（深夜：接入层转交，init 和 doctor 实现，保护规则认完整路径）
+- 按规格第二稿实现。新增 integrations/commands.py（转交，命令行只导入它）、integrations/kiro/init.py（写 MCP 配置、钩子和模板；写之前先探测）、integrations/kiro/doctor.py（MCP 配置、钩子、权限文件，只读）。integrations/kiro/setup.py 改成调用 init 的包装。refcov/api.py 新增 doctor_core（配置文件、参考源、待同步，只读）。refcov/cli.py 新增 init（带 --force）和 doctor，init 加进 USER_ONLY。
+  EN: Implemented the second draft. New: integrations/commands.py (forwarding; the command line imports only this), integrations/kiro/init.py (writes the MCP entry, the hooks and the template, probing first), and integrations/kiro/doctor.py (MCP entry, hooks and the permission file; read-only). integrations/kiro/setup.py is now a wrapper around init. refcov/api.py gained doctor_core (config file, sources and pending sync; read-only). refcov/cli.py gained init (with --force) and doctor, and init joined USER_ONLY.
+- hook.py：命令词前面允许完整路径、引号和分隔符；程序名后面允许一个引号；新增运行钩子模块和安装脚本的规则；sys.path 只放代码自己的上级目录，不再放 --root。pre-shell 模板只改说明。pyproject 把 integrations 放进包，并把钩子模板放进包数据。
+  EN: hook.py: the command word may follow a full path, a quote or a separator; a program name may be followed by one quote; new rules for running the hook module and the setup script; sys.path gets only the code's own parent directory, no longer --root. The pre-shell template changed only its description. pyproject packages integrations and includes the hook templates as package data.
+- 测试：test_protect 新增样例：审阅指出的四条写法，加上别的完整路径和引号写法；init 实际写出的 5 条钩子命令和 MCP 那一行在 shell 文本里被拦；doctor 和只写一个路径的 git add 放行。test_setup_kiro 改写（--force 只换 command 和 args，其他键保留）。新增 test_init_kiro（性质 I1 至 I5 和固定例子）、test_doctor（性质 D1 和 9 个固定例子）、test_packaging、test_clean_install（默认跳过）。
+  EN: Tests: test_protect gained cases for the four forms from the review, more full-path and quoted forms, the five hook commands and the MCP line that init writes (blocked in the shell text), and doctor and a plain git add (allowed). test_setup_kiro was rewritten (--force replaces only command and args). New: test_init_kiro (properties I1 to I5 and fixed cases), test_doctor (property D1 and nine fixed cases), test_packaging, and test_clean_install (skipped by default).
+- 子进程测试把仓库根放进 PYTHONPATH。进程内的性质测试把探测换成"找得到"，探测本身用一个不存在的模块名另测，所以结果不依赖 D:\pyth 的安装是不是最新。
+  EN: Subprocess tests put the repository root on PYTHONPATH. In-process property tests replace the probe with "found", and the probe itself is tested with a module name that does not exist, so results do not depend on whether the D:\pyth install is current.
+- 全量测试 949 通过，9 个跳过。跳过的是设 REFCOV_CLEAN_INSTALL=1 才跑的那一组，它们要在提交以后跑（只装 HEAD 的内容）。
+  EN: Full suite: 949 passed and 9 skipped. The skipped group runs only with REFCOV_CLEAN_INSTALL=1 and must run after the commit, because it installs HEAD.
+- 问题 1：改前的四条漏洞没有在改前的代码上重新跑一遍。Claude 审时试过；这一步的新测试只能证明改后的规则拦住了它们。
+  EN: Problem 1: the four gaps were not re-run against the code from before the change. Claude's review ran them; the new tests show only that the new rules block them.
+- 问题 2：一个断言把"没有配置问题"里的"问题"当成了问题标记，测试先失败。改成检查级别标记"问题："。这是测试写错，不是代码错。
+  EN: Problem 2: an assertion took the word 问题 inside "没有配置问题" for a problem marker, so a test failed first. It now checks for the level label. The test was wrong, not the code.
+- 问题 3：在 D:\pyth 的环境里直接运行 init 会拒绝写，因为那边的可编辑安装没有接入层（设计 7.3 说过）。测试用 PYTHONPATH 避开了这一点，没有依赖它。
+  EN: Problem 3: running init directly in the D:\pyth environment refuses to write, because that editable install has no integration layer (design section 7.3). The tests avoid this with PYTHONPATH.
+- 写文件关卡：这一步的写入没有被拦。保护检查：这一步没有被拦下的 shell 命令。
+  EN: Write gate: none of this step's writes was stopped. Protection check: no shell command in this step was stopped.
+## 2026-11-17（深夜：干净安装验收，README 改写）
+- 干净安装验收（设 REFCOV_CLEAN_INSTALL=1）：从提交的内容 b85af88 打 wheel，用 uv tool install 装到临时目录（UV_TOOL_DIR 和 UV_TOOL_BIN_DIR 指向临时目录；临时目录里能看到 tools\refcov 和 bin\refcov.exe）。9 项全部通过，约 25 秒：wheel 的内容；导入的是安装的包，不是克隆；init 和 doctor 成功；第二次 init 后文件逐字节不变；五种人为破坏，doctor 都报出并退出 1；init 写出的 pre-write 钩子命令原样用 shell 跑，退出码 2。
+  EN: Clean-install acceptance (with REFCOV_CLEAN_INSTALL=1): built a wheel from the committed tree b85af88 and installed it with uv tool install into temporary UV_TOOL_DIR and UV_TOOL_BIN_DIR; the temporary folder shows tools\refcov and bin\refcov.exe. All 9 checks passed in about 25 seconds: wheel contents; imports from the install, not the clone; init and doctor succeed; a second init leaves files byte-identical; each of the five sabotages is reported with exit 1; the pre-write hook command written by init exits 2 when run through the shell.
+- uv 0.12.5 在用户的本地程序目录里，不在 PATH 上。测试先找 PATH，再找那个路径，所以用的是 uv。
+  EN: uv 0.12.5 is in the user's local program directory and is not on PATH. The test looks on PATH first and then at that path, so it used uv.
+- 问题 1：b85af88 的提交说明里，尾注写在了正文一行的中间，不是最后单独一行。这个提交还没有推送，我用 amend 只改了说明，尾注现在单独占最后一行。
+  EN: Problem 1: in commit b85af88 the trailer sat in the middle of a body line instead of on its own last line. The commit was not pushed, so I amended only its message; the trailer now occupies the last line.
+- README 改写：安装改成 uv tool install（合并前用 phase2-haiku 分支，合并后用 main）；找不到命令时运行 uv tool update-shell，再开新终端；init、doctor 的用法；保护段认完整路径和引号，并写明文本匹配的局限；新增安装局限一节；布局表更新（integrations/、测试、打包）。状态段开头是 2026-11-17 的状态，2026-11-11 的状态保留，标为 earlier。
+  EN: README rewritten: install with uv tool install (the phase2-haiku branch until the merge, main after it); uv tool update-shell and a new terminal when the command is not found; how to use init and doctor; a protection paragraph that covers full paths and quotes and states the text-matching limit; a new section on the limits of the install; the layout table (integrations/, tests, packaging). The status opens with 2026-11-17; the 2026-11-11 status is kept and labelled as earlier.
+- 没做的：用户验收（在没有克隆的机器上 uv tool install，合并前用 phase2-haiku 的地址，装完运行 update-shell，在 Kiro 里看状态行，并看写 .refcov\ 下文件是否被拦）。这些只能由用户做。Kiro 里钩子的实际运行没有测。
+  EN: Not done: the user's acceptance (install on a machine without the clone using the phase2-haiku address before the merge, run update-shell after installing, then in Kiro check the status line and whether a write under .refcov\ is blocked). Only the user can run these. Hooks running inside Kiro were not tested.
+- 施工账：补了 b85af88 一行。演示页的台账表加一行，摘要改成 37 件，全量测试到 949。
+  EN: Ledger: the b85af88 row was added. The demo page's ledger table gained the matching row, and its summary now reads 37 pieces with the full-suite count at 949.
+- 草稿：检查点 3 的审阅意见起草成 docs/decisions/ 下的文件，给用户过目，没有提交。
+  EN: Draft: the checkpoint 3 review instruction is drafted as a file under docs/decisions/ for the user to review; it is not committed.
+- 保护检查拦了一次。提交 README 时，提交说明里有一个只能由用户运行的子命令的名字，被文本匹配拦下（退出码 2）。没有运行任何命令，也没有用文件等别的办法提交；只把提交说明里的那个词改掉，然后提交。这是误报：提交说明不运行东西。读取：本会话 4/384，历史 384/384。
+  EN: The protection check stopped one shell command. When committing the README, the commit message named a user-only subcommand, and text matching stopped the command (exit code 2). Nothing was run, and I did not commit through a file or any other route; I changed the wording in the message and committed. This was a false positive, since a commit message runs nothing. Reads at that point: 4 of 384 this session, 384 of 384 historically.
+## 2026-11-17（夜：Claude 审代码通过，README 状态段修正）
+- Claude 审了 b02cd20 到 6357d70，结论通过。Claude 自己核对：全量 949 通过、9 个跳过；设 REFCOV_CLEAN_INSTALL=1 单独跑，在 6357d70 上 9 个通过；保护规则用 30 条命令试过，审阅列的 4 种写法都拦，init 写出的钩子命令和 MCP 命令都拦，doctor 的各种写法都放行；doctor 在本仓库跑一遍，文件不变，配置语法错能报出行号。
+  EN: Claude reviewed b02cd20 to 6357d70 and passed it. Claude's own checks: the full suite passed 949 with 9 skipped; the clean-install tests, run alone with REFCOV_CLEAN_INSTALL=1, passed 9 of 9 on 6357d70; 30 protection test commands were tried, the four forms from the review were blocked, the hook and MCP commands written by init were blocked, and every doctor form was allowed; doctor run on this repository left the files unchanged and reported the line number of a config syntax error.
+- Claude 审出 README 状态段两处不符。一、列出的"必看集合和达标判断、剩下的 Kiro 钩子"其实都已做完（检查程序、写文件关卡、任务开工关卡和五个钩子都有，试验里也用过）。二、"Earlier status (2026-11-11)"段说 README 其余部分只描述规格，现在已经不成立。改了：去掉第一处，状态只留"在 Kiro 里运行钩子（用户验收）"一项；删掉第二处那一段。README 的其他部分等 12-02 检查点 4 再逐句核对。
+  EN: Claude found two wrong statements in the README status. First, it listed the required set, pass/fail and the remaining Kiro hooks as not done, but all of them are built (the checker, the write gate, the task-start gate and the five hooks), and the trials used them. Second, the earlier-status paragraph said the rest of the README describes specifications, which is no longer true. Fixed: the first list is cut down to running the hooks inside Kiro (a user check), and the earlier-status paragraph is deleted. The rest of the README waits for a line-by-line check at checkpoint 4 on 12-02.
+- 提交说明不开例外。给提交命令开口子，那么提交说明后面接一个只能由用户运行的子命令也会放行，而要分清这两种写法需要解析 shell。提交说明里改用"init 子命令"或"初始化子命令"这样的写法：规则只认程序名后面紧跟子命令的写法。这次的提交说明就是这样写的。
+  EN: No exception for commit messages. Opening one for the commit command would also let a commit message followed by a user-only subcommand through, and telling the two apart needs shell parsing. Commit messages say "init subcommand" or "初始化子命令" instead, because the rule matches only a subcommand written right after the program name. This step's commit message follows that rule.
+- doctor 报本仓库自己的五个钩子有问题，是预期的。那是用户的文件，比赛期间不换。
+  EN: doctor reports the repository's own five hooks as problems. This is expected: they are the user's files, and they stay as they are during the contest.
+- 5a6d857 是 Claude 提交的读取记录（只新增 10 行），不计入施工账。
+  EN: 5a6d857 is a read-record commit made by Claude (10 added lines). It is not in the build ledger.
+- docs/decisions/2026-11-17-检查点3审阅.md 仍未提交，等用户过目。这一步没有推送，推送等用户决定。
+  EN: docs/decisions/2026-11-17-检查点3审阅.md is still uncommitted, waiting for the user to review it. Nothing was pushed in this step; pushing waits for the user's decision.
+- 全量测试 949 通过、9 个跳过。保护检查：这一步没有被拦下的 shell 命令。
+  EN: Full suite: 949 passed, 9 skipped. Protection check: no shell command in this step was stopped.
+
+## 2026-11-17（验收后：Kiro 编辑器里的安装验收，README、演示页和设计第 10 节）
+- 用了哪个 Kiro 功能：工作区信任（决定 MCP 服务器和钩子加不加载）；`init` 写进 `.kiro/settings/mcp.json` 的 refcov 项（uv 工具目录里的 python.exe，`-P -m refcov_mcp`）；五个钩子（提示钩子写状态行，pre-write 钩子拦写文件）。
+  EN: Kiro features used: workspace trust, which decides whether the MCP server and the hooks load; the refcov server entry that init wrote to .kiro/settings/mcp.json (the python.exe in the uv tool directory, run with -P -m refcov_mcp); and the five hooks (the prompt hook writes the status line, the pre-write hook blocks file writes).
+- 验收按需求 8.4 做：(a) 用 phase2-haiku 地址装；(c) 在 Kiro 里看状态行，并让 Kiro 写 `.refcov/` 下的文件，被拦。(b) `uv tool update-shell` 没跑：refcov 已经找得到，跑了可能让 uv 装的那份遮住开发用的那份。
+  EN: Acceptance followed requirement 8.4: step (a) installed from the phase2-haiku address; step (c) checked the status line in Kiro, and a write under .refcov/ requested from Kiro was blocked. Step (b), uv tool update-shell, was not run: refcov was already found, and running it could make the uv-installed copy shadow the development copy.
+- 验收记录（2026-11-17）：测试文件夹 `D:\agent\kiro\refcov-trial\install-test` 是新建的 git 仓库。uv 0.12.5 用 `uv tool install git+https://github.com/3322jj/refcov@phase2-haiku` 装包（提交 47050d2），`refcov --version` 打印 refcov 0.0.1。
+  EN: Acceptance record (2026-11-17): the test folder D:\agent\kiro\refcov-trial\install-test is a new git repository. uv 0.12.5 installed the package from the phase2-haiku address (commit 47050d2), and refcov --version printed refcov 0.0.1.
+- init 写了 7 个文件：`.kiro` 下的 MCP 配置和 5 个钩子，加 `refcov.toml` 模板。我列了测试文件夹的目录，与此相符。MCP 配置里的解释器和 `--root` 路径都不含空格。doctor 退出码 0，只有两条提示：没有登记资料，没有权限文件（验收记录）。
+  EN: init wrote 7 files: the MCP entry and five hook files under .kiro, plus the refcov.toml template. I listed the test folder and the listing matches. The interpreter and --root paths in the MCP config contain no spaces. doctor exited 0 with two hints only: no sources registered, no permission file (acceptance record).
+- 问题（文档与实测不一致）：README 没写要先信任工作区。验收时，信任之前 Kiro 的 MCP 服务器列表为空，5 个钩子显示为停用；信任以后 MCP 才连上。（推测：照旧 README 只跑 init 和 doctor 的人，会看到干净的结果，却没有生效的钩子。）
+  EN: Problem (doc versus behaviour): the README did not say to trust the workspace. In the acceptance, before trust the MCP server list was empty and the five hooks showed as disabled; the MCP server connected only after trust. (Inference: someone who followed the old README and stopped after doctor would see a clean result with no active hooks.)
+- 问题：doctor 退出码 0 不能证明 Kiro 已加载钩子。doctor 只读文件，看不到信任状态。README 第 3 步原来就说了这一点，验收靠的是状态行和写文件被拦。
+  EN: Problem: exit code 0 from doctor does not prove that Kiro loaded the hooks, because doctor reads files and cannot see the trust state. README step 3 already said so; the acceptance relied on the status line and the blocked write.
+- 问题：设计第 10 节第一项问的是含空格的路径，验收没有含空格的路径。所以第一项只标了不含空格的部分为已验证，含空格的情况仍是待测。
+  EN: Problem: design section 10 item 1 asks about paths with spaces, but the acceptance used none. Item 1 is therefore marked verified only for paths without spaces; the spaces case is still open.
+- 写文件关卡：让 Kiro 用写文件工具写 `.refcov/test.txt`，被拦下。拦截理由说的是状态目录不能写。测试文件夹日志的第 1 条记的是这次拦截（工具 fs_write，带会话编号），test.txt 不存在（验收记录）。
+  EN: Write gate: Kiro was asked to write .refcov/test.txt with its file-write tool, and the write was blocked; the reason says the state directory cannot be written. The first entry of the test folder's log records this block (tool fs_write, with a session ID), and test.txt does not exist (acceptance record).
+- 结论：init 写出的 `-P -m integrations.kiro.hook` 钩子命令和 MCP 命令，在 Kiro 编辑器里能运行（路径不含空格）。设计第 10 节前两项据此标为已验证，第一项只限不含空格的情况。
+  EN: Conclusion: the hook commands and the MCP command that init writes, including -P -m integrations.kiro.hook, run in the Kiro editor (for paths without spaces). Design section 10 items 1 and 2 are marked verified on this basis, item 1 only for paths without spaces.
+- 没测到：保存配置后 Kiro 会不会自动重连（配置在打开文件夹之前就写好了）；含空格的路径；`uv tool update-shell`（故意没跑）。
+  EN: Not tested: whether Kiro reconnects by itself after the config is saved (the config was written before the folder was opened); paths with spaces; uv tool update-shell (deliberately not run).
+- 差别：需求 8.4 (c) 的两项检查（状态行、写 `.refcov/` 被拦）能查出信任工作区这一步的问题。只看 doctor 的退出码查不出来，因为 doctor 不读信任状态。
+  EN: Difference in approach: the two checks in requirement 8.4 (c), the status line and the blocked write, expose the trust step. Looking only at the doctor exit code would not, because doctor does not read the trust state.
+- README：第 1 步安装地址改成 `git+https://github.com/3322jj/refcov`（main），删去“合并前用 phase2-haiku”一句；第 3 步补了信任工作区；状态段把“还没做”改成 Kiro 里验收过的内容，并写明没测的两项。
+  EN: README: step 1 now installs from git+https://github.com/3322jj/refcov (main), and the sentence about installing from the phase2-haiku branch before the merge is removed. Step 3 says to trust the workspace. The status line now lists what the Kiro check covered and what it did not.
+- 问题：`main` 还没有这批提交。`git merge-base --is-ancestor` 查得 d4ba991 和 47050d2 都不在 origin/main 里。合并以前，README 和演示页写的 main 地址装到的是旧版，没有 init 和 doctor；合并以后才对。
+  EN: Problem: main does not yet contain these commits. git merge-base --is-ancestor shows that neither d4ba991 nor 47050d2 is in origin/main. Until the merge, the main address in the README and on the demo page installs the old version, which has no init or doctor; it works after the merge.
+- 演示页第 7 段改成四步装法：用 uv 装包；在项目根目录运行 init 和 doctor；在 Kiro 里打开项目并信任工作区；在 [sources] 里列出材料，运行 sync。去掉 setup.py 和 pip install -e。需求 7.3 同步改。页面测试：外部链接检查允许 code 里的安装地址，新增一个第 7 段测试。
+  EN: Demo page: section 7 now gives four install steps: install with uv; run init and doctor in the project root; open the project in Kiro and trust the workspace; list the material under [sources] and run sync. setup.py and pip install -e are gone. Requirement 7.3 changed to match. Page tests: the external-link check allows the install address inside code, and a new test checks the four steps.
+- 演示页多余空白（交接时 Claude 在线上量过）：全局规则 `section { margin-block: 3rem; }` 也作用在回放两栏的 `section.side` 上。本地复测（无界面 Chrome，宽 1280 和 375）：改前，Without RefCov 标题上方多 48 px，375 宽时两栏之间多 120 px。改后，两栏顶部贴住栅格顶部，标题仍有自己的 24 px 外边距；两栏之间是 24 px 的栅格间距。改法：`.side` 加 `margin-block: 0`。
+  EN: Demo page extra space (measured on the live page by Claude at handoff): the global rule section { margin-block: 3rem } also applies to the section.side replay columns. Local re-measurement in headless Chrome at 1280 and 375 px: before, the Without RefCov heading had 48 px extra above it, and at 375 px there were 120 px between the stacked columns. After, the columns start at the grid top, the heading keeps its own 24 px margin, and the gap between stacked columns is the 24 px grid gap. Fix: margin-block: 0 on .side.
+- 改后的页面高度：1280 宽从 7347 降到 7251 px，375 宽从 11615 降到 11423 px。两种宽度下，顶层段落之间的间距都是 48 px，没变。
+  EN: Page height fell from 7347 to 7251 px at 1280 px and from 11615 to 11423 px at 375 px. Gaps between top-level sections stayed at 48 px at both widths.
+- 其他间距没变：两个宽度下比较了改前改后 1138 个元素的计算外边距，只有两个 `.side` 的外边距变了（48 px 变 0 px）。第 1 段的截图两个宽度下都看过，没有看到错位。
+  EN: No other spacing changed: the computed margins of 1138 elements were compared before and after at both widths, and only the two .side elements changed, from 48 px to 0 px. I looked at the section 1 screenshots at both widths and saw no misalignment.
+- 台账：施工账补 47050d2 一行，演示页台账补同一行（英文）。那一行的“读了几个单元”沿用上一行的 4，这一步没有重新核对（MCP 报告看不到单次会话的数）。演示页摘要从 39 件改成 40 件，全量测试范围仍是 742 到 949。b02cd20、b85af88、4e2167c 三行的审阅改为“通过（Claude 2026-11-17 审）”。
+  EN: Ledger: the 47050d2 row was added to the build ledger and, in English, to the demo page ledger. Its "units read before writing" value of 4 is carried over from the row above and was not checked again, because the MCP report cannot show a single session's count. The page summary changed from 39 to 40 pieces; the full-suite range is still 742 to 949. The review cells of b02cd20, b85af88 and 4e2167c now read "passed (Claude, 2026-11-17)".
+- 检查点 3 审阅草稿 `docs/decisions/2026-11-17-检查点3审阅.md` 按用户过目的意见原样提交，内容没改。文件头仍写着“草稿，未经用户确认”，用户没让改这一行。
+  EN: The checkpoint 3 review draft in docs/decisions was committed unchanged, as the user asked. Its header still calls it an unconfirmed draft; the user did not ask for that line to change.
+- 属性测试：这一步没有新增属性测试，核心层代码没改，没有抓到问题。全量 950 通过、9 跳过，比上次多的 1 个是第 7 段的页面测试。
+  EN: Property tests: none added in this step, no core-layer code changed, and nothing was caught. The full suite passed 950 with 9 skipped; the one extra test is the new section 7 page test.
+- 保护检查拦了一次 shell 命令：我想看 RefCov 的读取记录，命令文本里有状态目录的名字，被拦下，没有运行。没有绕过，也没有换写法；记录也没有看。工作区里 `.refcov/log.jsonl` 多了一行（git 显示），没有暂存，按交接说明由 Claude 单独提交。
+  EN: Protection check: one shell command was stopped. I tried to read the RefCov records, and the command text contained the name of the state directory, so it was stopped and did not run. I did not rewrite it and did not read the records. The working copy shows one new line in .refcov/log.jsonl; I did not stage it, since the handoff gives that commit to Claude.
+- RefCov 拦自己的次数（本步）：1 次，即上面那条。当时的状态行：本会话 0/384，历史 384/384，没有还差的单元。差点漏掉什么：没有，被拦的命令只是想看记录。
+  EN: RefCov blocks in this step: one, the entry above. At that time the status line read 0 of 384 units this session and 384 of 384 historically, with nothing outstanding. Nothing was missed, because the blocked command only tried to read records.
+- 没有推送，也没有合并到 main。新点子两条记进了“以后再做”，没有动手做。
+  EN: Nothing was pushed or merged into main. Two new ideas were recorded under "以后再做" and were not built.
 

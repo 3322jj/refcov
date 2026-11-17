@@ -123,7 +123,7 @@ EN: As a judge, I want to see what the project did not prove and how to try it m
 
 1. THE 第 6 段 SHALL 写明：读了不等于照做；GIS 上没测出"读了才做对"；补的是信息，不补能力；次数少，是描述而不是统计；前端和 GIS 的结果在 kiro-cli 3.3.0 上测得（账户设置页那组补跑的版本是推定，见需求 2.2），是 claude-haiku-5.5 的结果（第一轮前端另有自动选模型和 claude-sonnet-5.5 两组）；视频试验用 claude-sonnet-5.5，两批分别在 kiro-cli 3.1.0 和 3.3.0 上跑（`docs/视频对比试验设计.md` 第 9 节）。
 2. THE 第 6 段 SHALL 写明适用条件：小材料、点名时，强模型本来就会读，RefCov 只多一份记录；材料大、贵、是手段而不是任务本身时，价值最大（`app-positioning` 第 3 节）。
-3. THE 第 7 段 SHALL 写三步装法：运行 `setup.py`，在 `refcov.toml` 里写要读的材料，运行 `refcov sync`；并链接到仓库 README 的 Setup 一节。
+3. THE 第 7 段 SHALL 写四步装法：用 uv 装包（`uv tool install git+https://github.com/3322jj/refcov`）；在项目根目录运行 `refcov init` 和 `refcov doctor`；在 Kiro 里打开项目，并信任这个工作区；在 `refcov.toml` 的 `[sources]` 里列出参考文件，运行 `refcov sync`；并链接到仓库 README 的 Setup 一节。
 4. THE 第 7 段的步骤 SHALL 与 README 的 Setup 一节一致，以 README 为准。
 
 出处：[ref:demo-plan/2.-页面结构（一页，从上往下）]；[ref:app-positioning/3.-对外讲法]；[ref:story/6.-必须照实交代]；`docs/视频对比试验设计.md` 第 9 节（未登记，待转换）；仓库 `README.md`（未登记，待转换）

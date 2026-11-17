@@ -9,7 +9,7 @@
 
 规矩（tech.md、需求 11.1、11.3），post-mcp 和 prompt 适用：
 - stdin 按字节读，UTF-8 解码；stdout、stderr 改成 UTF-8。
-- 仓库根目录按这个文件的位置算（integrations/kiro/hook.py 往上两级），放到 sys.path 最前面，不依赖当前目录。
+- 代码自己的上级目录（integrations/kiro/hook.py 往上两级）放进 sys.path（装了包时已经在里面）；--root 是用户仓库，不放进 sys.path（设计第 6 节）。
 - 这个分支任何异常都放行：退出码 0，原因写进 .refcov/errors.log（json.dumps(..., ensure_ascii=True)），不写 stdout。
   不写 tool_response 原文（里面是参考材料正文）。
 """
@@ -25,15 +25,29 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ERRORS_LOG = ROOT / ".refcov" / "errors.log"
+# 代码自己的上级目录：克隆里运行时需要它才能导入核心层；装了包时它已经在 sys.path 里（设计第 6 节）。
+# 不能用 --root：那是用户的仓库，里面的同名包会遮住 RefCov。
+CODE_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _ensure_import_path() -> None:
+    if str(CODE_ROOT) not in sys.path:
+        sys.path.insert(0, str(CODE_ROOT))
+
+
 MCP_TOOL = re.compile(r"^mcp_refcov_")  # 和 hooks/refcov-post-mcp.json 的 matcher 一致（需求 9.5）
 
 # ---- 保护检查（任务 14，需求 14.1–14.5，设计 8 第 2 步）：不 import 核心层 ----
 
-USER_ONLY = ("add", "confirm", "sync")  # 和 refcov/cli.py 的 USER_ONLY 一致（tests/test_protect.py 检查）
+USER_ONLY = ("add", "confirm", "sync", "init")  # 和 refcov/cli.py 的 USER_ONLY 一致（tests/test_protect.py 检查）
 WRITE_TOOLS = frozenset({"fs_write", "str_replace", "fs_append"})  # 和 hooks/refcov-pre-write.json 一致
 SHELL_TOOLS = frozenset({"execute_pwsh", "control_pwsh_process", "execute_bash"})  # 和 hooks/refcov-pre-shell.json 一致
 _I = re.IGNORECASE
 # 都是对整段命令文本的匹配，不分大小写。换写法（拼接字符串、用 py 启动等）能绕过（需求 11.4 的局限）。
+# 命令词前面：行首、空白、分隔符、引号、路径分隔符（所以完整路径和引号括起来的程序路径也认）；
+# 程序名（refcov、refcov.exe、python.exe）后面允许一个引号（设计第 6 节）。
+_CMD_START = r"(?:^|[\s;&|()\"'\\/])"
+_EXE_END = r"[\"']?"
 SHELL_RULES = (
     (re.compile(r"\.refcov", _I), "命令里出现了状态目录 .refcov"),
     (re.compile(r"refcov\.toml", _I), "命令里出现了配置文件 refcov.toml"),
@@ -41,10 +55,15 @@ SHELL_RULES = (
     (re.compile(r"\.kiro[\\/]+hooks", _I), "命令里出现了钩子目录 .kiro/hooks"),
     # 用 Python 运行钩子脚本。python 后面紧跟 -m、-c 时不算（`python -m refcov check …/hook.py` 是只读检查），
     # 文件名必须正好是 hook.py（`tests/test_hook.py` 不算）
-    (re.compile(r"(^|[\s;&|(])python3?(\.exe)?(\s+-(?!m\b|c\b)\S+)*\s+[\"']?(\S*[/\\])?hook\.py\b", _I),
+    (re.compile(_CMD_START + r"python3?(?:\.exe)?" + _EXE_END + r"(?:\s+-(?!m\b|c\b)\S+)*\s+[\"']?(?:\S*[/\\])?hook\.py\b", _I),
      "命令在运行钩子脚本"),
+    (re.compile(r"-m\s+integrations\.kiro\.hook\b", _I), "命令在运行钩子脚本"),
+    (re.compile(_CMD_START + r"python3?(?:\.exe)?" + _EXE_END + r"(?:\s+-(?!m\b|c\b)\S+)*\s+[\"']?\S*integrations[\\/]kiro[\\/]setup\.py\b",
+                _I), "命令在运行 Kiro 安装脚本"),
+    (re.compile(r"-m\s+integrations\.kiro\.(?:setup|init)\b", _I), "命令在运行 Kiro 安装脚本"),
     (re.compile(r"-m\s+refcov_mcp\b", _I), "命令在运行 RefCov 的 MCP 服务"),
-    (re.compile(r"(^|[\s;&|(])(refcov(\.exe)?|python3?(\.exe)?\s+-m\s+refcov)\s+(" + "|".join(USER_ONLY) + r")\b", _I),
+    (re.compile(_CMD_START + r"(?:refcov(?:\.exe)?" + _EXE_END + r"|python3?(?:\.exe)?" + _EXE_END
+                + r"(?:\s+-\w+)*\s+-m\s+refcov)\s+(?:" + "|".join(USER_ONLY) + r")\b", _I),
      "命令是只能由用户在终端跑的 refcov 子命令"),
 )
 _PROTECT_TAIL = ("AI 不能改状态目录、配置和钩子，也不能替用户登记或确认（需求 14）。看记录用 RefCov 的 MCP 工具 report。"
@@ -98,8 +117,7 @@ def protect_reason(data: dict) -> str | None:
 def _record_protect(data: dict, reason: str) -> None:
     """拦下后追加一条 protect 记录（需求 14.3）。核心层加载失败、拿不到锁时只写过 stderr，不再做别的。"""
     try:
-        if str(ROOT) not in sys.path:
-            sys.path.insert(0, str(ROOT))
+        _ensure_import_path()
         from refcov.store import Store
 
         tool = data.get("tool_name") if isinstance(data.get("tool_name"), str) else None
@@ -153,8 +171,7 @@ def gate_write(data: dict, event: str) -> int:
     不达标时由核心层追加 block 记录，这里把原因写 stderr、退出码 2。enforce = false 时核心层直接放行。
     """
     try:
-        if str(ROOT) not in sys.path:
-            sys.path.insert(0, str(ROOT))
+        _ensure_import_path()
         from refcov import api
         from refcov.store import Store
 
@@ -274,8 +291,7 @@ def pretask_main(event: str) -> int:
         spec, task = data["spec_name"], data["task_name"]
         if not isinstance(spec, str) or not isinstance(task, str):
             raise TypeError("spec_name 或 task_name 不是字符串")
-        if str(ROOT) not in sys.path:
-            sys.path.insert(0, str(ROOT))
+        _ensure_import_path()
         from refcov import api
         from refcov.store import Store
 
@@ -320,8 +336,7 @@ def main() -> int:
         payload = raw.decode("utf-8", errors="replace")
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
-        if str(ROOT) not in sys.path:
-            sys.path.insert(0, str(ROOT))
+        _ensure_import_path()
         handler = HANDLERS.get(event)
         if handler is None:
             log_error(event, "不认识的事件参数")

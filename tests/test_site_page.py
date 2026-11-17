@@ -60,16 +60,38 @@ def test_one_page_in_english_with_a_skip_link():
 
 
 def test_no_external_resources_are_loaded():
-    """性质（需求 9.4、12.1、15.1）：页面只加载同目录的 style.css 和 app.js，没有第三方资源；HTTPS 只出现在 a 的 href 里。"""
+    """性质（需求 9.4、12.1、15.1）：页面只加载同目录的 style.css 和 app.js，没有第三方资源；HTTPS 地址只出现在 a 的 href 里，或在 code 里作为要复制的安装命令（只能是安装地址）。"""
     assert re.findall(r"<script[^>]*>", HTML) == ['<script src="app.js" defer>']
     assert re.findall(r"<link[^>]*>", HTML) == ['<link rel="stylesheet" href="style.css">']
     assert not re.search(r"<(img|iframe|source|video|audio|object|embed)\b", HTML)
-    all_urls = re.findall(r"https?://[^\s\"'<>)]+", HTML)
+    code_urls = [
+        url
+        for part in re.findall(r"<code>(.*?)</code>", HTML, re.S)
+        for url in re.findall(r"https?://[^\s\"'<>)]+", part)
+    ]
+    assert code_urls == ["https://github.com/3322jj/refcov"]
+    outside_code = re.sub(r"<code>.*?</code>", "", HTML, flags=re.S)
+    all_urls = re.findall(r"https?://[^\s\"'<>)]+", outside_code)
     href_urls = re.findall(r'href="(https?://[^"]+)"', HTML)
     assert sorted(all_urls) == sorted(href_urls)
     assert "@import" not in CSS
     assert "url(" not in CSS
     assert not re.search(r"https?://", JS)
+
+
+def test_section_seven_gives_the_four_install_steps():
+    """性质（需求 7.3、7.4）：第 7 段按顺序写四步：用 uv 装包；在项目根目录运行 init 和 doctor；在 Kiro 里打开项目并信任工作区；在 [sources] 里列出材料并运行 sync；链接到 README 的 Setup 一节。不提 setup.py 和 pip install。"""
+    start = HTML.index('<section id="s7"')
+    section = HTML[start : HTML.index("</section>", start)]
+    steps = re.findall(r"<li>(.*?)</li>", section, re.S)
+    assert len(steps) == 4
+    assert "<code>uv tool install git+https://github.com/3322jj/refcov</code>" in steps[0]
+    assert "<code>refcov init</code>" in steps[1] and "<code>refcov doctor</code>" in steps[1]
+    assert "trust the workspace" in steps[2] and "Kiro" in steps[2]
+    assert "<code>[sources]</code>" in steps[3] and "<code>refcov sync</code>" in steps[3]
+    assert 'href="https://github.com/3322jj/refcov#setup"' in section
+    assert "setup.py" not in section
+    assert "pip install" not in section
 
 
 def test_no_chinese_characters_in_the_page_files():
