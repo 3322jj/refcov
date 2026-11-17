@@ -1,8 +1,14 @@
-# How RefCov Used Kiro
+# How we used Kiro to build RefCov
+
+RefCov gives reference material a coverage number: material is split into units, the AI reads units through MCP, every read is recorded, and Kiro hooks hold back writes until the required units are read (README; live demo at https://3322jj.github.io/refcov/).
+
+Our strategy had three roles. Claude set direction, wrote the public text and reviewed at fixed checkpoints. Kiro wrote the code and the specs, from 2026-11-15 with claude-haiku-5.5. The user decided, and ran the commands only a person may run, such as registering material. Kiro built RefCov under RefCov: the repository's own hooks gated Kiro's writes, and its own log holds 645 recorded unit reads and 31 protection-check blocks from the build. The write gate's three blocks in this repository were arranged tests, not catches (.refcov/log.jsonl; .kiro/steering/product.md).
+
+Most project documents are in Chinese; the file names in parentheses point to them.
 
 ## Kiro IDE and CLI
 
-RefCov is a coverage tool for reference material. We built it in the Kiro IDE and tested parts of it with kiro-cli. The judging criteria ask how thoroughly the project uses Kiro, whether there was a strategy, whether several tools were used, and whether there were experiments (rules, 6. Judges & Criteria). The development log records work in the IDE and in kiro-cli only. We did not use Kiro Web or Kiro Crew (docs/DEVLOG.md).
+We built RefCov in the Kiro IDE and tested parts of it with kiro-cli. The judging criteria ask how thoroughly the project uses Kiro, whether there was a strategy, whether several tools were used, and whether there were experiments (rules, 6. Judges & Criteria). The development log records work in the IDE and in kiro-cli only. We did not use Kiro Web or Kiro Crew (docs/DEVLOG.md).
 
 The build ledger starts on 2026-11-15, and every row records claude-haiku-5.5 (docs/施工账.md). The first half of the build used Opus (docs/故事构思.md). Claude reviewed at checkpoints, and the user relayed the reviews. The IDE also ran live checks: a PreTaskExec probe hook stopped one task from starting while a second task started (DEVLOG 2026-11-10, PreTaskExec result).
 
@@ -19,6 +25,8 @@ Requirements cite registered units as `[ref:source/unit]` (.kiro/steering/citati
 The first task-start test in the IDE used a probe hook. It stopped task 1 with exit code 2, and task 2 started (DEVLOG 2026-11-10, PreTaskExec result; docs/验证结果.md, item 5). Some later tasks ran from chat rather than through Start task. On 2026-11-11, tasks 3 to 5 did, so the gate's effect on Start task is only partly tested (DEVLOG 2026-11-11, tasks 3 to 5). Two spec items were never built: the watch and confirm checksum groups, and the `refcov confirm` command. The config template says so (DEVLOG 2026-11-17, acceptance; integrations/kiro/init.py).
 
 The spec flow changed the work in ways we can point to. For the second layer, the agent read the Kiro permission documents through MCP before writing the spec. An ad-hoc discussion has no such step, and its sources rest on memory (DEVLOG 2026-11-17, layer 2 spec). During design, the agent found that `register` replaces an entry with the same ID, so the approval path could not call it, and both paths now share one locked write (DEVLOG 2026-11-17, layer 2 spec). During implementation it found that a change to line endings alone is not a content change, and the design was corrected before review (DEVLOG 2026-11-17, layer 2 implementation). Claude's review of commit 16d07b8 then found that state files were not git-ignored in user projects, a gap since the first layer (DEVLOG 2026-11-17, state-directory .gitignore).
+
+Compared with vibe coding, the spec is also what RefCov checks. A requirement must cite the unit it came from, so a requirement the AI invented, or one based on material it never read, shows up in the report. A chat-only build leaves nothing to check in this way.
 
 The spec process did not catch everything. The wording problem found in the 2026-11-17 acceptance came from hint text that no spec step covered, and a design step was added afterwards (.kiro/specs/source-proposals/design.md, section 7).
 
@@ -87,7 +95,7 @@ Property 16.4 runs 30 examples instead of 100, because 100 took over 20 seconds 
 
 ## Kiro powers
 
-We looked at Kiro powers and did not use one. An introspect sub-agent read Kiro's power documentation on 2026-11-13. It did not say whether a power can ship hooks or steering, or whether MCP arguments can name the workspace root that our server needs as `--root` (DEVLOG 2026-11-13, read-only job 2). We estimated one to one and a half days of work, which would remove one of five install steps. The estimate is our guess and was not tested. The plan records the decision (docs/冲刺计划.md, section 6).
+We looked at Kiro powers and did not use one. An introspect sub-agent read Kiro's power documentation on 2026-11-13. It did not say whether a power can ship hooks or steering, or whether MCP arguments can name the workspace root that our server needs as `--root` (DEVLOG 2026-11-13, read-only job 2). We estimated one to one and a half days of work, which would remove one of five install steps. The estimate is our guess and was not tested. The plan records the decision (docs/冲刺计划.md, section 6). Later, `refcov init` took over the setup a power would have done: it writes the MCP entry and the five hooks with absolute paths in one command (.kiro/specs/easy-install/).
 
 The other tools are the MCP Python SDK at runtime, Hypothesis and pytest for tests, ffmpeg for the shot app, and geopandas for the GIS app (.kiro/steering/tech.md).
 
