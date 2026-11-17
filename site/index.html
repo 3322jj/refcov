@@ -220,7 +220,7 @@
   <h2 id="s5-title">We used it on ourselves</h2>
   <p>From 15 November, claude-haiku-5.5 built the layer-coverage app under RefCov, which required the specs and data notes to be read before each write. The ledger below is the project's own record, one row per piece of work. Credits show as unknown where the Kiro panel did not show the number.</p>
 
-  <p>39 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 949.</p>
+  <p>40 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 949.</p>
   <details>
     <summary>Show the build ledger, row by row</summary>
     <div class="table-wrap" role="region" tabindex="0" aria-labelledby="ledger-caption">
@@ -277,6 +277,7 @@
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Implementation: forwarding module for init and doctor (the command line imports only it); init, and a read-only doctor; protection rules that recognise full paths and quotes; a clean-install acceptance test (skipped by default); setup rewritten as a wrapper around init; README install steps and limits rewritten</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 949 passed (the 9 clean-install checks passed separately when run on this commit)</td><td data-label="Units read before writing">4 (MCP reads this session; hook report 4 of 384; 384 of 384 historically)</td><td data-label="Gate blocks">0 (the DEVLOG entry for this piece records no block)</td></tr>
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">README: install with uv tool install, the configuration step, doctor, the limits of the install and the protection paragraph rewritten; status opens with 2026-11-17; layout table updated; ledger row for b85af88 and its page row</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 949 passed (the 9 clean-install checks as for the previous piece)</td><td data-label="Units read before writing">4 (same as the previous piece)</td><td data-label="Gate blocks">1 (a commit message named a user-only subcommand; the text match was a false positive, nothing was run, and the wording was changed before committing)</td></tr>
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Ledger row for 4e2167c, its page row and summary; a DEVLOG record of a false-positive protection block on a commit message; the DEVLOG wording made accurate; no code changed</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">full suite 949 passed (the 9 clean-install checks ran on b85af88; no code changed since, so the result stands)</td><td data-label="Units read before writing">4 (same as the previous piece)</td><td data-label="Gate blocks">0 (the DEVLOG entry for this piece records no block; the false positive is recorded on the 4e2167c row)</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">README status: removed the required-set, pass/fail and five-hooks items (already built) and the earlier-status paragraph; ledger row for 6357d70 added; demo page ledger synced</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 949 passed</td><td data-label="Units read before writing">4 (same as the previous piece)</td><td data-label="Gate blocks">0 (the DEVLOG entry for this piece records no block)</td></tr>
       </tbody>
     </table>
     </div>
@@ -318,11 +319,12 @@
 
 <section id="s7" aria-labelledby="s7-title">
   <h2 id="s7-title">Try it yourself</h2>
-  <p>Install RefCov from its clone first: <code>python -m pip install -e ".[dev]"</code> (README, Setup, step 1). Then:</p>
+  <p>These are the Setup steps in short. If this page and the README differ, the README is right.</p>
   <ol>
-    <li>Run <code>setup.py</code> from your project root: <code>python &lt;RefCov clone&gt;/integrations/kiro/setup.py</code>.</li>
-    <li>List the reference files under <code>[sources]</code> in <code>refcov.toml</code>.</li>
-    <li>Run <code>refcov sync</code>.</li>
+    <li>Install RefCov with uv: <code>uv tool install git+https://github.com/3322jj/refcov</code>.</li>
+    <li>In your project root (the folder that holds <code>.git</code>), run <code>refcov init</code>, then <code>refcov doctor</code>.</li>
+    <li>Open the project in Kiro and trust the workspace. Until you trust it, Kiro does not load the project's MCP configuration, and the RefCov hooks stay disabled.</li>
+    <li>List your reference files under <code>[sources]</code> in <code>refcov.toml</code>, then run <code>refcov sync</code>.</li>
   </ol>
   <p>The full steps are in the <a href="https://github.com/3322jj/refcov#setup">Setup section of the README</a>.</p>
 </section>

@@ -57,6 +57,13 @@
   现在不做：任务 11 的转换已经做完，那次切段发生在加引用之前，没受影响；改 ID 规则会让已写好的引用失效，也要改设计 4 第 1 条。
   EN: Unit IDs may contain a full-width semicolon (e.g. in dec-review-reply 二·2); a later script splitting source lines on it would cut such a reference in half. Extract references before splitting, or map the semicolon to a hyphen in IDs. Not now: the task 11 conversion split before references were added, and changing the ID rule would break existing references and design section 4 rule 1.
 
+- 让 `refcov doctor` 能查出 Kiro 的工作区是不是已经信任（信任之前 Kiro 不加载 MCP 配置，钩子显示为停用）。
+  现在不做：不知道 Kiro 把信任状态存在哪里，查不到就做不了；README 第 3 步先写明。
+  EN: Let doctor report whether Kiro has trusted the workspace (before trust, Kiro does not load the MCP configuration and the hooks show as disabled). Not now: the place where Kiro keeps the trust state is not known, so doctor cannot read it; README step 3 says so for now.
+- 用测试比对演示页第 7 段和 README 的 Setup 步骤（需求 7.4 要求一致，现在靠人工核对）。
+  现在不做：比对要先解析 README 的步骤，比对规则还没定；范围已冻结。
+  EN: Add a test that compares the steps in demo page section 7 with the README Setup section (requirement 7.4 requires them to agree; for now a person checks). Not now: the test would have to parse the README steps, and the matching rule is not defined; scope is frozen.
+
 ## 待定
 
 已经在规格里、但要到某个任务时才定怎么做的事。定了以后在这里写结论和日期。
@@ -2057,4 +2064,52 @@
   EN: docs/decisions/2026-11-17-检查点3审阅.md is still uncommitted, waiting for the user to review it. Nothing was pushed in this step; pushing waits for the user's decision.
 - 全量测试 949 通过、9 个跳过。保护检查：这一步没有被拦下的 shell 命令。
   EN: Full suite: 949 passed, 9 skipped. Protection check: no shell command in this step was stopped.
+
+## 2026-11-17（验收后：Kiro 编辑器里的安装验收，README、演示页和设计第 10 节）
+- 用了哪个 Kiro 功能：工作区信任（决定 MCP 服务器和钩子加不加载）；`init` 写进 `.kiro/settings/mcp.json` 的 refcov 项（uv 工具目录里的 python.exe，`-P -m refcov_mcp`）；五个钩子（提示钩子写状态行，pre-write 钩子拦写文件）。
+  EN: Kiro features used: workspace trust, which decides whether the MCP server and the hooks load; the refcov server entry that init wrote to .kiro/settings/mcp.json (the python.exe in the uv tool directory, run with -P -m refcov_mcp); and the five hooks (the prompt hook writes the status line, the pre-write hook blocks file writes).
+- 验收按需求 8.4 做：(a) 用 phase2-haiku 地址装；(c) 在 Kiro 里看状态行，并让 Kiro 写 `.refcov/` 下的文件，被拦。(b) `uv tool update-shell` 没跑：refcov 已经找得到，跑了可能让 uv 装的那份遮住开发用的那份。
+  EN: Acceptance followed requirement 8.4: step (a) installed from the phase2-haiku address; step (c) checked the status line in Kiro, and a write under .refcov/ requested from Kiro was blocked. Step (b), uv tool update-shell, was not run: refcov was already found, and running it could make the uv-installed copy shadow the development copy.
+- 验收记录（2026-11-17）：测试文件夹 `D:\agent\kiro\refcov-trial\install-test` 是新建的 git 仓库。uv 0.12.5 用 `uv tool install git+https://github.com/3322jj/refcov@phase2-haiku` 装包（提交 47050d2），`refcov --version` 打印 refcov 0.0.1。
+  EN: Acceptance record (2026-11-17): the test folder D:\agent\kiro\refcov-trial\install-test is a new git repository. uv 0.12.5 installed the package from the phase2-haiku address (commit 47050d2), and refcov --version printed refcov 0.0.1.
+- init 写了 7 个文件：`.kiro` 下的 MCP 配置和 5 个钩子，加 `refcov.toml` 模板。我列了测试文件夹的目录，与此相符。MCP 配置里的解释器和 `--root` 路径都不含空格。doctor 退出码 0，只有两条提示：没有登记资料，没有权限文件（验收记录）。
+  EN: init wrote 7 files: the MCP entry and five hook files under .kiro, plus the refcov.toml template. I listed the test folder and the listing matches. The interpreter and --root paths in the MCP config contain no spaces. doctor exited 0 with two hints only: no sources registered, no permission file (acceptance record).
+- 问题（文档与实测不一致）：README 没写要先信任工作区。验收时，信任之前 Kiro 的 MCP 服务器列表为空，5 个钩子显示为停用；信任以后 MCP 才连上。（推测：照旧 README 只跑 init 和 doctor 的人，会看到干净的结果，却没有生效的钩子。）
+  EN: Problem (doc versus behaviour): the README did not say to trust the workspace. In the acceptance, before trust the MCP server list was empty and the five hooks showed as disabled; the MCP server connected only after trust. (Inference: someone who followed the old README and stopped after doctor would see a clean result with no active hooks.)
+- 问题：doctor 退出码 0 不能证明 Kiro 已加载钩子。doctor 只读文件，看不到信任状态。README 第 3 步原来就说了这一点，验收靠的是状态行和写文件被拦。
+  EN: Problem: exit code 0 from doctor does not prove that Kiro loaded the hooks, because doctor reads files and cannot see the trust state. README step 3 already said so; the acceptance relied on the status line and the blocked write.
+- 问题：设计第 10 节第一项问的是含空格的路径，验收没有含空格的路径。所以第一项只标了不含空格的部分为已验证，含空格的情况仍是待测。
+  EN: Problem: design section 10 item 1 asks about paths with spaces, but the acceptance used none. Item 1 is therefore marked verified only for paths without spaces; the spaces case is still open.
+- 写文件关卡：让 Kiro 用写文件工具写 `.refcov/test.txt`，被拦下。拦截理由说的是状态目录不能写。测试文件夹日志的第 1 条记的是这次拦截（工具 fs_write，带会话编号），test.txt 不存在（验收记录）。
+  EN: Write gate: Kiro was asked to write .refcov/test.txt with its file-write tool, and the write was blocked; the reason says the state directory cannot be written. The first entry of the test folder's log records this block (tool fs_write, with a session ID), and test.txt does not exist (acceptance record).
+- 结论：init 写出的 `-P -m integrations.kiro.hook` 钩子命令和 MCP 命令，在 Kiro 编辑器里能运行（路径不含空格）。设计第 10 节前两项据此标为已验证，第一项只限不含空格的情况。
+  EN: Conclusion: the hook commands and the MCP command that init writes, including -P -m integrations.kiro.hook, run in the Kiro editor (for paths without spaces). Design section 10 items 1 and 2 are marked verified on this basis, item 1 only for paths without spaces.
+- 没测到：保存配置后 Kiro 会不会自动重连（配置在打开文件夹之前就写好了）；含空格的路径；`uv tool update-shell`（故意没跑）。
+  EN: Not tested: whether Kiro reconnects by itself after the config is saved (the config was written before the folder was opened); paths with spaces; uv tool update-shell (deliberately not run).
+- 差别：需求 8.4 (c) 的两项检查（状态行、写 `.refcov/` 被拦）能查出信任工作区这一步的问题。只看 doctor 的退出码查不出来，因为 doctor 不读信任状态。
+  EN: Difference in approach: the two checks in requirement 8.4 (c), the status line and the blocked write, expose the trust step. Looking only at the doctor exit code would not, because doctor does not read the trust state.
+- README：第 1 步安装地址改成 `git+https://github.com/3322jj/refcov`（main），删去“合并前用 phase2-haiku”一句；第 3 步补了信任工作区；状态段把“还没做”改成 Kiro 里验收过的内容，并写明没测的两项。
+  EN: README: step 1 now installs from git+https://github.com/3322jj/refcov (main), and the sentence about installing from the phase2-haiku branch before the merge is removed. Step 3 says to trust the workspace. The status line now lists what the Kiro check covered and what it did not.
+- 问题：`main` 还没有这批提交。`git merge-base --is-ancestor` 查得 d4ba991 和 47050d2 都不在 origin/main 里。合并以前，README 和演示页写的 main 地址装到的是旧版，没有 init 和 doctor；合并以后才对。
+  EN: Problem: main does not yet contain these commits. git merge-base --is-ancestor shows that neither d4ba991 nor 47050d2 is in origin/main. Until the merge, the main address in the README and on the demo page installs the old version, which has no init or doctor; it works after the merge.
+- 演示页第 7 段改成四步装法：用 uv 装包；在项目根目录运行 init 和 doctor；在 Kiro 里打开项目并信任工作区；在 [sources] 里列出材料，运行 sync。去掉 setup.py 和 pip install -e。需求 7.3 同步改。页面测试：外部链接检查允许 code 里的安装地址，新增一个第 7 段测试。
+  EN: Demo page: section 7 now gives four install steps: install with uv; run init and doctor in the project root; open the project in Kiro and trust the workspace; list the material under [sources] and run sync. setup.py and pip install -e are gone. Requirement 7.3 changed to match. Page tests: the external-link check allows the install address inside code, and a new test checks the four steps.
+- 演示页多余空白（交接时 Claude 在线上量过）：全局规则 `section { margin-block: 3rem; }` 也作用在回放两栏的 `section.side` 上。本地复测（无界面 Chrome，宽 1280 和 375）：改前，Without RefCov 标题上方多 48 px，375 宽时两栏之间多 120 px。改后，两栏顶部贴住栅格顶部，标题仍有自己的 24 px 外边距；两栏之间是 24 px 的栅格间距。改法：`.side` 加 `margin-block: 0`。
+  EN: Demo page extra space (measured on the live page by Claude at handoff): the global rule section { margin-block: 3rem } also applies to the section.side replay columns. Local re-measurement in headless Chrome at 1280 and 375 px: before, the Without RefCov heading had 48 px extra above it, and at 375 px there were 120 px between the stacked columns. After, the columns start at the grid top, the heading keeps its own 24 px margin, and the gap between stacked columns is the 24 px grid gap. Fix: margin-block: 0 on .side.
+- 改后的页面高度：1280 宽从 7347 降到 7251 px，375 宽从 11615 降到 11423 px。两种宽度下，顶层段落之间的间距都是 48 px，没变。
+  EN: Page height fell from 7347 to 7251 px at 1280 px and from 11615 to 11423 px at 375 px. Gaps between top-level sections stayed at 48 px at both widths.
+- 其他间距没变：两个宽度下比较了改前改后 1138 个元素的计算外边距，只有两个 `.side` 的外边距变了（48 px 变 0 px）。第 1 段的截图两个宽度下都看过，没有看到错位。
+  EN: No other spacing changed: the computed margins of 1138 elements were compared before and after at both widths, and only the two .side elements changed, from 48 px to 0 px. I looked at the section 1 screenshots at both widths and saw no misalignment.
+- 台账：施工账补 47050d2 一行，演示页台账补同一行（英文）。那一行的“读了几个单元”沿用上一行的 4，这一步没有重新核对（MCP 报告看不到单次会话的数）。演示页摘要从 39 件改成 40 件，全量测试范围仍是 742 到 949。b02cd20、b85af88、4e2167c 三行的审阅改为“通过（Claude 2026-11-17 审）”。
+  EN: Ledger: the 47050d2 row was added to the build ledger and, in English, to the demo page ledger. Its "units read before writing" value of 4 is carried over from the row above and was not checked again, because the MCP report cannot show a single session's count. The page summary changed from 39 to 40 pieces; the full-suite range is still 742 to 949. The review cells of b02cd20, b85af88 and 4e2167c now read "passed (Claude, 2026-11-17)".
+- 检查点 3 审阅草稿 `docs/decisions/2026-11-17-检查点3审阅.md` 按用户过目的意见原样提交，内容没改。文件头仍写着“草稿，未经用户确认”，用户没让改这一行。
+  EN: The checkpoint 3 review draft in docs/decisions was committed unchanged, as the user asked. Its header still calls it an unconfirmed draft; the user did not ask for that line to change.
+- 属性测试：这一步没有新增属性测试，核心层代码没改，没有抓到问题。全量 950 通过、9 跳过，比上次多的 1 个是第 7 段的页面测试。
+  EN: Property tests: none added in this step, no core-layer code changed, and nothing was caught. The full suite passed 950 with 9 skipped; the one extra test is the new section 7 page test.
+- 保护检查拦了一次 shell 命令：我想看 RefCov 的读取记录，命令文本里有状态目录的名字，被拦下，没有运行。没有绕过，也没有换写法；记录也没有看。工作区里 `.refcov/log.jsonl` 多了一行（git 显示），没有暂存，按交接说明由 Claude 单独提交。
+  EN: Protection check: one shell command was stopped. I tried to read the RefCov records, and the command text contained the name of the state directory, so it was stopped and did not run. I did not rewrite it and did not read the records. The working copy shows one new line in .refcov/log.jsonl; I did not stage it, since the handoff gives that commit to Claude.
+- RefCov 拦自己的次数（本步）：1 次，即上面那条。当时的状态行：本会话 0/384，历史 384/384，没有还差的单元。差点漏掉什么：没有，被拦的命令只是想看记录。
+  EN: RefCov blocks in this step: one, the entry above. At that time the status line read 0 of 384 units this session and 384 of 384 historically, with nothing outstanding. Nothing was missed, because the blocked command only tried to read records.
+- 没有推送，也没有合并到 main。新点子两条记进了“以后再做”，没有动手做。
+  EN: Nothing was pushed or merged into main. Two new ideas were recorded under "以后再做" and were not built.
 

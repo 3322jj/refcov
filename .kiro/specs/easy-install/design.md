@@ -211,8 +211,8 @@ include = ["refcov*", "refcov_mcp*", "integrations*"]
 - 镜头应用不在安装包里，需要 ffmpeg；它的适配器路径要在用户仓库里（第 4.4 节）。
 
 ## 10. 没测、实现后要测的
-- Kiro 能否运行绝对路径（含空格）的钩子命令。简化上手设计第 4 节也记了这一条。由用户的 Kiro 验收（需求 8.4 (c)）验证。
-- `-P -m integrations.kiro.hook` 在 Kiro 的钩子里能否跑通。同样由需求 8.4 (c) 验证。
+- Kiro 能否运行绝对路径（含空格）的钩子命令。**已验证（2026-11-17，用户在 Kiro 编辑器里验收，需求 8.4 (c)）：不含空格的绝对路径能运行。** 提示钩子的状态行被 Kiro 念出，写文件的钩子拦下了写 `.refcov/test.txt` 的请求。**含空格的路径没有测，仍是待测项。** 简化上手设计第 4 节也记了这一条。
+- `-P -m integrations.kiro.hook` 在 Kiro 的钩子里能否跑通。**已验证（2026-11-17，同上一条的验收）：** 状态行和写文件的拦截都来自 init 写出的 `-P -m integrations.kiro.hook` 命令。
 - `uv tool install`（本机没有 uv）。
 - Linux 上 `init` 和 `doctor` 的路径处理（CI 两个系统都跑）。
 - 演示页第 7 段和 README 的装法要跟着改。改已上线的页面要用户同意，`.kiro/specs/demo-page/requirements.md` 的需求 7.3–7.4 也要改。本步不动。

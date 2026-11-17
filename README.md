@@ -2,7 +2,7 @@
 
 Coverage for reference material. Code has test coverage; the documents, videos and data files you hand to an AI coding assistant should have coverage too.
 
-> Status (2026-11-17): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Not yet done: running the hooks inside Kiro (a user check).
+> Status (2026-11-17): the install layer is in place. `refcov init` writes the Kiro MCP entry and five hooks with absolute paths; `refcov doctor` checks them read-only and gives a fix for each problem; the protection checks also recognise full paths and quotes. A gated test installs the committed package with `uv tool install` into a temporary directory, runs `init` and `doctor`, and checks that a hook command written by `init` blocks a write when run through the shell. Checked in Kiro on 2026-11-17, in a test folder: once the workspace was trusted, the MCP server connected, the prompt hook's status line appeared, and a write to `.refcov/` was blocked. Not yet checked: project paths that contain spaces, and whether Kiro reconnects a running server after its config is saved.
 
 ## What it does
 
@@ -81,13 +81,13 @@ Python 3.11+. The core library uses only the standard library. The MCP server mo
 
 Install the tool, run `refcov init` in your project, and check the result. You do not need to keep the RefCov clone after installing.
 
-1. Install with uv (uv must be on your PATH, or run it by its full path). Until the work is merged to `main`, install from the branch:
+1. Install with uv (uv must be on your PATH, or run it by its full path):
 
    ```
-   uv tool install git+https://github.com/3322jj/refcov@phase2-haiku
+   uv tool install git+https://github.com/3322jj/refcov
    ```
 
-   After the merge, use `git+https://github.com/3322jj/refcov` (that is, `main`). If `refcov` is not found afterwards, run `uv tool update-shell` and open a new terminal. Check with `refcov --version`.
+   If `refcov` is not found afterwards, run `uv tool update-shell` and open a new terminal. Check with `refcov --version`.
 
    Developers working on RefCov itself install from the clone with `python -m pip install -e ".[dev]"`.
 
@@ -103,7 +103,7 @@ Install the tool, run `refcov init` in your project, and check the result. You d
 
 3. Check the result with `refcov doctor`. It is read-only, so an AI may run it. It reports the MCP entry, the five hooks, `refcov.toml`, the registered sources and what is pending, and gives a fix for each problem. Exit code 0 means no problems, 1 means at least one problem, 2 means it was not run from a project root.
 
-   A clean `doctor` does not show that Kiro runs the hooks. To check that, open the project in Kiro, send one message and look for the one-line RefCov status, then ask Kiro to write a file under `.refcov/`. The write must be blocked.
+   A clean `doctor` does not show that Kiro runs the hooks. To check that, open the project in Kiro and trust the workspace first. Until you trust it, Kiro does not load the workspace's MCP configuration; in our test the MCP server list was empty and the five hooks showed as disabled. Then send one message, look for the one-line RefCov status, and ask Kiro to write a file under `.refcov/`. The write must be blocked.
 
 4. In `refcov.toml`, list the reference material under `[sources]`. Patterns are relative to the project root, and `*` also crosses `/`:
 
