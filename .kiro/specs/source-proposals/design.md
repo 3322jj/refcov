@@ -6,7 +6,7 @@
 
 Kiro 文档单元，经 MCP 的 `read_unit` 读过（2026-11-17）：`kiro-permissions/Defining-rules`、`Default-behavior`、`Approve-for-me`、`Interactive-approval-flow`、`Workspace-trust`、`CI-and-headless-environments`、`Approval-rule-tiers`、`Security-and-trust`。
 
-状态：第二稿。Claude 审过第一稿，答复见第 9 节。第二稿直接实现，不再等审规格；实现后由 Claude 审代码（检查点 3）。
+状态：**已验收（2026-11-18）。** 第二稿直接实现，不再等审规格；Claude 审过代码通过（16d07b8，检查点 3）；用户在 install-test 里验收通过，见第 7 节和 DEVLOG 2026-11-18。Claude 对第一稿的答复见第 9 节。
 
 ## 1. 改动范围
 
@@ -185,7 +185,9 @@ rules:
 
 `tests/test_core_names.py` 自动覆盖新文件。
 
-## 7. 用户验收（2026-11-17 做过一轮，结果见 DEVLOG 同日条目）
+## 7. 用户验收
+
+状态：**已验收（2026-11-18）。** 2026-11-17 第一轮只有 F 项没过；F 项改文字后，2026-11-18 用新模板重测通过，A 到 F 全部通过。2026-11-18 的重测按第 6 步的写法做：只说登记，不提工具名。结果见 DEVLOG 2026-11-17 和 2026-11-18。
 
 由用户在 Kiro 里做，自动测试不替代它。在 `D:\agent\kiro\refcov-trial\install-test` 里：
 

@@ -2261,3 +2261,29 @@
   EN: Reads: the status line showed 8 of 384 this session, 384 of 384 historically, with nothing outstanding. No new MCP reads in this step.
 - 没有推送。干净安装测试在这次提交之后单独跑，结果写进下一条 DEVLOG。
   EN: Nothing was pushed. The clean-install tests run after this commit; the result goes into the next DEVLOG entry.
+- 2ed1abd 提交后干净安装测试（REFCOV_CLEAN_INSTALL=1，提交后单独跑）：10 个通过，20.48 秒。
+  EN: Clean-install tests after commit 2ed1abd (REFCOV_CLEAN_INSTALL=1, run separately after the commit): 10 passed in 20.48 seconds.
+
+## 2026-11-18（验收：第二层 install-test，F 重测通过）
+- install-test 的结果（用户报告，在 `D:\agent\kiro\refcov-trial\install-test` 里做，本步没有运行这些操作）：用 uv 从 phase2-haiku（a854970）重装，删掉 refcov.toml 后重新 init，写的是新模板。新开一个聊天，只说"把 docs/tabs.md 登记成参考资料"。Kiro 自己调用 propose_sources 和 apply_proposal。执行时弹窗，没有 Always allow，卡片显示提议编号、path、sha256、source_id。用户点 Allow。
+  EN: Results of the layer 2 install-test, as reported by the user (run in D:\agent\kiro\refcov-trial\install-test; this step did not run them). The user reinstalled phase2-haiku (a854970) with uv, deleted refcov.toml and ran init again, so the new template was written. In a fresh chat the user said only "register docs/tabs.md as reference material". Kiro called propose_sources and apply_proposal itself. The approval prompt had no Always allow, and its card showed the proposal ID, path, sha256 and source ID. The user clicked Allow.
+- 日志（用户报告）：register tabs（15 个单元）、apply（c-13，提议 p-c513c307）两条，另有会话补记。登记以后，Kiro 说明了必看范围的变化，没有自己去读单元，而是先问用户。
+  EN: The log, as reported: a register record for tabs (15 units), an apply record (c-13, proposal p-c513c307), and the session backfill. After the registration, Kiro explained the change to the required reading scope, did not read the units itself, and asked the user first.
+- 判定：F 通过，A 到 F 全部通过（用户的判定）。这次报告没有单列 2026-11-18 的 A 到 E 结果，所以 A 到 E 的记录仍是 2026-11-17 的。11-18 的版本是 a854970，比 2026-11-17 的 16d07b8 多了状态目录的 .gitignore（a4969bc）、文字修正和 log_error 兜底（2ed1abd）。
+  EN: Judgement: F passed, and all of A to F passed (the user's judgement). The report did not list the 2026-11-18 results for A to E separately, so those records stay as the 2026-11-17 results. The 2026-11-18 build is a854970, which adds to 16d07b8 the state-directory .gitignore (a4969bc), the wording fixes and the log_error fallback (2ed1abd).
+- 另一个发现（用户报告）：用户项目的状态目录里自动生成了 .gitignore，说明 a4969bc 在真实项目里生效。
+  EN: Another finding, reported by the user: a .gitignore was created automatically in the state directory of the user's project, so the change in a4969bc works in a real project.
+- 状态更新：设计第 7 节、设计文档的状态行、需求文档的状态行，以及 README 的状态段，第二层都改成"已验收（2026-11-18）"。README 原来写着第二层的 Kiro 检查待做，项目语言规则要求状态变了就同步改。
+  EN: Status update: layer 2 is now "accepted (2026-11-18)" in design section 7, in the status line of the design, in the status line of the requirements, and in the README status paragraph. The README said the Kiro check was pending; the project's language rule asks for the README to be synced when its status changes.
+- 规格流程和随口讨论的差别：第一轮的 F 失败来自文字，不是机制。设计第 7 节当时没有"只说登记、不提工具名"这一步，验收前没有测过。这一步补进了设计，重测按第 6 步的写法做，通过。
+  EN: Spec flow against the first round: the F failure came from wording, not from the mechanism. Design section 7 had no step asking for registration without naming a tool, so it was not tested before acceptance. The step is now in the design; the retest followed it and passed.
+- 用到的 Kiro 功能：本步用 PowerShell 工具（git、pytest、文本查找），read_file 和 str_replace 改文件。install-test 里用到的是 propose_sources 和 apply_proposal 两个 MCP 工具，审批弹窗（Allow，没有 Always allow），init 打印的两条权限规则（读取工具 allow，apply_proposal ask），以及 post-mcp 钩子补记会话。
+  EN: Kiro features used: this step used the PowerShell tool (git, pytest, text searches), and read_file and str_replace for editing files. install-test used the MCP tools propose_sources and apply_proposal, the approval popup (Allow, no Always allow), the two permission rules that init prints (allow for the read tools, ask for apply_proposal), and the post-mcp hook that attaches the session.
+- 属性测试：这一步没有新增属性测试，也没有新增测试。全量测试 996 通过、10 跳过（没有改代码）。
+  EN: Property tests: none added in this step, and no tests were added. The full suite gave 996 passed and 10 skipped (no code changed).
+- 施工账和演示页台账：补 2ed1abd 一行（审阅结果：待审，install-test 2026-11-18 验收通过），演示页同步，摘要改成 46 件，全量到 996。a854970 是 Claude 提交的读取记录，施工账不记。
+  EN: Build ledger and demo page ledger: the row for 2ed1abd was added (review: pending; the install-test acceptance on 2026-11-18 passed), and the page was synced; the summary reads 46 pieces, with the full suite at 996. Commit a854970 is Claude's read-record commit, so the ledger does not record it.
+- RefCov 拦自己的次数（本步）：0。读取：本会话 8/384，历史 384/384，没有还差的单元；本步没有新的 MCP 读。差点漏掉什么：没有。
+  EN: RefCov blocks in this step: 0. Reads: 8 of 384 this session, 384 of 384 historically, nothing outstanding; no new MCP reads in this step. Nothing was missed.
+- 没有推送。这次只改文档、台账和演示页，没有改代码，所以提交后不再单独跑干净安装测试。
+  EN: Nothing was pushed. Only documents, the ledger and the demo page changed, not code, so no clean-install run follows this commit.

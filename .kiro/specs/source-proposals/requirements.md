@@ -1,8 +1,8 @@
 # 需求文档：易用性改造第二层，资料提议与登记（第一版，2026-11-17，第二稿）
 
-EN summary: Requirements for the first version of layer 2 (second draft). The AI proposes Markdown reference files, and one write tool registers them only after the user approves an `ask` prompt; the arguments the user sees are checked against the stored proposal. Registration only adds sources, never changes or removes existing ones, and never edits refcov.toml. init prints two permission rules: the read tools are allowed, and apply_proposal asks every time; doctor checks both in the text of the user-level file. Deletion, updates and scope changes stay outside this version.
+EN summary: Requirements for the first version of layer 2 (second draft). The AI proposes Markdown reference files, and one write tool registers them only after the user approves an `ask` prompt; the arguments the user sees are checked against the stored proposal. Registration only adds sources, never changes or removes existing ones, and never edits refcov.toml. init prints two permission rules: the read tools are allowed, and apply_proposal asks every time; doctor checks both in the text of the user-level file. Deletion, updates and scope changes stay outside this version. Accepted in install-test on 2026-11-18.
 
-状态：**第二稿，2026-11-17。** Claude 审过第一稿（12b05ab，检查点 3）：通过，按审阅意见改完直接实现。第二稿的改动：需求 2（锁里再确认编号和路径，执行结果带调用编号）、需求 3（单元数按核心层算）、需求 4（两条规则，doctor 分别查，README 写明）、需求 5（不提供删除命令，手动删除后照常工作，有测试）、需求 6（测试清单）。设计写在 `design.md`，第 9 节是 Claude 的答复和对应的处理。
+状态：**已验收（2026-11-18）。** 第二稿（2026-11-17）实现后，Claude 审过代码通过（16d07b8，检查点 3）；用户在 install-test 里验收，F 项改文字后重测通过，A 到 F 全部通过（见 DEVLOG 2026-11-18）。第一稿由 Claude 审过：通过（12b05ab，检查点 3），按审阅意见改完直接实现。第二稿的改动：需求 2（锁里再确认编号和路径，执行结果带调用编号）、需求 3（单元数按核心层算）、需求 4（两条规则，doctor 分别查，README 写明）、需求 5（不提供删除命令，手动删除后照常工作，有测试）、需求 6（测试清单）。设计写在 `design.md`，第 9 节是 Claude 的答复和对应的处理。
 
 文字出处（未登记，待转换）：`docs/易用性改造方案.md` 第 3.2、3.3 节；`docs/权限实测结果.md` 第 3、4 节；用户在聊天里的指示（2026-11-17，还没有存成 `docs/decisions/` 下的文件，等用户过目）。Kiro 文档的权限单元已登记，出处写成 `[ref:…]`。
 
