@@ -1,6 +1,6 @@
 # 设计文档：RefCov 骨架
 
-EN summary: Design for the RefCov skeleton: 8 modules (7 core/MCP plus the Kiro integration layer), one hash-chained append-only log for all records, 5 MCP tools, 7 Kiro hook files on 5 events, the citation and unit-ID rules (`-2` for duplicate headings, `@2` for split parts), a 4000-character unit limit, checksum tracking for hook files and `docs/decisions/` (the latter confirmed by the user with `refcov confirm`), Hypothesis data generation for requirement 16, and a build order that delivers the thinnest path (register Markdown, split, read via MCP, record, report) before any gate.
+EN summary: Design for the RefCov skeleton: 8 modules (7 core/MCP plus the Kiro integration layer), one hash-chained append-only log for all records, 5 MCP tools, 7 Kiro hook files on 5 events, the citation and unit-ID rules (`-2` for duplicate headings, `@2` for split parts), a 4000-character unit limit, checksum tracking for hook files (not implemented as of 2026-11-17) and `docs/decisions/` (the latter confirmed by the user with `refcov confirm`), Hypothesis data generation for requirement 16, and a build order that delivers the thinnest path (register Markdown, split, read via MCP, record, report) before any gate.
 
 对应需求：`.kiro/specs/refcov-skeleton/requirements.md`（第五稿按外部审阅修订，提交 `d04e8fa`，已冻结）。文中"需求 N.M"都指这份文档。设计中发现的需求问题记在 `docs/DEVLOG.md`"以后再做"，不改需求。设计第二版按 spec-auditor 的报告和用户 2026-11-10 的意见修改，和冻结需求原文不一致的地方在文中标"偏离需求原文"。2026-11-11 按外部审阅 `docs/设计第二版审阅.md` 和用户的决定改了对应的句子，不另出第三版，逐条改动记在 DEVLOG 2026-11-11。
 
@@ -140,10 +140,10 @@ enforce = true           # 需求 17.1
 requirements = [".kiro/specs/*/requirements.md"]
 spec_files   = [".kiro/specs/**"]
 
-# 要算校验值的文件（需求 12.2）。和上一次报告比，变了就标红
+# 要算校验值的文件（需求 12.2）。和上一次报告比，变了就标红（未实现，2026-11-17 核对）
 watch = [".kiro/hooks/refcov-*.json", "integrations/kiro/**"]
 
-# 要算校验值、并且要用户确认的文件。和最后一次 refcov confirm 比，新文件或变了就标红"待用户确认"
+# 要算校验值、并且要用户确认的文件。和最后一次 refcov confirm 比，新文件或变了就标红"待用户确认"（未实现，2026-11-17 核对）
 confirm = ["docs/decisions/**"]
 
 # 豁免：写这些文件不检查是否达标（需求 8.3）。写了就覆盖默认值
@@ -222,6 +222,8 @@ sources = ["kiro-hooks"]
 
 ### 3.6 文件校验值和用户确认（`files`，任务 18，可选）
 
+未实现（2026-11-17 核对）：本节的 `watch`、`confirm` 两组、报告的 `files` 字段、`report-last.json` 基准和 `refcov confirm` 命令，代码里都没有。`refcov.toml` 里的 `watch`、`confirm` 读进来后不做任何事。
+
 钩子配置、接入层脚本（需求 12.2）和 `docs/decisions/` 下的文件用同一套办法：每次生成报告时，对 `watch` 和 `confirm` 两组路径下的每个文件算 SHA-256，和一个基准比较，结果写进 `files`。两组只差在基准：
 
 | 组 | 基准 | `status` 取值 | 标红 |
@@ -293,7 +295,7 @@ sources = ["kiro-hooks"]
 | `add <路径或网址> --id <参考源ID>` | 登记或重新登记 | **拦**：AI 可以用同一个参考源 ID 登记一个很小的文件，把参考源变成一个单元，读一下就是 100% |
 | `report [--json] [--session <会话ID>]` | 报告 | 放行（只读；更新基准见第 3.6 节） |
 | `check [路径]`、`check-spec <需求文档>` | 只读检查 | 放行 |
-| `confirm [<文件>…]` | 第 3.6 节（任务 18，可选） | **拦** |
+| `confirm [<文件>…]` | 第 3.6 节（任务 18，可选；未实现，2026-11-17 核对） | **拦** |
 
 - 没有 `init`：配置由用户从 `integrations/kiro/refcov.example.toml` 手动复制，状态目录第一次写入时自动建（第 2 节）。这样核心层的命令行也不用知道接入层的路径。
 - 只能由用户跑的子命令记在核心层的 `USER_ONLY = ("add", "confirm")` 里。规则：会往日志里追加记录、会写配置文件、会建立或清空日志的子命令都要放进这个元组。现在没有清空或重建日志的子命令；以后加了也要放进去。
@@ -395,7 +397,7 @@ Hypothesis 直接生成第 7 节纯函数的输入，不经过文件。
 | 4 | `refcov report` 文字和 JSON，`refcov-prompt.json` 一行报告 | api、coverage（只算覆盖率） | 发消息时上下文里出现"本会话 x/y，历史 a/y" |
 | 5 | 用它管自己：登记比赛规则页和 Kiro 钩子文档，后面写钩子代码前先经 MCP 读完 | — | DEVLOG 开始记"RefCov 拦了自己几次"所需的数据 |
 | 6 | `citations`、`check-spec`，必看集合和达标；属性测试 16.1–16.6 | citations、coverage | 属性测试通过 |
-| 7 | 关卡：实测 `control_pwsh_process`；保护检查；写文件、任务开工、写入后记录、拦截次数提示；`refcov confirm` 和文件校验值（可选，放在最后） | integrations/kiro、api | 没读完时写 `integrations/kiro/**` 被拦，读完后放行；用户点引用了没读单元的任务的 Start task 被拦；AI 跑 `refcov add` 被拦 |
+| 7 | 关卡：实测 `control_pwsh_process`；保护检查；写文件、任务开工、写入后记录、拦截次数提示；`refcov confirm` 和文件校验值（可选，放在最后；未实现，2026-11-17 核对） | integrations/kiro、api | 没读完时写 `integrations/kiro/**` 被拦，读完后放行；用户点引用了没读单元的任务的 Start task 被拦；AI 跑 `refcov add` 被拦 |
 | 8 | 凭证和 `check`、`request_token` | api、refcov_mcp | 凭证在配置修改后显示失效 |
 
 持续集成（GitHub Actions 在 Linux 上跑 `pytest`）在第 1 步就建好，换行、大小写这类只在 Linux 上暴露的问题早发现。
@@ -480,4 +482,4 @@ Hypothesis 直接生成第 7 节纯函数的输入，不经过文件。
 | 未核实·`control_pwsh_process` | 第 7 步做关卡前实测 | 第 8 节；第 10 节第 7 步 |
 | 未核实·4000 字依据 | 数字来自 agent 2026-11-10 用 `Invoke-WebRequest` 取的响应大小，写明来源 | 第 4 节第 3 条 |
 
-用户另加的一项：`docs/decisions/` 的文件列校验值，没确认或改过的标红"待用户确认"，用户用 `refcov confirm` 确认（第 3.6 节）。
+用户另加的一项：`docs/decisions/` 的文件列校验值，没确认或改过的标红"待用户确认"，用户用 `refcov confirm` 确认（第 3.6 节）。未实现（2026-11-17 核对）。

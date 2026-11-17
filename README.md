@@ -97,7 +97,7 @@ Install the tool, run `refcov init` in your project, and check the result. You d
    refcov init
    ```
 
-   It writes `.kiro/settings/mcp.json` (the `refcov` entry, with absolute paths to the Python that runs it and to your project), the five hooks into `.kiro/hooks/`, and a `refcov.toml` template if there is none. It never overwrites `refcov.toml`, and it leaves existing hook files alone. `refcov init --force` replaces the five hook files, and in the `refcov` MCP entry only `command` and `args`; other keys (`autoApprove`, `env`, `disabled`) stay as they are. Only you run `init`; the shell protection blocks an AI from running it.
+   It writes `.kiro/settings/mcp.json` (the `refcov` entry, with absolute paths to the Python that runs it and to your project), the five hooks into `.kiro/hooks/`, and a `refcov.toml` template if there is none. It never overwrites `refcov.toml`, and it leaves existing hook files alone. `refcov init --force` replaces the five hook files, and in the `refcov` MCP entry only `command` and `args`; other keys (`autoApprove`, `env`, `disabled`) stay as they are. Only you run `init`; the shell protection blocks an AI from running it. If you have not registered any material yet, delete refcov.toml and run `refcov init` again; otherwise, update the comments in your refcov.toml by hand from the current template (the first line, the [sources] comment, and the watch and confirm comments have changed).
 
    If the Python that runs `init` cannot import the hook module, `init` writes nothing and asks you to reinstall with that same Python.
 

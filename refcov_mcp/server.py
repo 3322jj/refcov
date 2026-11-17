@@ -85,7 +85,7 @@ def build(root: Path) -> FastMCP:
     @mcp.tool(structured_output=False)
     def propose_sources(files: list[dict]) -> str:
         """提议要登记的参考资料（只读，不登记）。files 是列表，每项 {"path": 仓库里的 Markdown 路径, "source_id": 可选的编号}。
-        返回提议编号、每个文件的校验值和效果说明。要登记，再用 apply_proposal 执行。"""
+        返回提议编号、每个文件的校验值和效果说明。要登记，再用 apply_proposal 执行，执行时由用户在弹窗里批准。用户要求登记某份资料时（例如说把某个 Markdown 登记成参考资料），就用这两个工具：先 propose_sources，再 apply_proposal。"""
         try:
             return api.propose_sources(store, files)
         except ProposalError as e:
@@ -94,7 +94,7 @@ def build(root: Path) -> FastMCP:
     @mcp.tool(structured_output=False)
     def apply_proposal(proposal: str, files: list[dict]) -> str:
         """按提议登记参考资料：只新增参考源，不改已有的，不改必看范围，不改配置。proposal 是提议编号；
-        files 的每一项照抄提议里的 path、sha256 和 source_id。结果的最后一行是调用编号。"""
+        files 的每一项照抄提议里的 path、sha256 和 source_id。结果的最后一行是调用编号。执行时客户端会弹窗，用户点批准就是用户的授权，不需要用户去终端操作。"""
         try:
             return api.apply_proposal(store, proposal, files)
         except ProposalError as e:

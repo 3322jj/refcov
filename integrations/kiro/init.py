@@ -18,7 +18,7 @@ OLD_PREFIX = "python integrations/kiro/hook.py"  # 模板里的钩子命令前�
 PROBE_TIMEOUT = 60
 
 CONFIG_TEMPLATE = """\
-# RefCov 配置（refcov init 生成的模板）。只能由用户手动修改；AI 经 Kiro 工具写这个文件会被拦。
+# RefCov 配置（refcov init 生成的模板）。这个配置文件只能由用户手动修改；AI 经 Kiro 工具写它会被拦。
 # 路径都相对仓库根目录、用 / 分隔，匹配时不分大小写；* 也能跨 /。
 
 mode = "strict"          # strict | light
@@ -28,17 +28,19 @@ enforce = true           # false 时关卡一律放行，记录照常
 requirements = [".kiro/specs/*/requirements.md"]
 spec_files   = [".kiro/specs/**"]
 
-# 要算校验值的 Kiro 钩子文件，和上一次报告比，变了就标红
+# 暂未实现，填了不生效
 watch = [".kiro/hooks/refcov-*.json"]
 
-# 要算校验值、并且要用户确认的文件
+# 暂未实现，填了不生效
 confirm = ["docs/decisions/**"]
 
 # 豁免：写这些文件不检查是否达标。根目录的 DEVLOG.md 要单独列
 exempt = ["DEVLOG.md", "**/DEVLOG.md", "docs/decisions/**"]
 
 # 参考材料。files 里写要读的材料（通配符，相对仓库根目录）。
-# 写好以后，在仓库根目录运行 refcov sync 登记它们。网址不能写在这里，用 refcov add 登记。
+# 写好以后，在仓库根目录运行 refcov sync 登记它们。也可以在 Kiro 里说"把某个 Markdown 文件登记成参考资料"：
+# AI 用 propose_sources 提议、apply_proposal 执行，执行前 Kiro 会弹窗请你批准；这条路只新增资料，不改已有的。
+# 网址不能写在这里，用 refcov add 登记。
 [sources]
 files = []
 
@@ -213,6 +215,7 @@ def run(repo: Path, force: bool) -> int:
     lines = [write_mcp(repo, python, root, force), *copy_hooks(repo, python, root, force), write_config(repo)]
     print("\n".join(lines))
     print("下一步：1）在 refcov.toml 的 [sources] 里写要读的材料；2）在仓库根目录运行 refcov sync；"
-          "3）在 Kiro 里确认 refcov MCP 已连上（refcov doctor 能查 MCP 配置）。")
+          "3）在 Kiro 里确认 refcov MCP 已连上（refcov doctor 能查 MCP 配置）。"
+          "也可以在 Kiro 里说\"把某个 Markdown 登记成参考资料\"。")
     print(permission_hint(server_name(repo)))
     return 0
