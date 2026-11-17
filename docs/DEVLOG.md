@@ -2305,3 +2305,29 @@
   EN: RefCov blocks in this step: 0. Reads: the status line showed 8 of 384 this session, 384 of 384 historically, with nothing outstanding; no new MCP reads in this step. Nothing was missed.
 - 没有推送。origin/phase2-haiku 指向 af79db8，origin/main 指向 4c38aed，这两次推送不是这一步做的。
   EN: Nothing was pushed. origin/phase2-haiku points at af79db8 and origin/main at 4c38aed; those pushes were not made in this step.
+
+## 2026-11-18（写英文 Kiro 使用说明：docs/how-we-used-kiro.md）
+- 施工账 af79db8 一行的审阅栏改成"通过（Claude 2026-11-18 审，两处小修已在 ec2b073 改）"（用户要求）；补 ec2b073 一行，演示页同步，摘要改成 48 件，全量到 996。
+  EN: The review cell of the af79db8 ledger row now reads "passed (Claude 2026-11-18 review; the two small fixes were made in ec2b073)", as the user asked. The ec2b073 row was added, and the demo page was synced: the summary reads 48 pieces, with the full suite at 996.
+- 新文件 docs/how-we-used-kiro.md：英文，约 2,470 个空白分隔的词，十个二级标题，顺序按用户给的结构。依据：比赛规则的参赛要求和评分标准（rules 源），故事构思第 5、6 节（story 源），以及项目记录（DEVLOG、施工账、试验记录、钩子模板、智能体定义、steering）。
+  EN: New file docs/how-we-used-kiro.md: English, about 2,470 whitespace-separated tokens, ten level-two headings in the order the user gave. Sources: the competition rules (the rules source: entry requirements and judging criteria), sections 5 and 6 of the story document (the story source), and the project records (the development log, the build ledger, trial records, hook templates, the agent definition and steering).
+- 材料读取：本步经 MCP 的 read_unit 读了 10 个单元（rules 的 4.-How-To-Enter@2、@3、@4，6.-Judges-&-Criteria@2、6.-Judges-&-Criteria；story 的 5、6；kiro-hooks 的 Choose-a-trigger；kiro-permissions 的 CI-and-headless-environments、Trust-a-workspace-in-Kiro-CLI）。report 显示本会话的读取记录从 8 个单元增到 17 个，历史 384/384 未变，没有还差的单元。docs/ 下不是登记源的文件，用文件读取工具读。
+  EN: Reads: ten units were read through read_unit in this step (the list above). The report shows this session's read records rising from 8 units to 17. History stays at 384 of 384, with nothing outstanding. Files under docs/ that are not registered sources were read with the file-read tool; the registered sources were read only through MCP.
+- 问题（我先写的一句与来源不符，提交前已改）：开工关卡一句我先写成"按引用的单元拦住"。核对 2026-11-10 的记录后，那次是探针钩子测的（任务 1 被拦，任务 2 放行）；2026-11-11 的任务 3 到 5 是在聊天里直接做的，没有经过 Start task。文档现在写的是只测了一部分。
+  EN: Problem, corrected before commit: I first wrote that the task-start check stopped a task whose cited units were unread. The 2026-11-10 test used a probe hook (task 1 stopped, task 2 started), and tasks 3 to 5 on 2026-11-11 were run from chat without Start task. The document now says the gate's effect on Start task is only partly tested.
+- 问题（我先写的数字不对，提交前已改）：故事构思第 5 节写的是两边的全量测试结果相同，两边都有一个失败（test_gitignore.py，副本的 .git 是空文件夹）。我先写成了"两边都通过"。
+  EN: Problem, corrected before commit: section 5 of the story document says both sides gave the same full-suite result, and both had one failure, test_gitignore.py, because the copy's .git folder was empty. I had first written that both passed.
+- 问题（DEVLOG 内部不一致，未改，待 Claude 核对）：2026-11-17 第二层规格条目写"规格引用的 6 个单元都是读过的，另外 2 个读了但没有引用"；同一天第二层实现条目写"规格的出处引用了其中 3 个"。两处对不上。使用说明里没有用这个数字。
+  EN: Inconsistency in the log, not changed, for Claude to check: the 2026-11-17 layer 2 spec entry says the spec cites six Kiro permission units, all read, with two more read but not cited. The 2026-11-17 layer 2 implementation entry says the spec cites three of them. The usage document uses neither number.
+- 问题（语言规则，待定）：语言规则只允许英文出现在固定几处，这份文件是整篇英文，是按用户的要求写的。要不要放进 .kiro 或 README，需要再定。
+  EN: Language rule question, open: the language steering allows English only in fixed places. This file is written wholly in English because the user asked for it. Whether it goes into .kiro or the README needs a decision.
+- 问题（提交前的测试失败，已改）：演示页的 ec2b073 行写了一个中文文件名，触发 test_no_chinese_characters_in_the_page_files。改成英文说法后，全量测试 996 通过、10 跳过。
+  EN: Problem, found by the test run and fixed before commit: the ec2b073 row on the demo page named a file with Chinese characters, which failed test_no_chinese_characters_in_the_page_files. It now uses an English description, and the full suite gave 996 passed and 10 skipped.
+- 用到的 Kiro 功能：RefCov 的 MCP 工具 list_units、read_unit、check、report（列登记源、读单元、核对覆盖率）；PowerShell 工具（git、pytest、文本查找）；read_file、str_replace、fs_write（读写文件）。没有用子代理。
+  EN: Kiro features used: the RefCov MCP tools list_units, read_unit, check and report (listing sources, reading units, checking coverage); the PowerShell tool (git, pytest, searches); read_file, str_replace and fs_write for files. No sub-agent was used.
+- 属性测试：这一步没有新增测试。全量测试 996 通过、10 跳过（没有改代码）。
+  EN: Property tests: none added in this step. The full suite gave 996 passed and 10 skipped (no code changed).
+- RefCov 拦自己的次数（本步）：0。读取：本会话的读取记录从 8 个单元增到 17 个，没有还差的单元。差点漏掉什么：没有。
+  EN: RefCov blocks in this step: 0. Reads: this session's read records rose from 8 units to 17, with nothing outstanding. Nothing was missed.
+- 没有推送。英文使用说明等 Claude 核对后，再决定放在哪里。
+  EN: Nothing was pushed. The English usage document waits for Claude's check before it is placed anywhere.
