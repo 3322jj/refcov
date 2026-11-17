@@ -4,7 +4,7 @@ inclusion: always
 
 # 技术约定
 
-EN summary: Python 3.11+ on Windows; CI runs the tests on Linux and Windows. The core uses only the standard library; only the MCP server module depends on the official `mcp` SDK, and ffmpeg/geopandas stay inside their apps. Hook scripts block only with exit code 2 and a reason on stderr, match exact tool names, and judge only by `tool_input.path` or the command text. On internal errors they allow, except the state/config protection checks, which block. Hook scripts read stdin as bytes, decode UTF-8, force UTF-8 output, and escape text before logging. Dependent agent operations (edit then test, commit then push, push retries) are sent one at a time, each after the previous result is back.
+EN summary: Python 3.11+ on Windows; CI runs the tests on Linux and Windows. The core uses only the standard library; only the MCP server module depends on the official `mcp` SDK, and ffmpeg/geopandas stay inside their apps. Hook scripts block only with exit code 2 and a reason on stderr, match exact tool names, and judge only by `tool_input.path` or the command text. On internal errors they allow, except the state/config protection checks, which block. Hook scripts read stdin as bytes, decode UTF-8, force UTF-8 output, and escape text before logging. Dependent agent operations (edit then test, commit then push, push retries) are sent one at a time, each after the previous result is back. Required reference units are read by the agent that writes the code, through MCP and never through sub-agents, because RefCov records only that a workspace read a unit and cannot tell which agent read it.
 
 ## agent 操作顺序
 
@@ -12,6 +12,12 @@ EN summary: Python 3.11+ on Windows; CI runs the tests on Linux and Windows. The
 - 同一批发出的工具调用不保证按顺序执行，测试可能跑在改动之前，push 可能跑在 commit 之前。
 
 依据：`docs/DEVLOG.md` 2026-11-12（任务 8 里同批发出出了 4 次）。
+
+## 必看材料
+
+- **必看材料一律由写代码的那个 AI 自己经 MCP 工具读，不交给子代理。** RefCov 只记"这个工作区里经 MCP 读过"，分不出是哪个代理读的；子代理读了，关卡照样放行，内容也没进写代码的 AI 的上下文。
+
+依据：`docs/DEVLOG.md` 2026-11-17（演示页开发时，5 个子代理替读 174 个指南单元，用户指出）。
 
 ## 语言和依赖
 
