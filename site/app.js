@@ -126,45 +126,90 @@
   function hideAll(items) {
     items.forEach(function (item) {
       item.classList.add("pending");
+      item.classList.remove("revealed");
     });
   }
 
-  function makePlayer(items) {
+  /* One controller per replay. States: idle (not started), playing, paused, done. The single
+   * button reads "Replay" when idle or done, "Pause" while playing and "Play" while paused.
+   * The label changes, so the button does not expose a pressed state. */
+  function makeController(items, button) {
     var timer = null;
     var next = 0;
+    var state = "idle";
 
-    function tick() {
-      if (next < items.length) {
-        items[next].classList.remove("pending");
-        next += 1;
-        timer = window.setTimeout(tick, STEP_MS);
-      } else {
-        timer = null;
-      }
+    function setLabel(text) {
+      button.textContent = text;
     }
 
-    return function play() {
+    function clearTimer() {
       if (timer !== null) {
         window.clearTimeout(timer);
         timer = null;
       }
+    }
+
+    function tick() {
+      if (state !== "playing") {
+        return;
+      }
+      if (next < items.length) {
+        var item = items[next];
+        item.classList.remove("pending");
+        if (item.classList.contains("blocked")) {
+          item.classList.add("revealed");
+        }
+        next += 1;
+        timer = window.setTimeout(tick, STEP_MS);
+      } else {
+        timer = null;
+        state = "done";
+        setLabel("Replay");
+      }
+    }
+
+    function start() {
+      clearTimer();
       next = 0;
       hideAll(items);
+      state = "playing";
+      setLabel("Pause");
       tick();
-    };
+    }
+
+    button.addEventListener("click", function () {
+      if (state === "playing") {
+        clearTimer();
+        state = "paused";
+        setLabel("Play");
+      } else if (state === "paused") {
+        state = "playing";
+        setLabel("Pause");
+        tick();
+      } else {
+        start();
+      }
+    });
+
+    return start;
   }
 
-  /* Replays start once when the replay area is on screen. With reduced motion the final state
-   * stays visible; the CSS shows a note and hides the button. */
+  /* Replays start once when the replay area is on screen, and the visitor can pause, resume or
+   * replay them with the button. With reduced motion the final state stays visible; the CSS shows
+   * a note and hides the button. */
+  function inViewport(node) {
+    var rect = node.getBoundingClientRect();
+    return rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+  }
+
   function arrangePlayback(replayRoot, items, button) {
     if (reduceMotion) {
       return;
     }
-    var play = makePlayer(items);
+    var start = makeController(items, button);
     hideAll(items);
-    button.addEventListener("click", play);
-    if (!("IntersectionObserver" in window)) {
-      play();
+    if (inViewport(replayRoot) || !("IntersectionObserver" in window)) {
+      start();
       return;
     }
     var observer = new IntersectionObserver(function (entries) {
@@ -173,7 +218,7 @@
       });
       if (visible) {
         observer.disconnect();
-        play();
+        start();
       }
     }, { threshold: 0.25 });
     observer.observe(replayRoot);

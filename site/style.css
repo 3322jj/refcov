@@ -204,6 +204,9 @@ pre code { background: none; padding: 0; }
 
 .replay-button:hover { background: var(--accent); color: var(--bg); }
 
+/* Press feedback differs from hover: the button fills with the text colour. */
+.replay-button:active { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+
 .steps {
   list-style: none;
   margin: .5rem 0 0;
@@ -213,7 +216,7 @@ pre code { background: none; padding: 0; }
 
 .steps li { padding: .2rem 0; font-size: .95rem; }
 .steps li.write, .steps li.final { font-weight: 600; }
-.steps li.blocked { color: var(--blocked); font-weight: 600; }
+.steps li.blocked { position: relative; color: var(--blocked); font-weight: 600; }
 .steps li .note { margin-left: .4rem; }
 
 .replay .cells { margin: .5rem 0; }
@@ -269,6 +272,15 @@ table {
   font-size: .92rem;
 }
 
+/* Wide enough that columns do not collapse; the wrapper scrolls instead (it is keyboard-focusable). */
+.table-wrap > table { min-inline-size: 36rem; }
+
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding-block: .25rem;
+}
+
 caption {
   text-align: left;
   font-weight: 600;
@@ -311,6 +323,10 @@ tfoot th, tfoot td { font-weight: 600; }
     padding: .15rem .25rem;
   }
 
+  .responsive {
+    min-inline-size: 0;
+  }
+
   .responsive caption {
     display: block;
     width: 100%;
@@ -337,10 +353,21 @@ tfoot th, tfoot td { font-weight: 600; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .steps li.blocked { animation: flash 1.2s ease-in-out 2; }
+  /* The frame fades in and out with opacity only, at most twice in 2.4 seconds. app.js adds
+   * .revealed when the step appears, so the flash plays where it can be seen. */
+  .steps li.blocked.revealed::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border: 2px solid var(--blocked);
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    animation: flash 1.2s ease-in-out 2;
+  }
 
   @keyframes flash {
-    0%, 100% { outline: 2px solid transparent; }
-    50% { outline: 2px solid var(--blocked); outline-offset: 2px; }
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
   }
 }

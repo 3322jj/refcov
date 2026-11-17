@@ -22,7 +22,6 @@ SECTION_IDS = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"]
 FIXED_SENTENCES = [
     # Requirement 4.1: the gate message, in English, with the translation note.
     "Write blocked by the RefCov gate: required units not read yet.",
-    "(gate message, translated)",
     # Requirement 4.3: the result sentence, with no area figure.
     "answer.md written. Graded outside this repository: within \u00b13% of the reference answer.",
     # Requirement 4.4: the sentence about the dictionary and the 24 units.
@@ -137,3 +136,66 @@ def test_forbidden_claims_are_absent():
     lowered = HTML.lower()
     for phrase in FORBIDDEN_PHRASES:
         assert phrase not in lowered, phrase
+
+
+def test_gate_message_is_named_once_in_the_gate_box():
+    """性质（需求 4.1）：拦截框里的 "gate message, translated" 只出现一次（标签）；回放里的注释由 app.js 写出。"""
+    assert HTML.lower().count("gate message, translated") == 1
+    assert "(gate message, translated)" in JS
+
+
+def test_section_six_says_sub_agent_reads_pass_the_gate():
+    """性质（product.md 新增的一条）：第 6 段照实写：子代理替读的单元，关卡照样放行，Kiro 自己报告了这件事。"""
+    section = HTML[HTML.index('<section id="s6"'): HTML.index('<section id="s7"')]
+    assert (
+        "RefCov records that a unit was read in this workspace, not which agent read it. "
+        "While this page was being built, Kiro had sub-agents read 174 guide units for it, "
+        "and the gate let the next write through. Kiro reported this itself."
+    ) in section
+
+
+def test_long_article_note_names_all_three_javascript_uses():
+    """性质（前端扩展试验第 4 节）：长文页那行写出三处都用了 JavaScript：进度条、页眉、吸顶标题。"""
+    section = HTML[HTML.index('<section id="s2"'): HTML.index('<section id="s3"')]
+    assert (
+        "After reading, one run used JavaScript for the progress bar, the header and the sticky headings "
+        "(a conservative choice)."
+    ) in section
+
+
+def test_replay_pause_resume_and_replay_are_all_labelled():
+    """性质（WCAG 2.2.2，g-motion 指南）：自动播放的回放有可见的暂停、继续、重播控件；按钮文字会变，所以不用 aria-pressed。"""
+    for label in ("Pause", "Play", "Replay"):
+        assert f'"{label}"' in JS, label
+    assert "aria-pressed" not in JS
+    assert "aria-pressed" not in HTML
+
+
+def test_blocked_step_flash_starts_when_revealed_and_animates_opacity():
+    """性质（g-motion 指南：动效用 opacity；闪动不超过每秒三次）：被拦的一步在显示时才开始闪，闪动只改 opacity，共两次。"""
+    assert '"revealed"' in JS
+    assert ".steps li.blocked.revealed::after" in CSS
+    assert "animation: flash 1.2s ease-in-out 2;" in CSS
+    assert "outline: 2px solid transparent" not in CSS
+
+
+def test_press_feedback_differs_from_hover():
+    """性质（g-natural-interactions 指南：每个控件有悬停、按下、焦点三种可见反馈）：按下状态有自己的样式。"""
+    assert ".replay-button:hover" in CSS
+    assert ".replay-button:active" in CSS
+
+
+def test_scrollable_table_regions_are_keyboard_reachable_and_named():
+    """性质（g-sortable-table 指南：可横向滚动的表格外层能用键盘聚焦，并有名字）：四个表格外层都是 role=region、tabindex=0，aria-labelledby 指向存在的表题。"""
+    wrappers = re.findall(r'<div class="table-wrap" role="region" tabindex="0" aria-labelledby="([^"]+)">', HTML)
+    assert len(wrappers) == 4
+    for caption_id in wrappers:
+        assert f'<caption id="{caption_id}">' in HTML, caption_id
+    assert ".table-wrap > table { min-inline-size: 36rem; }" in CSS
+
+
+def test_ledger_is_folded_in_a_details_element():
+    """性质（用户要求）：第 5 段施工账表默认折叠（details），折叠前只有一句摘要。"""
+    assert "<details>" in HTML and "<summary>" in HTML
+    details = HTML[HTML.index("<details>"): HTML.index("</details>")]
+    assert 'class="ledger responsive"' in details

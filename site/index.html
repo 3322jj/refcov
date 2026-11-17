@@ -88,9 +88,9 @@
     </div>
   </div>
 
-  <div class="table-wrap">
+  <div class="table-wrap" role="region" tabindex="0" aria-labelledby="needles-caption">
   <table class="needles responsive">
-    <caption>Guide practices in each run's index.html</caption>
+    <caption id="needles-caption">Guide practices in each run's index.html</caption>
     <thead>
       <tr><th scope="col">Practice</th><th scope="col">Without RefCov</th><th scope="col">With RefCov</th></tr>
     </thead>
@@ -108,11 +108,11 @@
 
 <section id="s2" aria-labelledby="s2-title">
   <h2 id="s2-title">Five front-end tasks</h2>
-  <p>Each task ran three or four times per group with claude-haiku-5.5 on kiro-cli 3.3.0. "Practices" are the four guide patterns that each task's check looks for.</p>
+  <p>Each task ran three or four times per group with claude-haiku-5.5 on kiro-cli 3.3.0. "Practices" are the guide patterns that each task's check looks for: four for the first task, three for the FAQ accordion, five for the dropdown menu, and three each for the dark-mode switch and the long article page.</p>
 
-  <div class="table-wrap">
+  <div class="table-wrap" role="region" tabindex="0" aria-labelledby="tasks-caption">
     <table class="tasks responsive">
-      <caption>Results per task, all with claude-haiku-5.5</caption>
+      <caption id="tasks-caption">Results per task, all with claude-haiku-5.5</caption>
       <thead>
         <tr>
           <th scope="col">Task</th>
@@ -162,7 +162,7 @@
           <td data-label="Without RefCov: practices used">2 / 9</td>
           <td data-label="With RefCov: runs that read every required unit">3 of 3 (54 units)</td>
           <td data-label="With RefCov: practices used">6 / 9</td>
-          <td data-label="Notes">After reading, one run used JavaScript for the progress bar and header (a conservative choice).</td>
+          <td data-label="Notes">After reading, one run used JavaScript for the progress bar, the header and the sticky headings (a conservative choice).</td>
         </tr>
       </tbody>
       <tfoot>
@@ -185,7 +185,7 @@
 <section id="s3" aria-labelledby="s3-title">
   <h2 id="s3-title">The gate: a write waits until the required units are read</h2>
   <p>Run G-01 (folder gis-20261115-213112) is the first formal run of the group where only the gate was on. That group had the per-message status line removed, so the gate was the only RefCov part active. The question asks for a total area, and the answer goes into answer.md.</p>
-  <p class="gate-message"><span class="label">Gate message, translated:</span> <span id="gate-text">Write blocked by the RefCov gate: required units not read yet.</span> <span class="note">(gate message, translated)</span></p>
+  <p class="gate-message"><span class="label">Gate message, translated:</span> <span id="gate-text">Write blocked by the RefCov gate: required units not read yet.</span></p>
 
   <dl class="meta" id="gate-meta"></dl>
   <p class="status" id="gate-status">Loading the replay.</p>
@@ -220,9 +220,12 @@
   <h2 id="s5-title">We used it on ourselves</h2>
   <p>From 15 November, claude-haiku-5.5 built the layer-coverage app under RefCov, which required the specs and data notes to be read before each write. The ledger below is the project's own record, one row per piece of work. Credits show as unknown where the Kiro panel did not show the number.</p>
 
-  <div class="table-wrap">
+  <p>32 pieces of work, all with claude-haiku-5.5. The full-suite test count went from 742 passing to 893.</p>
+  <details>
+    <summary>Show the build ledger, row by row</summary>
+    <div class="table-wrap" role="region" tabindex="0" aria-labelledby="ledger-caption">
     <table class="ledger responsive">
-      <caption>Build ledger, rows in order, copied from the repository's ledger file</caption>
+      <caption id="ledger-caption">Build ledger, rows in order, copied from the repository's ledger file</caption>
       <thead>
         <tr>
           <th scope="col">Date</th>
@@ -266,15 +269,17 @@
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Converter script, its tests and the four replay JSON files: standard library only; 17 tests including one property test</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">17 targeted tests pass; full suite 867 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Display names for read events (unit ID with layout tags and entities removed, hyphens as spaces, cut to 80 characters); G-01 and WB-H-03 JSON regenerated; two converter tests added</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">19 converter tests pass; full suite 869 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">0</td></tr>
         <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Demo page: index.html, style.css and app.js (English, eight sections); three page test files (page 12, numbers 9, contrast 3); Pages workflow pages.yml uploads site/ only; design sections 3.2 and 3.4 define the display field; design section 8 steps 4 and 5 done</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">24 new tests pass; full suite 893 passed</td><td data-label="Units read before writing">316 (report check: session total; earlier counts not recorded separately)</td><td data-label="Gate blocks">1 (a shell command that read the RefCov log was stopped by the protection check; the report tool was used instead)</td></tr>
+        <tr><td data-label="Date">2026-11-17</td><td data-label="Task">Steering: product.md says RefCov records workspace MCP reads without saying which agent made them; tech.md adds a rule that required units are read by the writing agent through MCP, not by sub-agents</td><td data-label="Model">claude-haiku-5.5</td><td data-label="Credits">unknown</td><td data-label="Tests">no targeted tests; full suite 893 passed</td><td data-label="Units read before writing">316 (report check: session total; the 82 guide units read before this step did not change the count)</td><td data-label="Gate blocks">0</td></tr>
       </tbody>
     </table>
-  </div>
+    </div>
+  </details>
 
   <h3>Same task, two models</h3>
   <p>Two re-implementation tasks, each done by claude-haiku-5.5 and by Opus 5.5 from the same specs and tests (kiro-cli 3.3.0, one run each, 2026-11-15). Both copies had the same single failure, in test_gitignore.py, caused by an empty .git folder in the copy.</p>
-  <div class="table-wrap">
+  <div class="table-wrap" role="region" tabindex="0" aria-labelledby="comparison-caption">
     <table class="responsive">
-      <caption>Credits and seconds for the same task</caption>
+      <caption id="comparison-caption">Credits and seconds for the same task</caption>
       <thead>
         <tr><th scope="col">Task</th><th scope="col">claude-haiku-5.5</th><th scope="col">Opus 5.5</th></tr>
       </thead>
@@ -300,6 +305,7 @@
     <li>Test conditions: the front-end and GIS results are claude-haiku-5.5 on kiro-cli 3.3.0. The first front-end task also had automatic model selection and claude-sonnet-5.5 groups. The video trial used claude-sonnet-5.5 on two batches, kiro-cli 3.1.0 and 3.3.0.</li>
     <li>A person registers the materials. RefCov does not look up the latest guides by itself.</li>
     <li>RefCov records that a unit was read, not that it was understood.</li>
+    <li>RefCov records that a unit was read in this workspace, not which agent read it. While this page was being built, Kiro had sub-agents read 174 guide units for it, and the gate let the next write through. Kiro reported this itself.</li>
   </ul>
 </section>
 

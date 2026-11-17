@@ -228,3 +228,41 @@ def test_replay_data_has_no_chinese_text_and_no_local_paths():
         assert not CJK.search(text), path.name
         assert not re.search(r"[A-Za-z]:[\\/]", text), path.name
         assert "/Users/" not in text and "/home/" not in text, path.name
+
+
+def test_replay_data_has_no_markdown_bold_markers():
+    """性质（设计第 3.2 节，显示名）：JSON 里的显示名没有 Markdown 粗体标记 **。"""
+    for path in sorted(DATA.glob("*.json")):
+        assert "**" not in path.read_text(encoding="utf-8"), path.name
+
+
+def test_practice_denominators_match_each_task_and_its_run_count():
+    """性质（需求 3.1）：第 2 段每行的分母等于"写法个数 × 每组次数"；写法个数与第 2 段说明一致（第一轮 4 个写法、4 次；其余 4 个任务 3 次）。"""
+    rows = _table_rows("tasks")
+    practices = {
+        "Account settings page (first trial)": (4, 4),
+        "FAQ accordion": (3, 3),
+        "Dropdown menu": (5, 3),
+        "Dark-mode switch": (3, 3),
+        "Long article page": (3, 3),
+    }
+    body = {row[0]: row for row in rows if row and row[0] in practices}
+    assert set(body) == set(practices)
+    for task, (count, runs) in practices.items():
+        assert int(body[task][2].split("/")[1]) == count * runs, task
+        assert int(body[task][4].split("/")[1]) == count * runs, task
+    assert (
+        "four for the first task, three for the FAQ accordion, five for the dropdown menu, "
+        "and three each for the dark-mode switch and the long article page"
+    ) in _section("s2")
+
+
+def test_ledger_summary_sentence_matches_the_ledger_file():
+    """性质（需求 6.1，用户要求）：第 5 段的一句摘要与施工账一致：件数、模型，以及全量测试从第一行到最后一行的通过数。"""
+    file_rows = _ledger_file_rows()
+    section = _section("s5")
+    assert f"{len(file_rows)} pieces of work, all with claude-haiku-5.5." in section
+    assert all(row[2] == "claude-haiku-5.5" for row in file_rows)
+    first = re.search(r"全量 (\d+)", file_rows[0][4]).group(1)
+    last = re.search(r"全量 (\d+)", file_rows[-1][4]).group(1)
+    assert f"from {first} passing to {last}." in section

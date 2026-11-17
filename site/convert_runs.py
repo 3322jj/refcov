@@ -146,15 +146,17 @@ ENTITY_RE = re.compile(r"&(?:[A-Za-z][A-Za-z0-9]*|#[0-9]+|#[xX][0-9A-Fa-f]+);")
 
 
 def _display(full_id: str) -> str:
-    """Name shown on the page: the unit part of the ID, layout tags and entities removed, hyphens as spaces.
+    """Name shown on the page: the unit part of the ID, layout tags, entities and bold markers removed,
+    hyphens as spaces.
 
-    Only layout tags (br, hr, p, div, li, ul, ol) and entities are removed. Element names such as
-    <dialog> in guide titles are part of the name, so they stay.
+    Only layout tags (br, hr, p, div, li, ul, ol), entities and bold markers (**) are removed. Element
+    names such as <dialog> in guide titles are part of the name, so they stay.
     """
     _, sep, unit = full_id.partition("/")
     text = unit if sep else full_id
     text = LAYOUT_TAG_RE.sub(" ", text)
     text = ENTITY_RE.sub(" ", text)
+    text = text.replace("**", " ")
     text = text.replace("-", " ")
     text = re.sub(r"\s+", " ", text).strip()
     return _truncate(text)

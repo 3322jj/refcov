@@ -17,6 +17,7 @@ TEXT_PAIRS = [
     ("muted", "bg"),
     ("accent", "bg"),
     ("fg", "code-bg"),
+    ("bg", "fg"),
     ("blocked", "bg"),
 ]
 

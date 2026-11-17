@@ -502,6 +502,7 @@ def test_dictionary_table_of_contents_gets_a_clean_display_name():
     name = convert_runs._display(TOC_ID)
     assert "<br" not in name
     assert "&nbsp" not in name
+    assert "**" not in name
     assert name.startswith("Table of Contents")
     assert "Identification" in name
     assert name.endswith("\u2026")  # longer than 80 characters, so it is cut with an ellipsis
@@ -514,3 +515,4 @@ def test_display_keeps_element_names_and_drops_the_source_prefix():
     assert convert_runs._display("g-accessibility/Native-`<dialog>`") == "Native `<dialog>`"
     assert convert_runs._display("g-color/Color") == "Color"
     assert convert_runs._display(f"demo-plan/{CHINESE_UNIT}") == "演示页方案（用户 2026 11 16 拍板）"
+    assert convert_runs._display("g-x/**Bold**-name") == "Bold name"

@@ -1882,4 +1882,43 @@
   EN: Not done: publishing. The user sets Pages to GitHub Actions in the repository settings and merges to main. The workflow has not run; I checked that its YAML parses and that the action versions match their READMEs (upload-pages-artifact v3, deploy-pages v4). The README status paragraph still says 2026-11-11; this step changed only the layout and the planned list.
 - 工作区里 .kiro/steering/product.md 和 tech.md 有未提交的改动，不是这一步做的，所以没有暂存也没有提交。RefCov 的日志也没有碰。
   EN: The working tree still has uncommitted edits to .kiro/steering/product.md and tech.md. They are not part of this step, so they were not staged or committed. The RefCov log was not touched.
+## 2026-11-17（夜：审阅修改，82 个指南单元补读，暂停控件）
+- 审阅：Claude 审过 8931cac 和 aac51c8，页面整体可以（深浅色、手机宽度、没有脚本错误、没有横向溢出，文字和数字逐项对过）。用户要求补读 82 个指南单元并对照页面，另有九项修改。
+  EN: Review: Claude reviewed commits 8931cac and aac51c8 and approved the page overall (dark and light, phone width, no script errors, no horizontal overflow, text and numbers checked). The user asked for 82 guide units to be read and the page checked against them, plus nine changes.
+- 先提交 product.md 和 tech.md（2187bab）。这两个文件的改动是子代理规矩：product.md 对外讲法补一句，tech.md 新增"必看材料"一节。
+  EN: The product.md and tech.md edits were committed first as 2187bab. They hold the sub-agent rules: one sentence in the public text in product.md, and a new required-materials section in tech.md.
+- 补读：我经 MCP 工具逐个读了 82 个单元，没有用子代理。按指南计：g-2d-panning 9、g-natural-interactions 11、g-contrast-color 6、g-highlight-text-ranges 8、g-tabs 15、g-motion 5、g-dynamic-sibling-animations 3、g-scrollytelling 5、g-sortable-table 9、g-card 11。
+  EN: Catch-up reads: I read the 82 units one by one through the MCP read tool, without sub-agents. Per guide: g-2d-panning 9, g-natural-interactions 11, g-contrast-color 6, g-highlight-text-ranges 8, g-tabs 15, g-motion 5, g-dynamic-sibling-animations 3, g-scrollytelling 5, g-sortable-table 9, g-card 11.
+- 照实记录（用户要求）：页面是我读完 100 个指南单元之后写的；其余 82 个是写完后补读、再对照检查的。
+  EN: The record, as the user asked: the page was written after 100 guide units had been read. The other 82 were read after the page was written, and then checked against it.
+- 报告的计数：report 里本会话送出文字段数，在前面一次 report 时是 427，补读后是 509，正好多 82，与 82 次读取调用相符。但本会话看过的单元数（去重）两次都是 316。所以这 82 个单元在补读前已经算在本会话里了。report 不能说明是哪一次读取先算的，我没有去追。
+  EN: Report count: the session's text-segment count was 427 at an earlier report and 509 after the catch-up reads, exactly 82 more, which matches the 82 read calls. The distinct-unit count was 316 both times. The 82 units were therefore already counted in this session before I read them. The report cannot show which earlier read counted them first, and I did not trace it.
+- 对照检查，需要改的：
+  EN: Checks against the guides, and what needed changing:
+- 暂停：g-motion 指南（WCAG 2.2.2）要求自动运行超过 5 秒、与其他内容并列的动效有可见的暂停控件。回放原来只有"重播"。现在每个回放有一个按钮，文字为"暂停"、"继续"或"重播"（页面里是英文）；按钮文字会变，所以不用 aria-pressed。
+  EN: Pause: the motion guide (WCAG 2.2.2) asks for a visible pause control on automatic motion that runs longer than five seconds beside other content. The replays had only Replay. Each replay now has one button reading Pause, Play or Replay. The label changes, so the button has no aria-pressed.
+- 按下反馈：g-natural-interactions 指南要求每个控件有悬停、按下、焦点三种可见反馈。回放按钮只有悬停和焦点；现在按下时背景换成正文颜色。
+  EN: Press feedback: the natural-interactions guide asks every control for hover, press and focus feedback. The replay button had hover and focus only. It now turns to the text colour when pressed.
+- 可滚动表格：g-sortable-table 指南要求可横向滚动的表格外层能用键盘聚焦，并有名字。四个表格外层现在是 role=region、tabindex=0，aria-labelledby 指向表题；表格有最小宽度，列不会挤没。
+  EN: Scrollable tables: the sortable-table guide asks that a horizontally scrolling table wrapper be keyboard-focusable and named. The four table wrappers are now role=region, tabindex=0, labelled by their captions. The tables have a minimum width so columns do not collapse.
+- 闪动：被拦的一步，原来的 outline 动画从页面加载时就开始，所以可能在这一步显示前就放完了，用户看不见。现在动画在这一步显示时才开始，只改 opacity，共两次（每秒不超过三次）。这是读 CSS 得出的判断，我没有在浏览器里抓到闪动的画面。
+  EN: Flash: the blocked step's outline animation started at page load, so it could finish before the step was revealed and never be seen. It now starts when the step is revealed, changes only opacity, and runs twice in 2.4 seconds (under three flashes per second). This comes from reading the CSS; I did not capture the flash in a browser.
+- 没改的：tabs、card、scrollytelling、2D panning、highlight 和 contrast-color 讲的是页面没有的组件或动态背景，不适用。stagger 指南推荐 CSS 的 sibling-index()；页面用 JS 定时逐步显示，是有意保留的做法，减少动态效果时同样静止。
+  EN: Not changed: the tabs, card, scrollytelling, 2D panning, highlight and contrast-color guides cover components or dynamic backgrounds the page does not have. The stagger guide recommends sibling-index() in CSS. The page reveals steps with JavaScript timers on purpose, and it is still static under reduced motion.
+- 用户的九项要求：(1) 两个 steering 文件提交为 2187bab；(2) 补读 82 个（见上）；(3) 第 2 段的说明改为按任务写个数：第一轮 4 个写法，FAQ 3 个，下拉菜单 5 个，深色模式 3 个，长文页 3 个；(4) 拦截框里 gate message 的注释只留一处（框里保留标签，注释由回放写出）；(5) 第 6 段加一条子代理读取的说明；(6) 第 5 段施工账默认折叠，上面一句摘要；(7) 长文页备注改成三处都用了 JavaScript；(8) 显示名去掉 `**`；(9) 测试补上，全量测试，按路径暂存，提交和推送分开。
+  EN: The nine requests: (1) the steering files committed as 2187bab; (2) the 82 units read, as above; (3) the second section now gives the practice count per task: 4 for the first task, 3 for the FAQ accordion, 5 for the dropdown menu, 3 for the dark-mode switch and 3 for the long article page; (4) the gate box names the gate message once, with the note written by the replay; (5) section 6 has the sub-agent sentence; (6) the ledger is folded in a details element behind one summary sentence; (7) the long-article note names the three JavaScript uses; (8) bold markers removed from display names; (9) tests added, the full suite run, changes staged by path, committed, then pushed separately.
+- 显示名：转换脚本去掉 `**`，设计第 3.2 节同步改。用真实的四次运行重新生成 JSON，只有 g-01.json 变了一行（目录单元的显示名），其他三个文件字节不变。
+  EN: Display names: the converter now removes bold markers, and design section 3.2 is updated. The four JSON files were regenerated from the real runs. Only one line changed, the table-of-contents display name in g-01.json; the other three files were byte-identical.
+- 自动播放：headless Chrome 截图里 IntersectionObserver 有时不触发。用上一版的 app.js（8931cac）在同样的设置下也不触发，所以不是这次改动造成的。现在回放在视口内时直接开始；视口外仍由观察器触发。
+  EN: Autoplay: in headless Chrome the IntersectionObserver sometimes never fires. The previous app.js (8931cac) behaves the same in that setup, so this change did not cause it. A replay already in the viewport now starts directly; replays below the fold still start through the observer.
+- 测试：我写的两处测试期望有误（固定句列表误含 JavaScript 注释里的文字；aria-pressed 检查命中了注释），已改正测试，页面没有问题。站点和转换测试 54 个全部通过。
+  EN: Tests: two of my own test expectations were wrong: a fixed-sentence check matched a JavaScript comment, and the aria-pressed check matched a comment. I corrected the tests, not the page. The site and converter tests pass, 54 in all.
+- Chrome 复查（真实的 site/ 文件夹）：106 个读取格子、1 个被拦步骤显示、0 个待播项、三个按钮都是"重播"、0 个页面脚本错误。暂停测试（临时复制，定时点击）：4 秒暂停，7 秒和 9 秒都是 11 格；10 秒继续后，13 秒是 25 格；60 秒是 82 格。
+  EN: Chrome recheck of the real site folder: 106 read cells, one blocked step revealed, no pending items, all three buttons on Replay, no page script errors. Pause test on a temporary copy with timed clicks: paused at 4 s, 11 cells at both 7 s and 9 s; resumed at 10 s, 25 cells at 13 s, 82 cells at 60 s.
+- RefCov 这一步拦了 0 次（report 显示本会话被拦 0 次）。属性测试：本步没有新增；页面测试是源码检查，不是核心计算。
+  EN: RefCov blocked nothing in this step (the report shows 0 blocks this session). Property tests: none added in this step; the page tests check source text, not core calculations.
+- 施工账：补了 2187bab 一行（待审）。这一步的行在下一次提交里补。模型是用户确认的 claude-haiku-5.5，施工账和提交尾注不改。
+  EN: Ledger: the row for 2187bab was added (review pending). This step's row goes in the next commit. The user confirmed the model is claude-haiku-5.5, so the ledger and the commit trailers are unchanged.
+- 没做的：合并 main、打开 Pages 设置。按用户要求，等 Claude 读完使用条款再做。
+  EN: Not done: merging main and turning on Pages. As the user asked, both wait until Claude has read the terms of use.
 
