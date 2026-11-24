@@ -35,6 +35,14 @@ Kiro IDE, kiro-cli, Kiro hooks, Kiro specs, Kiro steering, MCP, Python, Hypothes
 
 A project's standards live in the material you hand the AI, not in the model's memory. You put the style guide, the API notes or the data dictionary in the repository, the agent says it followed them, and you have no way to check whether it opened them. Code has test coverage. We wanted the same thing for reference material: **how much of it the AI read should be a number, not a sentence like "I read the docs".**
 
+### Who it's for
+
+People who hand material to an AI and expect it to be followed: a team's style guide or design system, API documentation, a data dictionary, or a reference video to imitate.
+
+I ran into this myself. While making videos for social media, I asked an agent to analyse a video I wanted to model mine on. Its analysis sounded convincing, but the video it made was far from the reference. When I asked again, it admitted it had not watched the reference closely. Time and credits wasted.
+
+Code is the same: the AI says "I followed the project's guidelines", and you cannot check. RefCov gives an answer you can check: which units were read, in which session, and which are still missing. In Kiro, the write waits until the required ones are read.
+
 ### What it does
 
 - **Split.** Each registered source is split into units: a section of a Markdown document, a shot of a video, the coordinate system or a field of a GIS layer.
@@ -48,7 +56,7 @@ Install: `uv tool install git+https://github.com/3322jj/refcov`, then `refcov in
 
 ### What we measured
 
-Five front-end tasks (an account settings page, an FAQ accordion, a dropdown menu, a dark-mode switch, a long article page), claude-haiku-5.5 on kiro-cli 3.3.0, three or four runs per group per task. The workspace held Chrome's modern web guidance; a one-line README said front-end code follows it. These are descriptions of 16 runs per group, not statistics.
+Five front-end tasks (an account settings page, an FAQ accordion, a dropdown menu, a dark-mode switch, a long article page), claude-haiku-5.5 on kiro-cli 3.3.0, three or four runs per group per task. The workspace held Chrome's modern web guidance (209 guides); a one-line README said front-end code follows it. These are descriptions of 16 runs per group, not statistics.
 
 - Without RefCov, 13 of 16 runs wrote their code without opening any registered guide. With RefCov, 16 of 16 read every required unit before writing.
 - The guide practices the checks looked for were used 9 of 58 times without RefCov and 39 of 58 with it. Under a rule written before the runs, 2 of the 5 tasks show a clear difference in the code.
@@ -66,7 +74,7 @@ Five front-end tasks (an account settings page, an FAQ accordion, a dropdown men
 
 ### How we built it, and how we used Kiro
 
-Three roles: Claude set direction, wrote the public text and reviewed at fixed checkpoints; Kiro wrote the code and the specs; the user decided and ran the commands only a person may run, such as registering material. Kiro built RefCov under RefCov: the repository's own hooks gated Kiro's writes, and its own log holds 645 recorded unit reads and 31 protection-check blocks from the build. The write gate's three blocks in this repository were arranged tests, not catches.
+Three roles: Claude proposed the direction, drafted the public text and reviewed at fixed checkpoints; Kiro wrote the code and the specs; the user decided and ran the commands only a person may run, such as registering material. Kiro built RefCov under RefCov: the repository's own hooks gated Kiro's writes, and its own log holds 645 recorded unit reads and 31 protection-check blocks from the build. The write gate's three blocks in this repository were arranged tests, not catches.
 
 - **Specs.** Six spec folders in `.kiro/specs/` (the skeleton, the install layer, registration from chat, both apps, the demo page), each with requirements and a design. Requirements cite registered units, so a requirement the AI invented, or one based on material it never read, shows up in the report. A chat-only build leaves nothing to check this way.
 - **Hooks.** Five hooks (`PreToolUse` on file writes and on shell commands, `PreTaskExec`, `PostToolUse` on RefCov's MCP tools, `UserPromptSubmit`). A hook blocks only with exit code 2 and a reason on stderr; we measured that exit code 1 does not block. The two protection checks block when they fail, so a crash does not open them.
@@ -75,14 +83,19 @@ Three roles: Claude set direction, wrote the public text and reviewed at fixed c
 - **Property-based tests.** Hypothesis tests check the coverage rules from the spec (coverage stays between 0 and 1, a repeated read counts once, a cited but unread unit fails, text the AI writes does not change the verdict, strict mode passing implies light mode passing) and the input-handling code such as Markdown splitting. The full suite has 996 passing tests.
 - **Kiro IDE and kiro-cli.** We built in the IDE and ran the comparison trials with kiro-cli in non-interactive mode, one fresh folder per run.
 - **Switching to a small model.** Halfway through, we switched Kiro to claude-haiku-5.5 and let RefCov guard it: before every write, Haiku had to read the specs and the data notes. Haiku built the GIS app, the demo page and the install layer. On the same two tasks, Haiku used 0.18 and 0.37 credits where Opus 5.5 used 4.77 and 9.31 (one run each). Claude still reviewed Haiku's work at every checkpoint, and the review still found problems. The two halves of the build did different work, so their total credits do not compare.
-- **Kiro powers.** We evaluated packaging RefCov as a power and did not: the format could not carry the hooks or write the workspace path into the MCP entry. `refcov init` does that job instead.
+- **Kiro powers.** We evaluated packaging RefCov as a power and did not build one: the power documentation we read did not show a power shipping hooks or naming the workspace root in its MCP entry. `refcov init` does that setup instead.
+
+### Where Kiro surprised us
+
+- **The reminder worked before the gate did.** While recording the demo, we wanted to film a blocked write. Haiku never tried to write first: its reasoning quoted the hook's status line ("this session 0/18 ... 15 still missing"), it read the 15 units itself, and only then wrote the file.
+- **Kiro reported the hole itself.** While building the demo page, Kiro had sub-agents read 174 guide units and bring back only the counts. RefCov does not record which agent read a unit, so the gate let the next write through. Kiro said so in its own report, and we added a steering rule: the agent that writes the code reads the required units itself.
+- **Our own wording talked Kiro out of it.** In the first acceptance test of registering material from the chat, Kiro refused to call the registration tool, because our config comments and hint text said the AI could not register on the user's behalf. After we changed the wording, it proposed the registration and waited for the user's approval. Hint text steers the agent too, so we now review it as part of the design.
 
 ### Challenges we ran into
 
 - Shell writes are invisible to Kiro's file-write hooks (we tested it), so RefCov does not claim to stop them. The protection checks match command text and can be evaded by a rewritten command.
 - RefCov records that a unit was read through MCP in this workspace, not which agent read it. While the demo page was being built, Kiro had sub-agents read 174 guide units, and the gate let the next write through. Kiro reported this itself, and the steering now says the agent that writes the code reads the required units itself.
 - RefCov targets skipped and overstated reading, not deliberate forgery. The agent has a shell and can write any file; the hash chain makes casual edits to the log visible.
-- In an untrusted workspace, Kiro loads no MCP configuration and the hooks show as disabled, which looked like a broken install until we found it in the permissions documentation.
 
 ### Accomplishments that we're proud of
 

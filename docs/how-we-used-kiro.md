@@ -2,7 +2,7 @@
 
 RefCov gives reference material a coverage number: material is split into units, the AI reads units through MCP, every read is recorded, and Kiro hooks hold back writes until the required units are read (README; live demo at https://3322jj.github.io/refcov/).
 
-Our strategy had three roles. Claude set direction, wrote the public text and reviewed at fixed checkpoints. Kiro wrote the code and the specs, from 2026-11-15 with claude-haiku-5.5. The user decided, and ran the commands only a person may run, such as registering material. Kiro built RefCov under RefCov: the repository's own hooks gated Kiro's writes, and its own log holds 645 recorded unit reads and 31 protection-check blocks from the build. The write gate's three blocks in this repository were arranged tests, not catches (.refcov/log.jsonl; .kiro/steering/product.md).
+Our strategy had three roles. Claude proposed the direction, drafted the public text and reviewed at fixed checkpoints. Kiro wrote the code and the specs, from 2026-11-15 with claude-haiku-5.5. The user decided, and ran the commands only a person may run, such as registering material. Kiro built RefCov under RefCov: the repository's own hooks gated Kiro's writes, and its own log holds 645 recorded unit reads and 31 protection-check blocks from the build. The write gate's three blocks in this repository were arranged tests, not catches (.refcov/log.jsonl; .kiro/steering/product.md).
 
 Most project documents are in Chinese; the file names in parentheses point to them.
 
